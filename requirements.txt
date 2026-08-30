@@ -1,0 +1,40 @@
+# ---------------------------------------------------------------------------
+# Clip Studio -- dependencies
+#
+# Deze pins zijn expliciet gekozen zodat elk pakket een BINARY WHEEL heeft
+# voor Python 3.14 op Windows (win_amd64). Vooral numpy en pydantic-core
+# (via pydantic) hadden bij oudere pins geen cp314-wheel, waardoor pip lokaal
+# vanaf source probeerde te bouwen -- dat faalt zonder C/Rust-toolchain
+# ("error: metadata-generation-failed"). setup.bat installeert numpy en
+# opencv-python-headless bovendien met --only-binary zodat een source-build
+# nooit stilletjes alsnog geprobeerd wordt.
+# ---------------------------------------------------------------------------
+
+fastapi==0.115.0
+uvicorn[standard]==0.30.6
+
+# pydantic>=2.12 trekt pydantic-core>=2.41.1 binnen -- dat heeft wel cp314-
+# wheels. pydantic 2.9.x (oude pin) trekt pydantic-core==2.23.4 binnen, die
+# GEEN cp314-wheel heeft en dus vanaf source gebouwd zou moeten worden.
+pydantic==2.13.4
+
+python-multipart==0.0.9
+python-docx==1.1.2
+pdfplumber==0.11.4
+anthropic>=1.0.0,<2.0.0
+groq>=1.0.0,<2.0.0
+
+# opencv-python-headless i.p.v. opencv-python: geen GUI/Qt-dependencies nodig
+# (deze app gebruikt alleen cv2.VideoCapture + CascadeClassifier), lichter en
+# minder installatie-risico op Windows. Heeft een cp37-abi3 wheel die ook op
+# 3.14 werkt, en vereist numpy>=2 (zie hieronder).
+opencv-python-headless==4.11.0.86
+
+# numpy>=2.3.2 heeft cp314-wheels voor win_amd64. numpy==1.26.4 (oude pin)
+# heeft dat niet -- dat was de directe oorzaak van de metadata-generation-
+# failed fout bij installatie op Python 3.14.
+numpy==2.3.2
+
+python-dotenv==1.0.1
+requests==2.32.3
+yt-dlp==2024.8.6

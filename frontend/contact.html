@@ -1,0 +1,71 @@
+<!doctype html><html lang="nl"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1"><title>Contact — ClipParty</title>
+<style>
+/* ClipParty premium shell */
+:root{
+  --cp-blue:#2563eb;--cp-blue-2:#1d4ed8;--cp-blue-soft:#eff6ff;
+  --cp-ink:#172033;--cp-muted:#64748b;--cp-line:#dce6f2;--cp-bg:#f6f9fd;
+}
+body{background:var(--cp-bg)!important;color:var(--cp-ink)!important}
+.cp-header{position:sticky;top:0;z-index:100;display:grid;grid-template-columns:1fr auto 1fr;align-items:center;min-height:64px;padding:0 20px;background:rgba(255,255,255,.97);border-bottom:1px solid var(--cp-line);box-shadow:0 2px 12px rgba(30,64,175,.06)}
+.cp-left{justify-self:start;display:flex;align-items:center}
+.cp-menu-btn{width:38px;height:38px;border:1px solid var(--cp-line);border-radius:10px;background:#fff;display:flex;flex-direction:column;justify-content:center;gap:4px;padding:0 10px;cursor:pointer}
+.cp-menu-btn span{height:2px;width:17px;background:var(--cp-ink);border-radius:2px}
+.cp-brand{justify-self:center;text-decoration:none;color:var(--cp-ink);display:flex;align-items:center;gap:9px;font-family:var(--mono,monospace);font-weight:800;letter-spacing:.09em;font-size:17px}
+.cp-logo{width:26px;height:26px;border-radius:8px;background:linear-gradient(135deg,#3b82f6,#1d4ed8);display:grid;place-items:center;color:#fff;font-family:var(--sans,Arial);font-size:13px;font-weight:900;box-shadow:0 4px 10px rgba(37,99,235,.2)}
+.cp-right{justify-self:end;display:flex;align-items:center;gap:9px}
+.cp-account{position:relative}
+.cp-account-btn{display:flex;align-items:center;gap:8px;border:1px solid var(--cp-line);background:#fff;border-radius:999px;padding:5px 10px 5px 6px;color:var(--cp-ink);cursor:pointer;font-size:12px;font-weight:600}
+.cp-avatar{width:28px;height:28px;border-radius:50%;background:var(--cp-blue-soft);border:1px solid #bfdbfe;display:grid;place-items:center;color:var(--cp-blue-2);font-size:13px}
+.cp-tokens{display:flex;align-items:center;gap:6px;background:var(--cp-blue-soft);border:1px solid #bfdbfe;color:var(--cp-blue-2);border-radius:999px;padding:8px 11px;font-family:var(--mono,monospace);font-size:11px;font-weight:700}
+.cp-menu{position:fixed;top:72px;left:20px;width:245px;background:#fff;border:1px solid var(--cp-line);border-radius:14px;box-shadow:0 16px 40px rgba(15,23,42,.14);padding:8px;display:none}
+.cp-menu.open{display:block}
+.cp-menu a{display:flex;align-items:center;gap:10px;padding:10px 11px;border-radius:9px;color:var(--cp-ink);text-decoration:none;font-size:13px;font-weight:600}
+.cp-menu a:hover{background:var(--cp-blue-soft);color:var(--cp-blue-2)}
+.cp-menu .sep{height:1px;background:var(--cp-line);margin:6px 3px}
+.cp-account-pop{position:absolute;right:0;top:46px;width:210px;background:#fff;border:1px solid var(--cp-line);border-radius:12px;box-shadow:0 16px 35px rgba(15,23,42,.13);padding:12px;display:none}
+.cp-account-pop.open{display:block}
+.cp-account-pop strong{font-size:13px}.cp-account-pop small{display:block;color:var(--cp-muted);margin-top:3px}
+.cp-account-pop .token-row{margin-top:10px;padding:9px;border-radius:9px;background:var(--cp-blue-soft);color:var(--cp-blue-2);font-family:var(--mono,monospace);font-size:11px}
+.cp-footer{margin-top:30px;padding:18px 24px;border-top:1px solid var(--cp-line);background:#fff;color:var(--cp-muted);font-size:12px}
+.cp-footer-inner{max-width:1180px;margin:auto;display:flex;justify-content:space-between;gap:15px;align-items:center}
+@media(max-width:650px){
+ .cp-header{padding:0 11px;grid-template-columns:1fr auto 1fr;min-height:58px}
+ .cp-brand{font-size:14px}.cp-logo{width:23px;height:23px}.cp-tokens{padding:7px 8px}.cp-account-btn{padding:4px}
+ .cp-account-btn .cp-name{display:none}.cp-menu{left:10px;top:64px}
+}
+
+main{max-width:900px;margin:34px auto;padding:0 20px}.card{background:#fff;border:1px solid var(--cp-line);border-radius:14px;padding:28px;box-shadow:0 5px 20px rgba(30,64,175,.05)}h1{font-size:28px;margin:0 0 10px}p{color:var(--cp-muted);line-height:1.65}.back{display:inline-block;margin-top:16px;color:var(--cp-blue);text-decoration:none;font-weight:600}</style></head>
+<body><header class="cp-header">
+  <div class="cp-left">
+    <button class="cp-menu-btn" id="cpMenuBtn" aria-label="Menu" aria-expanded="false"><span></span><span></span><span></span></button>
+  </div>
+  <a class="cp-brand" href="/ui/"><span class="cp-logo">C</span><span>ClipParty</span></a>
+  <div class="cp-right">
+    <div class="cp-account">
+      <button class="cp-account-btn" id="cpAccountBtn">
+        <span class="cp-avatar">●</span><span class="cp-name">Account</span>
+      </button>
+      <div class="cp-account-pop" id="cpAccountPop">
+        <strong>ClipParty account</strong>
+        <small>Testmodus</small>
+        <div class="token-row">◉ <span id="cpTokenBalance">50</span> tokens beschikbaar</div>
+      </div>
+    </div>
+    <div class="cp-tokens">◉ <span>50</span> tokens</div>
+  </div>
+</header>
+<nav class="cp-menu" id="cpMenu">
+  <a href="/ui/">🎬 <span>Clip Studio</span></a>
+  <a href="/ui/dashboard.html">▦ <span>Dashboard</span></a>
+  <a href="/ui/campaigns.html">◈ <span>Campagnes</span></a>
+  <a href="/ui/leaderboard.html">★ <span>Leaderboard</span></a>
+  <div class="sep"></div>
+  <a href="/ui/about.html">i <span>Over ClipParty</span></a>
+  <a href="/ui/contact.html">✉ <span>Contact</span></a>
+</nav><main><section class="card"><h1>Contact</h1><p>Voor support, samenwerkingen of vragen over ClipParty kun je hier straks het contactformulier koppelen.</p><p><strong>Voor nu:</strong> deze pagina is de plek voor de toekomstige supportflow.</p><a class="back" href="/ui/">← Terug naar Clip Studio</a></section></main>
+<footer class="cp-footer"><div class="cp-footer-inner"><span><strong>ClipParty</strong> · AI clipping voor creators & clippers</span><span>© 2026 ClipParty</span></div></footer>
+<script>
+const b=document.getElementById('cpMenuBtn'),m=document.getElementById('cpMenu'),a=document.getElementById('cpAccountBtn'),p=document.getElementById('cpAccountPop');
+b?.addEventListener('click',()=>m.classList.toggle('open'));a?.addEventListener('click',()=>p.classList.toggle('open'));
+document.addEventListener('click',e=>{if(!e.target.closest('.cp-left'))m.classList.remove('open');if(!e.target.closest('.cp-account'))p.classList.remove('open')});
+</script></body></html>
