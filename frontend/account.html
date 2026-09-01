@@ -1,0 +1,1282 @@
+﻿<!doctype html>
+<html lang="nl">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1">
+
+<title>Account — ClipParty</title>
+
+<style>
+*{
+    box-sizing:border-box;
+}
+
+:root{
+    --bg:#f6f8fc;
+    --panel:#ffffff;
+    --line:#dfe6f1;
+    --text:#172033;
+    --muted:#64748b;
+    --blue:#2563eb;
+    --blue-dark:#1d4ed8;
+    --blue-soft:#eff6ff;
+    --danger:#dc2626;
+    --danger-soft:#fef2f2;
+}
+
+body{
+    margin:0;
+    background:var(--bg);
+    color:var(--text);
+    font-family:Inter,ui-sans-serif,system-ui,-apple-system,"Segoe UI",Arial,sans-serif;
+}
+
+a{
+    color:inherit;
+    text-decoration:none;
+}
+
+/* =========================
+   NAVBAR
+========================= */
+
+.nav{
+    height:68px;
+    background:#fff;
+    border-bottom:1px solid var(--line);
+    display:flex;
+    align-items:center;
+    justify-content:space-between;
+    padding:0 32px;
+    position:sticky;
+    top:0;
+    z-index:100;
+}
+
+.brand{
+    display:flex;
+    align-items:center;
+    gap:9px;
+    font-size:20px;
+    font-weight:800;
+    letter-spacing:-.3px;
+}
+
+.logo{
+    width:30px;
+    height:30px;
+    border-radius:9px;
+    background:var(--blue);
+    color:white;
+    display:flex;
+    align-items:center;
+    justify-content:center;
+    font-weight:900;
+    box-shadow:0 4px 10px rgba(37,99,235,.22);
+}
+
+.brand-text{
+    color:#172033;
+}
+
+.nav-right{
+    display:flex;
+    align-items:center;
+    gap:10px;
+}
+
+.account{
+    position:relative;
+}
+
+.account-button{
+    height:42px;
+    display:flex;
+    align-items:center;
+    gap:9px;
+    padding:0 14px;
+    border:1px solid var(--line);
+    background:#fff;
+    border-radius:999px;
+    cursor:pointer;
+    color:var(--text);
+    font-size:13px;
+    font-weight:700;
+}
+
+.account-button:hover{
+    border-color:#bfdbfe;
+    background:#f8fbff;
+}
+
+.account-avatar{
+    width:25px;
+    height:25px;
+    border-radius:50%;
+    background:var(--blue-soft);
+    color:var(--blue);
+    display:flex;
+    align-items:center;
+    justify-content:center;
+    font-size:11px;
+    font-weight:800;
+}
+
+.chevron{
+    font-size:11px;
+    color:var(--muted);
+}
+
+/* =========================
+   ACCOUNT MENU
+========================= */
+
+.account-menu{
+    position:absolute;
+    top:51px;
+    right:0;
+    width:255px;
+    background:#fff;
+    border:1px solid var(--line);
+    border-radius:14px;
+    box-shadow:0 18px 45px rgba(15,23,42,.14);
+    padding:8px;
+    display:none;
+}
+
+.account-menu.open{
+    display:block;
+}
+
+.menu-user{
+    padding:12px;
+    border-bottom:1px solid #edf1f5;
+    margin-bottom:6px;
+}
+
+.menu-user strong{
+    display:block;
+    font-size:13px;
+}
+
+.menu-user span{
+    display:block;
+    margin-top:3px;
+    color:var(--muted);
+    font-size:12px;
+    overflow:hidden;
+    text-overflow:ellipsis;
+}
+
+.menu-token{
+    margin-top:9px;
+    padding:8px 10px;
+    border-radius:9px;
+    background:var(--blue-soft);
+    color:var(--blue-dark);
+    font-family:monospace;
+    font-size:11px;
+    font-weight:700;
+}
+
+.menu-link{
+    display:flex;
+    align-items:center;
+    gap:10px;
+    padding:10px 11px;
+    border-radius:9px;
+    font-size:13px;
+    font-weight:600;
+}
+
+.menu-link:hover{
+    background:#f8fafc;
+}
+
+.menu-icon{
+    width:20px;
+    text-align:center;
+}
+
+.menu-divider{
+    height:1px;
+    background:#edf1f5;
+    margin:6px 0;
+}
+
+.menu-logout{
+    color:var(--danger);
+}
+
+/* =========================
+   PAGE
+========================= */
+
+.page{
+    max-width:1050px;
+    margin:0 auto;
+    padding:45px 20px 70px;
+}
+
+.page-title{
+    margin-bottom:25px;
+}
+
+.page-title h1{
+    margin:0;
+    font-size:36px;
+    letter-spacing:-1px;
+}
+
+.page-title p{
+    margin:8px 0 0;
+    color:var(--muted);
+    font-size:14px;
+}
+
+/* =========================
+   GRID
+========================= */
+
+.account-grid{
+    display:grid;
+    grid-template-columns:280px 1fr;
+    gap:20px;
+}
+
+/* =========================
+   SIDEBAR
+========================= */
+
+.sidebar{
+    background:#fff;
+    border:1px solid var(--line);
+    border-radius:15px;
+    padding:8px;
+    height:max-content;
+}
+
+.sidebar-link{
+    display:flex;
+    align-items:center;
+    gap:11px;
+    padding:12px;
+    border-radius:9px;
+    font-size:13px;
+    font-weight:600;
+    color:#334155;
+}
+
+.sidebar-link:hover{
+    background:#f8fafc;
+}
+
+.sidebar-link.active{
+    background:var(--blue-soft);
+    color:var(--blue-dark);
+}
+
+.sidebar-icon{
+    width:22px;
+    text-align:center;
+}
+
+.sidebar-divider{
+    height:1px;
+    background:#edf1f5;
+    margin:7px 5px;
+}
+
+/* =========================
+   MAIN CARD
+========================= */
+
+.card{
+    background:#fff;
+    border:1px solid var(--line);
+    border-radius:15px;
+    padding:28px;
+}
+
+.card-header{
+    margin-bottom:25px;
+}
+
+.card-header h2{
+    margin:0;
+    font-size:20px;
+}
+
+.card-header p{
+    margin:6px 0 0;
+    color:var(--muted);
+    font-size:13px;
+}
+
+/* =========================
+   PROFILE
+========================= */
+
+.profile-top{
+    display:flex;
+    align-items:center;
+    gap:15px;
+    padding-bottom:23px;
+    border-bottom:1px solid #edf1f5;
+    margin-bottom:23px;
+}
+
+.profile-avatar{
+    width:64px;
+    height:64px;
+    border-radius:50%;
+    background:var(--blue-soft);
+    color:var(--blue);
+    border:1px solid #bfdbfe;
+    display:flex;
+    align-items:center;
+    justify-content:center;
+    font-size:23px;
+    font-weight:800;
+}
+
+.profile-name{
+    font-size:18px;
+    font-weight:800;
+}
+
+.profile-email{
+    margin-top:4px;
+    color:var(--muted);
+    font-size:13px;
+}
+
+/* =========================
+   FORM
+========================= */
+
+.form-group{
+    margin-bottom:18px;
+}
+
+.form-group label{
+    display:block;
+    margin-bottom:7px;
+    font-size:12px;
+    font-weight:700;
+    color:#334155;
+}
+
+.input{
+    width:100%;
+    height:44px;
+    border:1px solid #cfd8e6;
+    border-radius:9px;
+    padding:0 12px;
+    outline:none;
+    font-size:13px;
+    color:var(--text);
+    background:#fff;
+}
+
+.input:focus{
+    border-color:#93c5fd;
+    box-shadow:0 0 0 3px rgba(37,99,235,.08);
+}
+
+.input:disabled{
+    background:#f8fafc;
+    color:#64748b;
+}
+
+.primary-button{
+    height:44px;
+    border:0;
+    border-radius:9px;
+    background:var(--blue);
+    color:#fff;
+    padding:0 18px;
+    font-size:13px;
+    font-weight:700;
+    cursor:pointer;
+}
+
+.primary-button:hover{
+    background:var(--blue-dark);
+}
+
+.secondary-button{
+    height:44px;
+    border:1px solid var(--line);
+    border-radius:9px;
+    background:#fff;
+    color:var(--text);
+    padding:0 18px;
+    font-size:13px;
+    font-weight:700;
+    cursor:pointer;
+}
+
+/* =========================
+   INFO
+========================= */
+
+.info-box{
+    border:1px solid var(--line);
+    border-radius:11px;
+    overflow:hidden;
+}
+
+.info-row{
+    display:flex;
+    justify-content:space-between;
+    align-items:center;
+    padding:15px;
+    border-bottom:1px solid #edf1f5;
+    font-size:13px;
+}
+
+.info-row:last-child{
+    border-bottom:0;
+}
+
+.info-label{
+    color:var(--muted);
+}
+
+.info-value{
+    font-weight:700;
+}
+
+/* =========================
+   TOKEN
+========================= */
+
+.token-card{
+    background:var(--blue-soft);
+    border:1px solid #bfdbfe;
+    border-radius:12px;
+    padding:18px;
+    margin-bottom:20px;
+}
+
+.token-number{
+    font-size:32px;
+    font-weight:800;
+    color:var(--blue-dark);
+}
+
+.token-label{
+    color:#3b82f6;
+    font-size:12px;
+    margin-top:2px;
+}
+
+.progress{
+    height:7px;
+    background:#dbeafe;
+    border-radius:99px;
+    overflow:hidden;
+    margin-top:15px;
+}
+
+.progress-bar{
+    width:50%;
+    height:100%;
+    background:var(--blue);
+    border-radius:99px;
+}
+
+/* =========================
+   MESSAGE
+========================= */
+
+.message{
+    display:none;
+    padding:11px 12px;
+    border-radius:9px;
+    margin-bottom:18px;
+    font-size:12px;
+    font-weight:600;
+}
+
+.message.show{
+    display:block;
+}
+
+.message.success{
+    background:#ecfdf5;
+    color:#047857;
+    border:1px solid #a7f3d0;
+}
+
+.message.error{
+    background:var(--danger-soft);
+    color:var(--danger);
+    border:1px solid #fecaca;
+}
+
+/* =========================
+   LOGGED OUT
+========================= */
+
+.logged-out{
+    max-width:520px;
+    margin:80px auto;
+    text-align:center;
+}
+
+.logged-out-icon{
+    width:65px;
+    height:65px;
+    border-radius:50%;
+    margin:0 auto 20px;
+    background:var(--blue-soft);
+    color:var(--blue);
+    display:flex;
+    align-items:center;
+    justify-content:center;
+    font-size:25px;
+    font-weight:800;
+}
+
+.logged-out h1{
+    margin:0 0 8px;
+}
+
+.logged-out p{
+    color:var(--muted);
+    font-size:14px;
+}
+
+/* =========================
+   MOBILE
+========================= */
+
+@media(max-width:760px){
+
+    .nav{
+        padding:0 15px;
+    }
+
+    .account-grid{
+        grid-template-columns:1fr;
+    }
+
+    .sidebar{
+        display:flex;
+        overflow-x:auto;
+        gap:4px;
+    }
+
+    .sidebar-link{
+        white-space:nowrap;
+    }
+
+    .sidebar-divider{
+        display:none;
+    }
+
+    .page{
+        padding:30px 15px 50px;
+    }
+
+    .page-title h1{
+        font-size:30px;
+    }
+
+    .card{
+        padding:20px;
+    }
+}
+</style>
+</head>
+
+<body>
+
+<!-- =========================
+     NAVBAR
+========================= -->
+
+<nav class="nav">
+
+    <a class="brand" href="/ui/">
+        <span class="logo">C</span>
+        <span class="brand-text">ClipParty</span>
+    </a>
+
+    <div class="nav-right">
+
+        <div class="account">
+
+            <button
+                class="account-button"
+                id="accountButton"
+                type="button"
+            >
+                <span class="account-avatar" id="navAvatar">C</span>
+                <span id="navName">Account</span>
+                <span class="chevron">▼</span>
+            </button>
+
+            <div
+                class="account-menu"
+                id="accountMenu"
+            >
+
+                <div class="menu-user">
+                    <strong id="menuName">Account</strong>
+                    <span id="menuEmail"></span>
+
+                    <div class="menu-token">
+                        ◉ <span id="menuTokens">50</span> tokens beschikbaar
+                    </div>
+                </div>
+
+                <a class="menu-link" href="/ui/account.html">
+                    <span class="menu-icon">👤</span>
+                    Mijn account
+                </a>
+
+                <a class="menu-link" href="/ui/clips.html">
+                    <span class="menu-icon">🎬</span>
+                    Mijn clips
+                </a>
+
+                <a class="menu-link" href="/ui/account.html#gegevens">
+                    <span class="menu-icon">📋</span>
+                    Accountgegevens
+                </a>
+
+                <a class="menu-link" href="/ui/account.html#instellingen">
+                    <span class="menu-icon">⚙️</span>
+                    Instellingen
+                </a>
+
+                <a class="menu-link" href="/ui/account.html#tokens">
+                    <span class="menu-icon">💳</span>
+                    Abonnement & tokens
+                </a>
+
+                <div class="menu-divider"></div>
+
+                <a
+                    class="menu-link menu-logout"
+                    href="#"
+                    onclick="logout();return false;"
+                >
+                    <span class="menu-icon">🚪</span>
+                    Uitloggen
+                </a>
+
+            </div>
+
+        </div>
+
+    </div>
+
+</nav>
+
+
+<!-- =========================
+     LOGGED IN
+========================= -->
+
+<main class="page" id="accountPage">
+
+    <div class="page-title">
+
+        <h1>Mijn account</h1>
+
+        <p>
+            Beheer je profiel, accountgegevens, instellingen en ClipParty-tokens.
+        </p>
+
+    </div>
+
+
+    <div class="account-grid">
+
+        <!-- SIDEBAR -->
+
+        <aside class="sidebar">
+
+            <a
+                class="sidebar-link active"
+                href="/ui/account.html"
+            >
+                <span class="sidebar-icon">👤</span>
+                Mijn account
+            </a>
+
+            <a
+                class="sidebar-link"
+                href="/ui/clips.html"
+            >
+                <span class="sidebar-icon">🎬</span>
+                Mijn clips
+            </a>
+
+            <a
+                class="sidebar-link"
+                href="#gegevens"
+            >
+                <span class="sidebar-icon">📋</span>
+                Accountgegevens
+            </a>
+
+            <a
+                class="sidebar-link"
+                href="#instellingen"
+            >
+                <span class="sidebar-icon">⚙️</span>
+                Instellingen
+            </a>
+
+            <a
+                class="sidebar-link"
+                href="#tokens"
+            >
+                <span class="sidebar-icon">💳</span>
+                Tokens
+            </a>
+
+            <div class="sidebar-divider"></div>
+
+            <a
+                class="sidebar-link"
+                href="#"
+                onclick="logout();return false;"
+                style="color:#dc2626;"
+            >
+                <span class="sidebar-icon">🚪</span>
+                Uitloggen
+            </a>
+
+        </aside>
+
+
+        <!-- CONTENT -->
+
+        <section class="card">
+
+            <div class="card-header">
+
+                <h2>Profiel</h2>
+
+                <p>
+                    Pas de gegevens van je ClipParty-account aan.
+                </p>
+
+            </div>
+
+
+            <div class="profile-top">
+
+                <div
+                    class="profile-avatar"
+                    id="profileAvatar"
+                >
+                    C
+                </div>
+
+                <div>
+
+                    <div
+                        class="profile-name"
+                        id="profileName"
+                    >
+                        ClipParty gebruiker
+                    </div>
+
+                    <div
+                        class="profile-email"
+                        id="profileEmail"
+                    >
+                    </div>
+
+                </div>
+
+            </div>
+
+
+            <div
+                id="message"
+                class="message"
+            ></div>
+
+
+            <!-- GEGEVENS -->
+
+            <div id="gegevens">
+
+                <div class="form-group">
+
+                    <label for="name">
+                        Naam
+                    </label>
+
+                    <input
+                        class="input"
+                        id="name"
+                        type="text"
+                        maxlength="40"
+                        placeholder="Bijvoorbeeld: Lucas"
+                    >
+
+                </div>
+
+
+                <div class="form-group">
+
+                    <label for="email">
+                        E-mailadres
+                    </label>
+
+                    <input
+                        class="input"
+                        id="email"
+                        type="email"
+                        disabled
+                    >
+
+                </div>
+
+
+                <button
+                    class="primary-button"
+                    type="button"
+                    onclick="saveProfile()"
+                >
+                    Gegevens opslaan
+                </button>
+
+            </div>
+
+
+            <br><br>
+
+
+            <!-- ACCOUNT INFO -->
+
+            <div id="instellingen">
+
+                <div class="card-header">
+
+                    <h2>Instellingen</h2>
+
+                    <p>
+                        Je ClipParty-accountinstellingen.
+                    </p>
+
+                </div>
+
+                <div class="info-box">
+
+                    <div class="info-row">
+
+                        <span class="info-label">
+                            Accountstatus
+                        </span>
+
+                        <span class="info-value">
+                            Actief
+                        </span>
+
+                    </div>
+
+                    <div class="info-row">
+
+                        <span class="info-label">
+                            Accounttype
+                        </span>
+
+                        <span class="info-value">
+                            Testmodus
+                        </span>
+
+                    </div>
+
+                    <div class="info-row">
+
+                        <span class="info-label">
+                            Taal
+                        </span>
+
+                        <span class="info-value">
+                            Nederlands
+                        </span>
+
+                    </div>
+
+                </div>
+
+            </div>
+
+
+            <br><br>
+
+
+            <!-- TOKENS -->
+
+            <div id="tokens">
+
+                <div class="card-header">
+
+                    <h2>Abonnement & tokens</h2>
+
+                    <p>
+                        Bekijk hoeveel ClipParty-tokens je beschikbaar hebt.
+                    </p>
+
+                </div>
+
+                <div class="token-card">
+
+                    <div
+                        class="token-number"
+                        id="tokenNumber"
+                    >
+                        50
+                    </div>
+
+                    <div class="token-label">
+                        tokens beschikbaar
+                    </div>
+
+                    <div class="progress">
+
+                        <div class="progress-bar"></div>
+
+                    </div>
+
+                </div>
+
+                <button
+                    class="secondary-button"
+                    type="button"
+                    onclick="showMessage('Tokenaankoop wordt binnenkort toegevoegd.','success')"
+                >
+                    Meer tokens kopen
+                </button>
+
+            </div>
+
+        </section>
+
+    </div>
+
+</main>
+
+
+<!-- =========================
+     LOGGED OUT
+========================= -->
+
+<div
+    class="logged-out"
+    id="loggedOutPage"
+    style="display:none;"
+>
+
+    <div class="logged-out-icon">
+        C
+    </div>
+
+    <h1>Log in op ClipParty</h1>
+
+    <p>
+        Je moet ingelogd zijn om je account te bekijken.
+    </p>
+
+    <a
+        class="primary-button"
+        href="/ui/account.html"
+        style="
+            display:inline-flex;
+            align-items:center;
+            justify-content:center;
+            margin-top:10px;
+        "
+    >
+        Inloggen
+    </a>
+
+</div>
+
+
+<script>
+
+/* =========================
+   ACCOUNT DATA
+========================= */
+
+function getCurrentUser(){
+
+    const raw = localStorage.getItem("clipparty_user");
+
+    if(!raw){
+        return null;
+    }
+
+    try{
+
+        return JSON.parse(raw);
+
+    }catch(e){
+
+        localStorage.removeItem("clipparty_user");
+
+        return null;
+
+    }
+
+}
+
+
+function getAccount(email){
+
+    if(!email){
+        return null;
+    }
+
+    const raw = localStorage.getItem(
+        "clipparty_account_" + email
+    );
+
+    if(!raw){
+        return null;
+    }
+
+    try{
+
+        return JSON.parse(raw);
+
+    }catch(e){
+
+        return null;
+
+    }
+
+}
+
+
+/* =========================
+   INITIALISEREN
+========================= */
+
+function initializeAccount(){
+
+    const user = getCurrentUser();
+
+    if(!user || !user.email){
+
+        document.getElementById("accountPage").style.display="none";
+        document.getElementById("loggedOutPage").style.display="block";
+
+        return;
+
+    }
+
+    const account = getAccount(user.email);
+
+    if(!account){
+
+        document.getElementById("accountPage").style.display="none";
+        document.getElementById("loggedOutPage").style.display="block";
+
+        return;
+
+    }
+
+    const name =
+        account.name ||
+        user.name ||
+        account.email.split("@")[0];
+
+    const tokens =
+        Number.isFinite(Number(account.tokens))
+            ? Number(account.tokens)
+            : 50;
+
+
+    document.getElementById("name").value = name;
+
+    document.getElementById("email").value = account.email;
+
+    document.getElementById("profileName").textContent = name;
+
+    document.getElementById("profileEmail").textContent = account.email;
+
+    document.getElementById("navName").textContent = name;
+
+    document.getElementById("menuName").textContent = name;
+
+    document.getElementById("menuEmail").textContent = account.email;
+
+    document.getElementById("tokenNumber").textContent = tokens;
+
+    document.getElementById("menuTokens").textContent = tokens;
+
+    const initial =
+        name.trim().charAt(0).toUpperCase() || "C";
+
+    document.getElementById("profileAvatar").textContent = initial;
+
+    document.getElementById("navAvatar").textContent = initial;
+
+}
+
+
+/* =========================
+   PROFIEL OPSLAAN
+========================= */
+
+function saveProfile(){
+
+    const user = getCurrentUser();
+
+    if(!user || !user.email){
+        return;
+    }
+
+    const account = getAccount(user.email);
+
+    if(!account){
+        return;
+    }
+
+    let name =
+        document.getElementById("name").value.trim();
+
+    if(!name){
+
+        showMessage(
+            "Vul eerst een naam in.",
+            "error"
+        );
+
+        return;
+
+    }
+
+    name = name.substring(0,40);
+
+    account.name = name;
+
+    localStorage.setItem(
+        "clipparty_account_" + user.email,
+        JSON.stringify(account)
+    );
+
+
+    localStorage.setItem(
+        "clipparty_user",
+        JSON.stringify({
+            email:user.email,
+            name:name
+        })
+    );
+
+
+    initializeAccount();
+
+    showMessage(
+        "Je gegevens zijn opgeslagen.",
+        "success"
+    );
+
+}
+
+
+/* =========================
+   LOGOUT
+========================= */
+
+function logout(){
+
+    localStorage.removeItem("clipparty_user");
+
+    window.location.href="/ui/account.html";
+
+}
+
+
+/* =========================
+   ACCOUNT MENU
+========================= */
+
+const accountButton =
+    document.getElementById("accountButton");
+
+const accountMenu =
+    document.getElementById("accountMenu");
+
+
+accountButton.addEventListener(
+    "click",
+    function(event){
+
+        event.stopPropagation();
+
+        accountMenu.classList.toggle("open");
+
+    }
+);
+
+
+document.addEventListener(
+    "click",
+    function(event){
+
+        if(
+            !event.target.closest(".account")
+        ){
+
+            accountMenu.classList.remove("open");
+
+        }
+
+    }
+);
+
+
+/* =========================
+   MESSAGE
+========================= */
+
+function showMessage(text,type){
+
+    const message =
+        document.getElementById("message");
+
+    message.textContent = text;
+
+    message.className =
+        "message show " + type;
+
+    setTimeout(
+        function(){
+
+            message.className="message";
+
+        },
+        3500
+    );
+
+}
+
+
+/* =========================
+   START
+========================= */
+
+document.addEventListener(
+    "DOMContentLoaded",
+    initializeAccount
+);
+
+</script>
+
+</body>
+</html>

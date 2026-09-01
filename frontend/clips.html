@@ -1,0 +1,349 @@
+<!doctype html>
+<html lang="nl">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1">
+<title>Mijn clips — ClipParty</title>
+
+<style>
+*{box-sizing:border-box}
+
+body{
+    margin:0;
+    font-family:Inter,system-ui,-apple-system,BlinkMacSystemFont,"Segoe UI",sans-serif;
+    background:#f8fafc;
+    color:#172033;
+}
+
+a{
+    text-decoration:none;
+    color:inherit;
+}
+
+.nav{
+    height:68px;
+    background:#fff;
+    border-bottom:1px solid #e5e7eb;
+    display:flex;
+    align-items:center;
+    justify-content:space-between;
+    padding:0 5%;
+}
+
+.brand{
+    display:flex;
+    align-items:center;
+    gap:9px;
+    font-size:20px;
+    font-weight:800;
+}
+
+.logo{
+    width:30px;
+    height:30px;
+    border-radius:8px;
+    background:#2563eb;
+    color:#fff;
+    display:flex;
+    align-items:center;
+    justify-content:center;
+    font-weight:800;
+}
+
+.navlinks{
+    display:flex;
+    align-items:center;
+    gap:20px;
+    font-size:14px;
+    font-weight:600;
+}
+
+.wrap{
+    max-width:1050px;
+    margin:auto;
+    padding:50px 20px;
+}
+
+.back{
+    display:inline-block;
+    margin-bottom:22px;
+    color:#2563eb;
+    font-size:13px;
+    font-weight:700;
+}
+
+.head h1{
+    font-size:40px;
+    margin:0 0 8px;
+    letter-spacing:-1px;
+}
+
+.head p{
+    color:#64748b;
+    margin:0;
+}
+
+.empty{
+    background:#fff;
+    border:1px dashed #cbd5e1;
+    border-radius:16px;
+    padding:55px;
+    text-align:center;
+    color:#64748b;
+    margin-top:30px;
+}
+
+.grid{
+    display:grid;
+    grid-template-columns:repeat(auto-fill,minmax(230px,1fr));
+    gap:18px;
+    margin-top:30px;
+}
+
+.card{
+    background:#fff;
+    border:1px solid #e5e7eb;
+    border-radius:14px;
+    overflow:hidden;
+}
+
+.card video{
+    width:100%;
+    aspect-ratio:9/16;
+    display:block;
+    background:#111;
+}
+
+.card-body{
+    padding:14px;
+}
+
+.filename{
+    display:block;
+    font-size:13px;
+    font-weight:700;
+    word-break:break-word;
+    margin-bottom:10px;
+}
+
+.download{
+    display:inline-block;
+    background:#2563eb;
+    color:#fff;
+    padding:9px 12px;
+    border-radius:8px;
+    font-size:12px;
+    font-weight:700;
+}
+
+.error{
+    margin-top:30px;
+    padding:15px;
+    background:#fef2f2;
+    border:1px solid #fecaca;
+    border-radius:10px;
+    color:#b91c1c;
+}
+
+@media(max-width:600px){
+    .nav{
+        padding:0 16px;
+    }
+
+    .wrap{
+        padding:35px 15px;
+    }
+
+    .head h1{
+        font-size:32px;
+    }
+}
+</style>
+</head>
+
+<body>
+
+<nav class="nav">
+
+    <a class="brand" href="/ui/">
+        <span class="logo">C</span>
+        <span>ClipParty</span>
+    </a>
+
+    <div class="navlinks">
+        <a href="/ui/clip.html">Clip maken</a>
+        <a href="/ui/account.html">Account</a>
+    </div>
+
+</nav>
+
+<main class="wrap">
+
+    <a class="back" href="/ui/clip.html">
+        ← Clip maken
+    </a>
+
+    <div class="head">
+        <h1>Mijn clips</h1>
+        <p>Hier blijven je gemaakte clips beschikbaar.</p>
+    </div>
+
+    <div id="content">
+        <div class="empty">
+            Je gemaakte clips verschijnen hier.
+        </div>
+    </div>
+
+</main>
+
+<script>
+
+const API = "http://127.0.0.1:8756";
+
+async function loadClips(){
+
+    const savedUser = localStorage.getItem("clipparty_user");
+
+    if(!savedUser){
+
+        document.getElementById("content").innerHTML = `
+            <div class="error">
+                Je bent niet ingelogd.
+                <br><br>
+                <a href="/ui/account.html">
+                    Ga naar Account om in te loggen.
+                </a>
+            </div>
+        `;
+
+        return;
+    }
+
+    let user;
+
+    try{
+        user = JSON.parse(savedUser);
+    }catch(e){
+        localStorage.removeItem("clipparty_user");
+        window.location.href = "/ui/account.html";
+        return;
+    }
+
+    const email = user.email || "";
+
+    if(!email){
+
+        window.location.href = "/ui/account.html";
+        return;
+    }
+
+    try{
+
+        /*
+         * Het backend-dashboard gebruikt momenteel
+         * local-customer als standaard customer.
+         *
+         * Daardoor laden we hier dezelfde persoonlijke
+         * clipverzameling als de bestaande dashboardpagina.
+         */
+
+        const response = await fetch(
+            API + "/api/dashboard?customer_id=local-customer"
+        );
+
+        if(!response.ok){
+            throw new Error("Dashboard kon niet worden geladen.");
+        }
+
+        const data = await response.json();
+
+        const clips = data.clips || [];
+
+        if(!clips.length){
+
+            document.getElementById("content").innerHTML = `
+                <div class="empty">
+                    Nog geen gemaakte clips.
+                </div>
+            `;
+
+            return;
+        }
+
+        document.getElementById("content").innerHTML = `
+            <div class="grid">
+
+                ${clips.map(clip => {
+
+                    const fileUrl =
+                        API +
+                        "/api/files/" +
+                        encodeURIComponent(clip.file_id);
+
+                    return `
+                        <article class="card">
+
+                            <video
+                                controls
+                                preload="metadata"
+                                src="${fileUrl}">
+                            </video>
+
+                            <div class="card-body">
+
+                                <span class="filename">
+                                    ${escapeHtml(
+                                        clip.filename || "Clip"
+                                    )}
+                                </span>
+
+                                <a
+                                    class="download"
+                                    href="${fileUrl}"
+                                    download>
+                                    Download
+                                </a>
+
+                            </div>
+
+                        </article>
+                    `;
+
+                }).join("")}
+
+            </div>
+        `;
+
+    }catch(error){
+
+        console.error(error);
+
+        document.getElementById("content").innerHTML = `
+            <div class="error">
+                Mijn clips kon niet worden geladen.
+                <br>
+                Controleer of ClipParty actief is.
+            </div>
+        `;
+
+    }
+
+}
+
+function escapeHtml(value){
+
+    return String(value)
+        .replace(/&/g,"&amp;")
+        .replace(/</g,"&lt;")
+        .replace(/>/g,"&gt;")
+        .replace(/"/g,"&quot;")
+        .replace(/'/g,"&#039;");
+
+}
+
+loadClips();
+
+</script>
+
+</body>
+</html>
