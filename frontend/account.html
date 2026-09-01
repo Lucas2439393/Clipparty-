@@ -4,7 +4,7 @@
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width,initial-scale=1">
 
-<title>Account — ClipParty</title>
+<title>Mijn account — ClipParty.nl</title>
 
 <style>
 *{
@@ -417,6 +417,10 @@ a{
     cursor:pointer;
 }
 
+.secondary-button:hover{
+    background:#f8fafc;
+}
+
 /* =========================
    INFO
 ========================= */
@@ -523,6 +527,7 @@ a{
 .logged-out{
     max-width:520px;
     margin:80px auto;
+    padding:0 20px;
     text-align:center;
 }
 
@@ -545,6 +550,19 @@ a{
 }
 
 .logged-out p{
+    color:var(--muted);
+    font-size:14px;
+    margin-bottom:20px;
+}
+
+/* =========================
+   LOADING
+========================= */
+
+.loading{
+    max-width:520px;
+    margin:100px auto;
+    text-align:center;
     color:var(--muted);
     font-size:14px;
 }
@@ -625,35 +643,56 @@ a{
             >
 
                 <div class="menu-user">
-                    <strong id="menuName">Account</strong>
+
+                    <strong id="menuName">
+                        Account
+                    </strong>
+
                     <span id="menuEmail"></span>
 
                     <div class="menu-token">
-                        ◉ <span id="menuTokens">50</span> tokens beschikbaar
+                        ◉ <span id="menuTokens">50</span>
+                        tokens beschikbaar
                     </div>
+
                 </div>
 
-                <a class="menu-link" href="/ui/account.html">
+                <a
+                    class="menu-link"
+                    href="/ui/account.html"
+                >
                     <span class="menu-icon">👤</span>
                     Mijn account
                 </a>
 
-                <a class="menu-link" href="/ui/clips.html">
+                <a
+                    class="menu-link"
+                    href="/ui/clips.html"
+                >
                     <span class="menu-icon">🎬</span>
                     Mijn clips
                 </a>
 
-                <a class="menu-link" href="/ui/account.html#gegevens">
+                <a
+                    class="menu-link"
+                    href="/ui/account.html#gegevens"
+                >
                     <span class="menu-icon">📋</span>
                     Accountgegevens
                 </a>
 
-                <a class="menu-link" href="/ui/account.html#instellingen">
+                <a
+                    class="menu-link"
+                    href="/ui/account.html#instellingen"
+                >
                     <span class="menu-icon">⚙️</span>
                     Instellingen
                 </a>
 
-                <a class="menu-link" href="/ui/account.html#tokens">
+                <a
+                    class="menu-link"
+                    href="/ui/account.html#tokens"
+                >
                     <span class="menu-icon">💳</span>
                     Abonnement & tokens
                 </a>
@@ -679,17 +718,34 @@ a{
 
 
 <!-- =========================
+     LOADING
+========================= -->
+
+<div
+    class="loading"
+    id="loadingPage"
+>
+    Account laden...
+</div>
+
+
+<!-- =========================
      LOGGED IN
 ========================= -->
 
-<main class="page" id="accountPage">
+<main
+    class="page"
+    id="accountPage"
+    style="display:none;"
+>
 
     <div class="page-title">
 
         <h1>Mijn account</h1>
 
         <p>
-            Beheer je profiel, accountgegevens, instellingen en ClipParty-tokens.
+            Beheer je profiel, accountgegevens,
+            instellingen en ClipParty-tokens.
         </p>
 
     </div>
@@ -857,7 +913,7 @@ a{
             <br><br>
 
 
-            <!-- ACCOUNT INFO -->
+            <!-- INSTELLINGEN -->
 
             <div id="instellingen">
 
@@ -892,7 +948,7 @@ a{
                         </span>
 
                         <span class="info-value">
-                            Testmodus
+                            ClipParty account
                         </span>
 
                     </div>
@@ -926,7 +982,8 @@ a{
                     <h2>Abonnement & tokens</h2>
 
                     <p>
-                        Bekijk hoeveel ClipParty-tokens je beschikbaar hebt.
+                        Bekijk hoeveel ClipParty-tokens
+                        je beschikbaar hebt.
                     </p>
 
                 </div>
@@ -937,7 +994,7 @@ a{
                         class="token-number"
                         id="tokenNumber"
                     >
-                        50
+                        0
                     </div>
 
                     <div class="token-label">
@@ -946,7 +1003,10 @@ a{
 
                     <div class="progress">
 
-                        <div class="progress-bar"></div>
+                        <div
+                            class="progress-bar"
+                            id="progressBar"
+                        ></div>
 
                     </div>
 
@@ -991,7 +1051,7 @@ a{
 
     <a
         class="primary-button"
-        href="/ui/account.html"
+        href="/ui/login.html"
         style="
             display:inline-flex;
             align-items:center;
@@ -1008,51 +1068,118 @@ a{
 <script>
 
 /* =========================
-   ACCOUNT DATA
+   API
 ========================= */
 
-function getCurrentUser(){
+const API = "";
 
-    const raw = localStorage.getItem("clipparty_user");
 
-    if(!raw){
-        return null;
+/* =========================
+   HELPERS
+========================= */
+
+function getUserName(user){
+
+    if(!user){
+        return "ClipParty gebruiker";
     }
 
-    try{
-
-        return JSON.parse(raw);
-
-    }catch(e){
-
-        localStorage.removeItem("clipparty_user");
-
-        return null;
-
-    }
+    return (
+        user.name ||
+        user.full_name ||
+        user.username ||
+        (user.email ? user.email.split("@")[0] : "") ||
+        "ClipParty gebruiker"
+    );
 
 }
 
 
-function getAccount(email){
+function getUserEmail(user){
 
-    if(!email){
-        return null;
+    if(!user){
+        return "";
     }
 
-    const raw = localStorage.getItem(
-        "clipparty_account_" + email
-    );
+    return user.email || "";
 
-    if(!raw){
-        return null;
+}
+
+
+function getUserTokens(user){
+
+    if(!user){
+        return 0;
     }
+
+    const possibleValues = [
+        user.tokens,
+        user.token_balance,
+        user.balance,
+        user.credits
+    ];
+
+    for(const value of possibleValues){
+
+        const number = Number(value);
+
+        if(Number.isFinite(number)){
+            return number;
+        }
+
+    }
+
+    return 0;
+
+}
+
+
+/* =========================
+   AUTH CHECK
+========================= */
+
+async function getCurrentUser(){
 
     try{
 
-        return JSON.parse(raw);
+        const response = await fetch(
+            API + "/api/auth/me",
+            {
+                method:"GET",
+                credentials:"include",
+                headers:{
+                    "Accept":"application/json"
+                }
+            }
+        );
 
-    }catch(e){
+        if(!response.ok){
+
+            return null;
+
+        }
+
+        const data = await response.json();
+
+        /*
+         * Ondersteunt zowel:
+         * { email: ... }
+         * als:
+         * { user: { email: ... } }
+         */
+
+        if(data && data.user){
+            return data.user;
+        }
+
+        return data;
+
+    }catch(error){
+
+        console.error(
+            "Accountcontrole mislukt:",
+            error
+        );
 
         return null;
 
@@ -1062,68 +1189,116 @@ function getAccount(email){
 
 
 /* =========================
-   INITIALISEREN
+   ACCOUNT INITIALISEREN
 ========================= */
 
-function initializeAccount(){
+async function initializeAccount(){
 
-    const user = getCurrentUser();
+    const loading =
+        document.getElementById("loadingPage");
+
+    const accountPage =
+        document.getElementById("accountPage");
+
+    const loggedOutPage =
+        document.getElementById("loggedOutPage");
+
+
+    loading.style.display="block";
+    accountPage.style.display="none";
+    loggedOutPage.style.display="none";
+
+
+    const user =
+        await getCurrentUser();
+
+
+    /*
+     * Niet ingelogd
+     */
 
     if(!user || !user.email){
 
-        document.getElementById("accountPage").style.display="none";
-        document.getElementById("loggedOutPage").style.display="block";
+        loading.style.display="none";
+        loggedOutPage.style.display="block";
 
         return;
 
     }
 
-    const account = getAccount(user.email);
 
-    if(!account){
-
-        document.getElementById("accountPage").style.display="none";
-        document.getElementById("loggedOutPage").style.display="block";
-
-        return;
-
-    }
+    /*
+     * Ingelogd
+     */
 
     const name =
-        account.name ||
-        user.name ||
-        account.email.split("@")[0];
+        getUserName(user);
+
+    const email =
+        getUserEmail(user);
 
     const tokens =
-        Number.isFinite(Number(account.tokens))
-            ? Number(account.tokens)
-            : 50;
+        getUserTokens(user);
 
 
-    document.getElementById("name").value = name;
+    document.getElementById("name").value =
+        name;
 
-    document.getElementById("email").value = account.email;
+    document.getElementById("email").value =
+        email;
 
-    document.getElementById("profileName").textContent = name;
+    document.getElementById("profileName").textContent =
+        name;
 
-    document.getElementById("profileEmail").textContent = account.email;
+    document.getElementById("profileEmail").textContent =
+        email;
 
-    document.getElementById("navName").textContent = name;
+    document.getElementById("navName").textContent =
+        name;
 
-    document.getElementById("menuName").textContent = name;
+    document.getElementById("menuName").textContent =
+        name;
 
-    document.getElementById("menuEmail").textContent = account.email;
+    document.getElementById("menuEmail").textContent =
+        email;
 
-    document.getElementById("tokenNumber").textContent = tokens;
+    document.getElementById("tokenNumber").textContent =
+        tokens;
 
-    document.getElementById("menuTokens").textContent = tokens;
+    document.getElementById("menuTokens").textContent =
+        tokens;
+
 
     const initial =
         name.trim().charAt(0).toUpperCase() || "C";
 
-    document.getElementById("profileAvatar").textContent = initial;
 
-    document.getElementById("navAvatar").textContent = initial;
+    document.getElementById("profileAvatar").textContent =
+        initial;
+
+    document.getElementById("navAvatar").textContent =
+        initial;
+
+
+    /*
+     * Progressbar
+     */
+
+    const progress =
+        Math.min(
+            100,
+            Math.max(
+                0,
+                (tokens / 100) * 100
+            )
+        );
+
+    document.getElementById("progressBar").style.width =
+        progress + "%";
+
+
+    loading.style.display="none";
+    accountPage.style.display="block";
 
 }
 
@@ -1132,22 +1307,14 @@ function initializeAccount(){
    PROFIEL OPSLAAN
 ========================= */
 
-function saveProfile(){
+async function saveProfile(){
 
-    const user = getCurrentUser();
+    const nameInput =
+        document.getElementById("name");
 
-    if(!user || !user.email){
-        return;
-    }
+    const name =
+        nameInput.value.trim();
 
-    const account = getAccount(user.email);
-
-    if(!account){
-        return;
-    }
-
-    let name =
-        document.getElementById("name").value.trim();
 
     if(!name){
 
@@ -1160,31 +1327,72 @@ function saveProfile(){
 
     }
 
-    name = name.substring(0,40);
 
-    account.name = name;
+    try{
 
-    localStorage.setItem(
-        "clipparty_account_" + user.email,
-        JSON.stringify(account)
-    );
+        const response =
+            await fetch(
+                API + "/api/account/profile",
+                {
+                    method:"POST",
+                    credentials:"include",
+                    headers:{
+                        "Content-Type":
+                            "application/json",
+                        "Accept":
+                            "application/json"
+                    },
+                    body:JSON.stringify({
+                        name:name
+                    })
+                }
+            );
 
 
-    localStorage.setItem(
-        "clipparty_user",
-        JSON.stringify({
-            email:user.email,
-            name:name
-        })
-    );
+        const data =
+            await response.json().catch(
+                () => ({})
+            );
 
 
-    initializeAccount();
+        if(!response.ok){
 
-    showMessage(
-        "Je gegevens zijn opgeslagen.",
-        "success"
-    );
+            throw new Error(
+                data.detail ||
+                data.message ||
+                "Je gegevens konden niet worden opgeslagen."
+            );
+
+        }
+
+
+        showMessage(
+            "Je gegevens zijn opgeslagen.",
+            "success"
+        );
+
+
+        /*
+         * Account opnieuw laden
+         */
+
+        await initializeAccount();
+
+
+    }catch(error){
+
+        console.error(
+            "Profiel opslaan mislukt:",
+            error
+        );
+
+        showMessage(
+            error.message ||
+            "Er ging iets mis bij het opslaan.",
+            "error"
+        );
+
+    }
 
 }
 
@@ -1193,11 +1401,37 @@ function saveProfile(){
    LOGOUT
 ========================= */
 
-function logout(){
+async function logout(){
 
-    localStorage.removeItem("clipparty_user");
+    try{
 
-    window.location.href="/ui/account.html";
+        await fetch(
+            API + "/api/auth/logout",
+            {
+                method:"POST",
+                credentials:"include",
+                headers:{
+                    "Accept":"application/json"
+                }
+            }
+        );
+
+    }catch(error){
+
+        console.error(
+            "Logout request mislukt:",
+            error
+        );
+
+    }
+
+
+    /*
+     * Altijd terug naar login
+     */
+
+    window.location.href =
+        "/ui/login.html";
 
 }
 
@@ -1219,7 +1453,9 @@ accountButton.addEventListener(
 
         event.stopPropagation();
 
-        accountMenu.classList.toggle("open");
+        accountMenu.classList.toggle(
+            "open"
+        );
 
     }
 );
@@ -1233,7 +1469,9 @@ document.addEventListener(
             !event.target.closest(".account")
         ){
 
-            accountMenu.classList.remove("open");
+            accountMenu.classList.remove(
+                "open"
+            );
 
         }
 
@@ -1250,15 +1488,18 @@ function showMessage(text,type){
     const message =
         document.getElementById("message");
 
-    message.textContent = text;
+    message.textContent =
+        text;
 
     message.className =
         "message show " + type;
 
+
     setTimeout(
         function(){
 
-            message.className="message";
+            message.className =
+                "message";
 
         },
         3500
@@ -1273,7 +1514,11 @@ function showMessage(text,type){
 
 document.addEventListener(
     "DOMContentLoaded",
-    initializeAccount
+    function(){
+
+        initializeAccount();
+
+    }
 );
 
 </script>

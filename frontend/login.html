@@ -1,0 +1,330 @@
+<!DOCTYPE html>
+<html lang="nl">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Inloggen – ClipParty.nl</title>
+
+  <style>
+    * {
+      box-sizing: border-box;
+    }
+
+    body {
+      margin: 0;
+      font-family: Arial, Helvetica, sans-serif;
+      background: #f5f7fb;
+      color: #071a41;
+    }
+
+    header {
+      height: 118px;
+      background: white;
+      border-bottom: 1px solid #dfe5ef;
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      padding: 0 36px;
+    }
+
+    .logo {
+      display: flex;
+      align-items: center;
+      gap: 14px;
+      font-size: 30px;
+      font-weight: 800;
+      color: #071a41;
+      text-decoration: none;
+    }
+
+    .logo-icon {
+      width: 46px;
+      height: 46px;
+      border-radius: 14px;
+      background: #2864e8;
+      color: white;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      font-size: 30px;
+      font-weight: 800;
+      box-shadow: 0 7px 16px rgba(40, 100, 232, .18);
+    }
+
+    main {
+      min-height: calc(100vh - 118px);
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      padding: 40px 20px;
+    }
+
+    .login-card {
+      width: 100%;
+      max-width: 460px;
+      background: white;
+      border-radius: 22px;
+      padding: 42px;
+      box-shadow: 0 15px 45px rgba(20, 40, 80, .08);
+      border: 1px solid #e4e9f2;
+    }
+
+    .brand-circle {
+      width: 74px;
+      height: 74px;
+      border-radius: 50%;
+      background: #eef4ff;
+      color: #2864e8;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      font-size: 40px;
+      font-weight: 800;
+      margin: 0 auto 22px;
+    }
+
+    h1 {
+      text-align: center;
+      margin: 0 0 10px;
+      font-size: 34px;
+      line-height: 1.15;
+    }
+
+    .subtitle {
+      text-align: center;
+      color: #6c7b95;
+      margin: 0 0 30px;
+      font-size: 16px;
+      line-height: 1.5;
+    }
+
+    label {
+      display: block;
+      margin-bottom: 8px;
+      font-size: 14px;
+      font-weight: 700;
+      color: #17284d;
+    }
+
+    input {
+      width: 100%;
+      height: 52px;
+      border: 1px solid #d6deeb;
+      border-radius: 12px;
+      padding: 0 15px;
+      font-size: 16px;
+      outline: none;
+      margin-bottom: 20px;
+      background: white;
+    }
+
+    input:focus {
+      border-color: #2864e8;
+      box-shadow: 0 0 0 3px rgba(40, 100, 232, .10);
+    }
+
+    button {
+      width: 100%;
+      height: 54px;
+      border: 0;
+      border-radius: 12px;
+      background: #2864e8;
+      color: white;
+      font-size: 16px;
+      font-weight: 700;
+      cursor: pointer;
+      margin-top: 4px;
+    }
+
+    button:hover {
+      background: #1f55cc;
+    }
+
+    button:disabled {
+      opacity: .65;
+      cursor: not-allowed;
+    }
+
+    .message {
+      display: none;
+      margin-top: 18px;
+      padding: 13px 15px;
+      border-radius: 10px;
+      font-size: 14px;
+      line-height: 1.4;
+    }
+
+    .message.error {
+      display: block;
+      background: #fff0f0;
+      color: #b42318;
+      border: 1px solid #ffd0d0;
+    }
+
+    .message.success {
+      display: block;
+      background: #effaf2;
+      color: #16753b;
+      border: 1px solid #c9efd5;
+    }
+
+    .register {
+      text-align: center;
+      margin-top: 25px;
+      color: #6c7b95;
+      font-size: 15px;
+    }
+
+    .register a {
+      color: #2864e8;
+      font-weight: 700;
+      text-decoration: none;
+    }
+
+    @media (max-width: 600px) {
+      header {
+        height: 82px;
+        padding: 0 18px;
+      }
+
+      .logo {
+        font-size: 23px;
+      }
+
+      .logo-icon {
+        width: 40px;
+        height: 40px;
+        font-size: 26px;
+      }
+
+      main {
+        min-height: calc(100vh - 82px);
+        padding: 25px 15px;
+      }
+
+      .login-card {
+        padding: 30px 22px;
+        border-radius: 18px;
+      }
+
+      h1 {
+        font-size: 29px;
+      }
+    }
+  </style>
+</head>
+
+<body>
+
+<header>
+  <a href="/ui/" class="logo">
+    <div class="logo-icon">C</div>
+    <span>ClipParty</span>
+  </a>
+</header>
+
+<main>
+  <div class="login-card">
+
+    <div class="brand-circle">C</div>
+
+    <h1>Inloggen</h1>
+
+    <p class="subtitle">
+      Log in op je ClipParty-account om verder te gaan.
+    </p>
+
+    <form id="loginForm">
+
+      <label for="email">E-mailadres</label>
+      <input
+        id="email"
+        type="email"
+        placeholder="jij@voorbeeld.nl"
+        autocomplete="email"
+        required
+      >
+
+      <label for="password">Wachtwoord</label>
+      <input
+        id="password"
+        type="password"
+        placeholder="Je wachtwoord"
+        autocomplete="current-password"
+        required
+      >
+
+      <button id="loginButton" type="submit">
+        Inloggen
+      </button>
+
+    </form>
+
+    <div id="message" class="message"></div>
+
+    <div class="register">
+      Nog geen account?
+      <a href="/ui/account.html">Account aanmaken</a>
+    </div>
+
+  </div>
+</main>
+
+<script>
+  const form = document.getElementById("loginForm");
+  const button = document.getElementById("loginButton");
+  const message = document.getElementById("message");
+
+  form.addEventListener("submit", async function(event) {
+    event.preventDefault();
+
+    const email = document.getElementById("email").value.trim();
+    const password = document.getElementById("password").value;
+
+    message.className = "message";
+    message.textContent = "";
+
+    button.disabled = true;
+    button.textContent = "Inloggen...";
+
+    try {
+      const response = await fetch("/api/auth/login", {
+        method: "POST",
+        headers: {
+          "Content-Type": "application/json"
+        },
+        credentials: "include",
+        body: JSON.stringify({
+          email: email,
+          password: password
+        })
+      });
+
+      const data = await response.json().catch(() => ({}));
+
+      if (!response.ok) {
+        throw new Error(
+          data.detail ||
+          data.message ||
+          "Inloggen mislukt. Controleer je gegevens."
+        );
+      }
+
+      message.className = "message success";
+      message.textContent = "Succesvol ingelogd. Je wordt doorgestuurd...";
+
+      setTimeout(() => {
+        window.location.href = "/ui/account.html";
+      }, 500);
+
+    } catch (error) {
+      message.className = "message error";
+      message.textContent = error.message;
+      button.disabled = false;
+      button.textContent = "Inloggen";
+    }
+  });
+</script>
+
+</body>
+</html>
