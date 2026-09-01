@@ -1,10 +1,10 @@
-<!doctype html>
+﻿<!doctype html>
 <html lang="nl">
 <head>
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width,initial-scale=1">
 
-<title>Clip Studio — ClipParty.nl</title>
+<title>Clip Studio â€” ClipParty.nl</title>
 
 <style>
 
@@ -89,7 +89,7 @@ a{
 }
 
 
-/* LOGO — ALTIJD IN HET MIDDEN */
+/* LOGO â€” ALTIJD IN HET MIDDEN */
 
 .site-logo{
   justify-self:center;
@@ -858,7 +858,121 @@ main{
   }
 
 }
+/* ACCOUNT DROPDOWN */
 
+.account{
+    position:relative;
+}
+
+.account-button{
+    border:0;
+    background:transparent;
+    cursor:pointer;
+    display:flex;
+    align-items:center;
+    gap:8px;
+    font:inherit;
+    color:inherit;
+    padding:6px 8px;
+}
+
+.account-avatar{
+    width:38px;
+    height:38px;
+    border-radius:50%;
+    display:flex;
+    align-items:center;
+    justify-content:center;
+    background:#f1f6ff;
+    border:1px solid #dbe7ff;
+    color:#2563eb;
+    font-weight:700;
+}
+
+.chevron{
+    font-size:10px;
+    margin-left:2px;
+}
+
+.account-menu{
+    position:absolute;
+    top:51px;
+    right:0;
+    width:255px;
+    background:#fff;
+    border:1px solid #e5e7eb;
+    border-radius:14px;
+    box-shadow:0 18px 45px rgba(15,23,42,.14);
+    padding:8px;
+    display:none;
+    z-index:9999;
+}
+
+.account-menu.open{
+    display:block;
+}
+
+.menu-user{
+    padding:12px;
+    border-bottom:1px solid #edf1f5;
+    margin-bottom:6px;
+}
+
+.menu-user strong{
+    display:block;
+    font-size:13px;
+}
+
+.menu-user > span{
+    display:block;
+    margin-top:3px;
+    color:#64748b;
+    font-size:12px;
+    overflow:hidden;
+    text-overflow:ellipsis;
+}
+
+.menu-token{
+    margin-top:9px;
+    padding:8px 10px;
+    border-radius:9px;
+    background:#eff6ff;
+    color:#1d4ed8;
+    font-family:monospace;
+    font-size:11px;
+    font-weight:700;
+}
+
+.menu-link{
+    display:flex;
+    align-items:center;
+    gap:10px;
+    padding:10px 11px;
+    border-radius:9px;
+    font-size:13px;
+    font-weight:600;
+    text-decoration:none;
+    color:inherit;
+}
+
+.menu-link:hover{
+    background:#f8fafc;
+}
+
+.menu-icon{
+    width:20px;
+    text-align:center;
+}
+
+.menu-divider{
+    height:1px;
+    background:#edf1f5;
+    margin:6px 0;
+}
+
+.menu-logout{
+    color:#dc2626;
+}
 </style>
 </head>
 
@@ -892,13 +1006,69 @@ main{
       Clip maken
     </a>
 
-    <a href="/ui/account.html" class="account-link">
+    <div class="account">
 
-      <span class="account-icon">●</span>
+    <button
+        class="account-button"
+        id="accountButton"
+        type="button"
+    >
+        <span class="account-avatar" id="navAvatar">C</span>
+        <span id="navName">Account</span>
+        <span class="chevron">â–¼</span>
+    </button>
 
-      <span>Account</span>
+    <div class="account-menu" id="accountMenu">
 
-    </a>
+        <div class="menu-user">
+            <strong id="menuName">Account</strong>
+            <span id="menuEmail"></span>
+
+            <div class="menu-token">
+                â—‰ <span id="menuTokens">50</span>
+                tokens beschikbaar
+            </div>
+        </div>
+
+        <a class="menu-link" href="/ui/account.html">
+            <span class="menu-icon">ðŸ‘¤</span>
+            Mijn account
+        </a>
+
+        <a class="menu-link" href="/ui/clips.html">
+            <span class="menu-icon">ðŸŽ¬</span>
+            Mijn clips
+        </a>
+
+        <a class="menu-link" href="/ui/account.html#gegevens">
+            <span class="menu-icon">ðŸ“‹</span>
+            Accountgegevens
+        </a>
+
+        <a class="menu-link" href="/ui/account.html#instellingen">
+            <span class="menu-icon">âš™ï¸</span>
+            Instellingen
+        </a>
+
+        <a class="menu-link" href="/ui/account.html#tokens">
+            <span class="menu-icon">ðŸ’³</span>
+            Abonnement & tokens
+        </a>
+
+        <div class="menu-divider"></div>
+
+        <a
+            class="menu-link menu-logout"
+            href="#"
+            onclick="logout();return false;"
+        >
+            <span class="menu-icon">ðŸšª</span>
+            Uitloggen
+        </a>
+
+    </div>
+
+</div>
 
   </div>
 
@@ -954,13 +1124,13 @@ main{
 
     <div class="dropzone" id="videoDrop">
 
-      Sleep hier één of meerdere video's
+      Sleep hier Ã©Ã©n of meerdere video's
       (MP4 / MOV / MKV / WEBM)
 
       <br>
 
       <small style="color:var(--dim)">
-        Maximaal 5 video's · Maximale videoduur: 60 minuten.
+        Maximaal 5 video's Â· Maximale videoduur: 60 minuten.
       </small>
 
       <input
@@ -991,7 +1161,7 @@ main{
       <input
         type="url"
         id="ytUrl"
-        placeholder="https://www.youtube.com/watch?v=…"
+        placeholder="https://www.youtube.com/watch?v=â€¦"
       >
 
       <button
@@ -1124,7 +1294,7 @@ main{
         <select id="aspectRatio">
 
           <option value="9:16">
-            9:16 — TikTok / Reels / Shorts
+            9:16 â€” TikTok / Reels / Shorts
           </option>
 
           <option value="1:1">
@@ -1149,19 +1319,19 @@ main{
         <select id="resolution">
 
           <option value="1080x1920">
-            1080 × 1920
+            1080 Ã— 1920
           </option>
 
           <option value="720x1280">
-            720 × 1280
+            720 Ã— 1280
           </option>
 
           <option value="1080x1080">
-            1080 × 1080
+            1080 Ã— 1080
           </option>
 
           <option value="1920x1080">
-            1920 × 1080
+            1920 Ã— 1080
           </option>
 
         </select>
@@ -1412,11 +1582,11 @@ main{
 
     <span>
       <strong>ClipParty</strong>
-      · AI clipping voor creators & clippers
+      Â· AI clipping voor creators & clippers
     </span>
 
     <span>
-      © 2026 ClipParty
+      Â© 2026 ClipParty
     </span>
 
   </div>
@@ -1437,7 +1607,7 @@ main{
    CONFIG
 ========================================================= */
 
-const API = "http://127.0.0.1:8756";
+const API = "";
 
 
 /* =========================================================
@@ -1556,7 +1726,7 @@ async function checkHealth(){
     if(!data.available){
 
       el.textContent =
-        "Backend online — LET OP: " +
+        "Backend online â€” LET OP: " +
         modelInfo;
 
       el.style.color =
@@ -1570,9 +1740,9 @@ async function checkHealth(){
     ){
 
       el.textContent =
-        "Backend online — " +
+        "Backend online â€” " +
         modelInfo +
-        " — " +
+        " â€” " +
         data.warnings.join(" / ");
 
       el.style.color =
@@ -1583,7 +1753,7 @@ async function checkHealth(){
     else{
 
       el.textContent =
-        "Backend online — " +
+        "Backend online â€” " +
         modelInfo;
 
       el.style.color =
@@ -1785,7 +1955,7 @@ setupDropzone(
 
         `<div class="fileitem">
           <span>${escapeHtml(res.filename)}</span>
-          <button onclick="clearBrief()">✕</button>
+          <button onclick="clearBrief()">âœ•</button>
         </div>`;
 
     }
@@ -1899,7 +2069,7 @@ function renderVideoList(){
           <button
             onclick="removeVideo(${i})"
           >
-            ✕
+            âœ•
           </button>
 
         </div>`
@@ -1995,7 +2165,7 @@ async function addYoutube(){
       renderYtList(
 
         meta.title
-          ? `${url} — "${meta.title}"`
+          ? `${url} â€” "${meta.title}"`
           : null,
 
         url
@@ -2055,7 +2225,7 @@ function renderYtList(
             <button
               onclick="removeYt(${i})"
             >
-              ✕
+              âœ•
             </button>
 
           </div>
@@ -2190,7 +2360,7 @@ async function startClipping(){
   ){
 
     toast(
-      "Voeg minstens één bronvideo of YouTube-URL toe."
+      "Voeg minstens Ã©Ã©n bronvideo of YouTube-URL toe."
     );
 
     return;
@@ -2308,7 +2478,7 @@ async function startClipping(){
 
 
     /*
-      Meteen één keer pollen,
+      Meteen Ã©Ã©n keer pollen,
       zodat we niet 1,5 sec wachten.
     */
 
@@ -2604,9 +2774,9 @@ async function loadResults(){
 
               <span>
                 ${escapeHtml(c.filename || "Clip")}
-                ·
+                Â·
                 ${Number(c.duration || 0).toFixed(1)}s
-                ·
+                Â·
                 ${escapeHtml(c.resolution || "")}
               </span>
 
@@ -2827,8 +2997,155 @@ function safeJs(value){
 }
 
 
+/* =========================
+   ACCOUNT DROPDOWN
+========================= */
+
+const accountButton =
+    document.getElementById("accountButton");
+
+const accountMenu =
+    document.getElementById("accountMenu");
+
+if (accountButton && accountMenu) {
+
+    accountButton.addEventListener(
+        "click",
+        function(event) {
+
+            event.stopPropagation();
+
+            accountMenu.classList.toggle("open");
+
+        }
+    );
+
+    document.addEventListener(
+        "click",
+        function(event) {
+
+            if (!event.target.closest(".account")) {
+
+                accountMenu.classList.remove("open");
+
+            }
+
+        }
+    );
+
+}
+
+
+/* =========================
+   ACCOUNT INFO
+========================= */
+
+async function loadAccountInfo() {
+
+    try {
+
+        const response = await fetch(
+            "/api/auth/me",
+            {
+                credentials: "include"
+            }
+        );
+
+        if (!response.ok) {
+            return;
+        }
+
+        const user = await response.json();
+
+        const name =
+            user.name ||
+            user.full_name ||
+            user.email ||
+            "Account";
+
+        const email =
+            user.email ||
+            "";
+
+        const navName =
+            document.getElementById("navName");
+
+        const menuName =
+            document.getElementById("menuName");
+
+        const menuEmail =
+            document.getElementById("menuEmail");
+
+        const navAvatar =
+            document.getElementById("navAvatar");
+
+        if (navName) {
+            navName.textContent = name;
+        }
+
+        if (menuName) {
+            menuName.textContent = name;
+        }
+
+        if (menuEmail) {
+            menuEmail.textContent = email;
+        }
+
+        if (navAvatar) {
+            navAvatar.textContent =
+                name.charAt(0).toUpperCase();
+        }
+
+    } catch (error) {
+
+        console.error(
+            "Account laden mislukt:",
+            error
+        );
+
+    }
+
+}
+
+
+/* =========================
+   LOGOUT
+========================= */
+
+async function logout() {
+
+    try {
+
+        await fetch(
+            "/api/auth/logout",
+            {
+                method: "POST",
+                credentials: "include"
+            }
+        );
+
+    } catch (error) {
+
+        console.error(
+            "Logout request mislukt:",
+            error
+        );
+
+    }
+
+    window.location.href =
+        "/ui/login.html";
+
+}
+
+
+/* ACCOUNT LADEN */
+
+loadAccountInfo();
+
 </script>
 
 
 </body>
 </html>
+
