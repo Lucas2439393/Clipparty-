@@ -3143,6 +3143,153 @@ async function logout() {
 
 loadAccountInfo();
 
+/* =========================
+   ACCOUNT DROPDOWN
+========================= */
+
+const accountButton =
+    document.getElementById("accountButton");
+
+const accountMenu =
+    document.getElementById("accountMenu");
+
+if (accountButton && accountMenu) {
+
+    accountButton.addEventListener(
+        "click",
+        function(event) {
+
+            event.stopPropagation();
+
+            accountMenu.classList.toggle("open");
+
+        }
+    );
+
+    document.addEventListener(
+        "click",
+        function(event) {
+
+            if (!event.target.closest(".account")) {
+
+                accountMenu.classList.remove("open");
+
+            }
+
+        }
+    );
+
+}
+
+
+/* =========================
+   ACCOUNT INFO
+========================= */
+
+async function loadAccountInfo() {
+
+    try {
+
+        const response = await fetch(
+            API + "/api/auth/me",
+            {
+                credentials: "include"
+            }
+        );
+
+        if (!response.ok) {
+            return;
+        }
+
+        const data = await response.json();
+
+        const user = data.user || data;
+
+        const name =
+            user.name ||
+            user.email ||
+            "Account";
+
+        const email =
+            user.email ||
+            "";
+
+        const navName =
+            document.getElementById("navName");
+
+        const navAvatar =
+            document.getElementById("navAvatar");
+
+        const menuName =
+            document.getElementById("menuName");
+
+        const menuEmail =
+            document.getElementById("menuEmail");
+
+        if (navName) {
+            navName.textContent = name;
+        }
+
+        if (navAvatar) {
+            navAvatar.textContent =
+                name.charAt(0).toUpperCase();
+        }
+
+        if (menuName) {
+            menuName.textContent = name;
+        }
+
+        if (menuEmail) {
+            menuEmail.textContent = email;
+        }
+
+    } catch (error) {
+
+        console.error(
+            "Accountgegevens laden mislukt:",
+            error
+        );
+
+    }
+
+}
+
+
+/* =========================
+   LOGOUT
+========================= */
+
+async function logout() {
+
+    try {
+
+        await fetch(
+            API + "/api/auth/logout",
+            {
+                method: "POST",
+                credentials: "include"
+            }
+        );
+
+    } catch (error) {
+
+        console.error(
+            "Uitloggen mislukt:",
+            error
+        );
+
+    }
+
+    window.location.href =
+        "/ui/login.html";
+
+}
+
+
+/* Accountgegevens direct laden */
+
+loadAccountInfo();
+
 </script>
 
 
