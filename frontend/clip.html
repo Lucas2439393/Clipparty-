@@ -1,169 +1,425 @@
 ﻿<!doctype html>
 <html lang="nl">
-<head>
-<meta charset="utf-8">
-<meta name="viewport" content="width=device-width,initial-scale=1">
 
-<title>Clip Studio â€” ClipParty.nl</title>
+<head>
+
+<meta charset="utf-8">
+
+<meta
+    name="viewport"
+    content="width=device-width, initial-scale=1"
+>
+
+<title>Clip Studio — ClipParty.nl</title>
+
 
 <style>
 
-:root{
-  --bg:#f5f8fc;
-  --panel:#fff;
-  --panel-2:#f8fafc;
-  --line:#dfe7f1;
-  --text:#172033;
-  --dim:#64748b;
-  --blue:#2563eb;
-  --blue-dark:#1d4ed8;
-  --blue-soft:#eff6ff;
-  --green:#0f9f8f;
-  --warn:#d97706;
-  --danger:#dc2626;
+/* =========================================================
+   BASIS
+========================================================= */
 
-  --mono:'IBM Plex Mono','SFMono-Regular',Consolas,monospace;
-  --sans:'Inter',-apple-system,'Segoe UI',Arial,sans-serif;
+:root{
+
+    --bg:#f5f8fc;
+    --panel:#ffffff;
+    --panel-2:#f8fafc;
+
+    --line:#dfe7f1;
+
+    --text:#172033;
+    --dim:#64748b;
+
+    --blue:#2563eb;
+    --blue-dark:#1d4ed8;
+    --blue-soft:#eff6ff;
+
+    --green:#16a34a;
+    --warn:#d97706;
+    --danger:#dc2626;
+
+    --mono:
+        'IBM Plex Mono',
+        'SFMono-Regular',
+        Consolas,
+        monospace;
+
+    --sans:
+        Inter,
+        -apple-system,
+        BlinkMacSystemFont,
+        "Segoe UI",
+        Arial,
+        sans-serif;
 }
+
 
 *{
-  box-sizing:border-box;
+    box-sizing:border-box;
 }
+
 
 html{
-  scroll-behavior:smooth;
+    scroll-behavior:smooth;
 }
+
 
 body{
-  margin:0;
-  min-height:100vh;
-  background:var(--bg);
-  color:var(--text);
-  font-family:var(--sans);
+
+    margin:0;
+
+    min-height:100vh;
+
+    background:var(--bg);
+
+    color:var(--text);
+
+    font-family:var(--sans);
 }
 
+
 a{
-  text-decoration:none;
-  color:inherit;
+
+    text-decoration:none;
+
+    color:inherit;
+
 }
 
 
 /* =========================================================
-   UNIVERSELE CLIPPARTY HEADER
+   HEADER
 ========================================================= */
 
 .site-header{
-  height:68px;
-  width:100%;
 
-  background:#fff;
-  border-bottom:1px solid var(--line);
+    height:68px;
 
-  display:grid;
-  grid-template-columns:1fr auto 1fr;
-  align-items:center;
+    width:100%;
 
-  padding:0 5%;
+    background:#fff;
 
-  position:sticky;
-  top:0;
-  z-index:1000;
+    border-bottom:1px solid var(--line);
+
+    display:grid;
+
+    grid-template-columns:1fr auto 1fr;
+
+    align-items:center;
+
+    padding:0 5%;
+
+    position:sticky;
+
+    top:0;
+
+    z-index:1000;
+
 }
 
-
-/* HOME LINKS */
 
 .header-left{
-  justify-self:start;
+
+    justify-self:start;
+
 }
+
 
 .home-link{
-  color:var(--text);
-  font-size:14px;
-  font-weight:600;
-  transition:.15s ease;
+
+    color:var(--text);
+
+    font-size:14px;
+
+    font-weight:600;
+
 }
+
 
 .home-link:hover{
-  color:var(--blue);
+
+    color:var(--blue);
+
 }
 
-
-/* LOGO â€” ALTIJD IN HET MIDDEN */
 
 .site-logo{
-  justify-self:center;
 
-  color:#111827;
+    justify-self:center;
 
-  font-size:20px;
-  font-weight:800;
-  letter-spacing:-.4px;
+    color:#111827;
 
-  white-space:nowrap;
+    font-size:20px;
+
+    font-weight:800;
+
+    letter-spacing:-.4px;
+
+    white-space:nowrap;
+
 }
+
 
 .site-logo span{
-  color:var(--blue);
+
+    color:var(--blue);
+
 }
 
-
-/* RECHTERKANT */
 
 .header-right{
-  justify-self:end;
 
-  display:flex;
-  align-items:center;
-  gap:20px;
+    justify-self:end;
+
+    display:flex;
+
+    align-items:center;
+
+    gap:20px;
+
 }
+
 
 .clip-link{
-  color:var(--text);
-  font-size:14px;
-  font-weight:600;
-  transition:.15s ease;
+
+    color:var(--text);
+
+    font-size:14px;
+
+    font-weight:600;
+
 }
+
 
 .clip-link:hover{
-  color:var(--blue);
+
+    color:var(--blue);
+
 }
 
 
-/* ACCOUNT */
+/* =========================================================
+   ACCOUNT
+========================================================= */
 
-.account-link{
-  display:flex;
-  align-items:center;
-  gap:7px;
+.account{
 
-  color:var(--text);
+    position:relative;
 
-  font-size:14px;
-  font-weight:600;
-
-  transition:.15s ease;
 }
 
-.account-link:hover{
-  color:var(--blue);
+
+.account-button{
+
+    border:0;
+
+    background:transparent;
+
+    cursor:pointer;
+
+    display:flex;
+
+    align-items:center;
+
+    gap:8px;
+
+    font:inherit;
+
+    color:inherit;
+
+    padding:6px 8px;
+
 }
 
-.account-icon{
-  width:30px;
-  height:30px;
 
-  border:1px solid #dbeafe;
-  border-radius:50%;
+.account-avatar{
 
-  background:var(--blue-soft);
-  color:var(--blue);
+    width:38px;
 
-  display:flex;
-  align-items:center;
-  justify-content:center;
+    height:38px;
 
-  font-size:9px;
+    border-radius:50%;
+
+    display:flex;
+
+    align-items:center;
+
+    justify-content:center;
+
+    background:#f1f6ff;
+
+    border:1px solid #dbe7ff;
+
+    color:#2563eb;
+
+    font-weight:700;
+
+}
+
+
+.chevron{
+
+    font-size:10px;
+
+    margin-left:2px;
+
+}
+
+
+.account-menu{
+
+    position:absolute;
+
+    top:51px;
+
+    right:0;
+
+    width:255px;
+
+    background:#fff;
+
+    border:1px solid #e5e7eb;
+
+    border-radius:14px;
+
+    box-shadow:
+        0 18px 45px
+        rgba(15,23,42,.14);
+
+    padding:8px;
+
+    display:none;
+
+    z-index:9999;
+
+}
+
+
+.account-menu.open{
+
+    display:block !important;
+
+}
+
+
+.menu-user{
+
+    padding:12px;
+
+    border-bottom:1px solid #edf1f5;
+
+    margin-bottom:6px;
+
+}
+
+
+.menu-user strong{
+
+    display:block;
+
+    font-size:13px;
+
+}
+
+
+.menu-user > span{
+
+    display:block;
+
+    margin-top:3px;
+
+    color:#64748b;
+
+    font-size:12px;
+
+    overflow:hidden;
+
+    text-overflow:ellipsis;
+
+    white-space:nowrap;
+
+}
+
+
+.menu-token{
+
+    margin-top:9px;
+
+    padding:8px 10px;
+
+    border-radius:9px;
+
+    background:#eff6ff;
+
+    color:#1d4ed8;
+
+    font-family:monospace;
+
+    font-size:11px;
+
+    font-weight:700;
+
+}
+
+
+.menu-link{
+
+    display:flex;
+
+    align-items:center;
+
+    gap:10px;
+
+    padding:10px 11px;
+
+    border-radius:9px;
+
+    font-size:13px;
+
+    font-weight:600;
+
+    text-decoration:none;
+
+    color:inherit;
+
+}
+
+
+.menu-link:hover{
+
+    background:#f8fafc;
+
+}
+
+
+.menu-icon{
+
+    width:20px;
+
+    text-align:center;
+
+    color:#2563eb;
+
+    font-size:16px;
+
+}
+
+
+.menu-divider{
+
+    height:1px;
+
+    background:#edf1f5;
+
+    margin:6px 0;
+
+}
+
+
+.menu-logout{
+
+    color:#dc2626;
+
 }
 
 
@@ -172,48 +428,73 @@ a{
 ========================================================= */
 
 main{
-  max-width:1180px;
-  margin:0 auto;
 
-  padding:24px 24px 52px;
+    max-width:1180px;
 
-  display:grid;
-  grid-template-columns:1fr 1fr;
-  gap:14px;
+    margin:0 auto;
+
+    padding:20px 24px 52px;
+
+    display:grid;
+
+    gap:14px;
+
+    grid-template-columns:1fr 1fr;
+
 }
+
 
 .panel{
-  background:var(--panel);
 
-  border:1px solid var(--line);
-  border-radius:12px;
+    background:var(--panel);
 
-  padding:18px;
+    border:1px solid var(--line);
 
-  box-shadow:0 3px 14px rgba(30,64,175,.045);
+    border-radius:12px;
+
+    padding:16px;
+
+    box-shadow:
+        0 3px 14px
+        rgba(30,64,175,.045);
+
 }
+
 
 .panel.full{
-  grid-column:1/-1;
+
+    grid-column:1/-1;
+
 }
+
 
 .panel h2{
-  font-family:var(--mono);
-  font-size:11px;
-  letter-spacing:.1em;
-  text-transform:uppercase;
 
-  color:var(--blue);
+    font-family:var(--mono);
 
-  margin:0 0 11px;
+    font-size:11px;
 
-  display:flex;
-  align-items:center;
-  gap:7px;
+    letter-spacing:.1em;
+
+    text-transform:uppercase;
+
+    color:var(--blue);
+
+    margin:0 0 11px;
+
+    display:flex;
+
+    align-items:center;
+
+    gap:7px;
+
 }
 
+
 .panel h2 .n{
-  color:var(--dim);
+
+    color:var(--dim);
+
 }
 
 
@@ -222,82 +503,100 @@ main{
 ========================================================= */
 
 .dropzone{
-  border:1.5px dashed #c9d6e6;
-  border-radius:9px;
 
-  padding:24px 14px;
+    border:1.5px dashed #c9d6e6;
 
-  text-align:center;
+    border-radius:9px;
 
-  color:var(--dim);
+    padding:20px 14px;
 
-  font-size:13px;
+    text-align:center;
 
-  cursor:pointer;
+    color:var(--dim);
 
-  transition:.15s;
+    font-size:13px;
+
+    cursor:pointer;
+
+    transition:.15s;
+
 }
+
 
 .dropzone:hover,
 .dropzone.drag{
-  border-color:var(--blue);
-  background:var(--blue-soft);
-  color:var(--text);
+
+    border-color:var(--blue);
+
+    background:var(--blue-soft);
+
+    color:var(--text);
+
 }
+
 
 .dropzone input{
-  display:none;
+
+    display:none;
+
 }
 
-
-/* =========================================================
-   FILE LISTS
-========================================================= */
 
 .filelist{
-  margin-top:9px;
 
-  display:flex;
-  flex-direction:column;
-  gap:5px;
+    margin-top:9px;
+
+    display:flex;
+
+    flex-direction:column;
+
+    gap:5px;
+
 }
+
 
 .fileitem{
-  display:flex;
-  justify-content:space-between;
-  align-items:center;
 
-  background:var(--panel-2);
+    display:flex;
 
-  border:1px solid var(--line);
-  border-radius:7px;
+    justify-content:space-between;
 
-  padding:8px 10px;
+    align-items:center;
 
-  font-size:12px;
-  font-family:var(--mono);
+    background:var(--panel-2);
+
+    border:1px solid var(--line);
+
+    border-radius:7px;
+
+    padding:7px 10px;
+
+    font-size:12px;
+
+    font-family:var(--mono);
+
 }
 
-.fileitem span{
-  overflow:hidden;
-  text-overflow:ellipsis;
-  white-space:nowrap;
-  padding-right:10px;
-}
 
 .fileitem button{
-  background:none;
-  border:none;
 
-  color:var(--dim);
+    background:none;
 
-  cursor:pointer;
+    border:0;
 
-  font-size:14px;
+    color:var(--dim);
+
+    cursor:pointer;
+
+    font-size:14px;
+
 }
 
+
 .fileitem button:hover{
-  color:var(--danger);
+
+    color:var(--danger);
+
 }
 
 
@@ -306,30 +605,49 @@ main{
 ========================================================= */
 
 .yt-row{
-  display:grid;
-  grid-template-columns:1fr auto;
-  gap:8px;
+
+    display:flex;
+
+    gap:7px;
+
 }
 
-.yt-row input{
-  width:100%;
-  height:40px;
 
-  border:1px solid var(--line);
-  border-radius:8px;
+input[type=text],
+input[type=url],
+input[type=number],
+select{
 
-  padding:0 11px;
+    width:100%;
 
-  color:var(--text);
-  background:#fff;
+    height:40px;
 
-  font:inherit;
+    border:1px solid #cfd9e6;
+
+    border-radius:8px;
+
+    background:#fff;
+
+    color:var(--text);
+
+    padding:0 10px;
+
+    font:inherit;
+
+    font-size:13px;
+
 }
 
-.yt-row input:focus{
-  outline:none;
-  border-color:var(--blue);
-  box-shadow:0 0 0 3px var(--blue-soft);
+
+input:focus,
+select:focus{
+
+    outline:2px solid #bfdbfe;
+
+    outline-offset:1px;
+
+    border-color:var(--blue);
+
 }
 
 
@@ -338,131 +656,134 @@ main{
 ========================================================= */
 
 .settings-grid{
-  display:grid;
 
-  grid-template-columns:
-    repeat(4,1fr);
+    display:grid;
 
-  gap:12px;
+    grid-template-columns:1fr 1fr;
+
+    gap:11px 14px;
+
 }
 
-.field{
-  min-width:0;
-}
 
 .field label{
-  display:block;
 
-  margin-bottom:6px;
+    display:block;
 
-  color:var(--dim);
+    font-size:10.5px;
 
-  font-size:11px;
-  font-weight:700;
+    color:var(--dim);
+
+    margin-bottom:5px;
+
+    font-family:var(--mono);
+
+    text-transform:uppercase;
+
+    letter-spacing:.05em;
+
 }
 
-.field input,
-.field select{
-  width:100%;
-
-  height:40px;
-
-  border:1px solid var(--line);
-  border-radius:8px;
-
-  background:#fff;
-
-  color:var(--text);
-
-  padding:0 10px;
-
-  font:inherit;
-  font-size:13px;
-}
-
-.field input:focus,
-.field select:focus{
-  outline:none;
-
-  border-color:var(--blue);
-
-  box-shadow:
-    0 0 0 3px var(--blue-soft);
-}
 
 .duration-row{
-  display:flex;
-  gap:8px;
+
+    display:flex;
+
+    gap:8px;
+
 }
+
 
 .duration-row input{
-  min-width:0;
+
+    min-width:0;
+
 }
 
-
-/* =========================================================
-   CHECKBOXES
-========================================================= */
 
 .checks{
-  display:flex;
-  flex-wrap:wrap;
 
-  gap:9px 18px;
+    margin-top:17px;
 
-  margin-top:17px;
+    display:grid;
+
+    grid-template-columns:1fr 1fr;
+
+    gap:9px 18px;
+
 }
+
 
 .check{
-  display:flex;
-  align-items:center;
-  gap:7px;
 
-  color:var(--dim);
+    display:flex;
 
-  font-size:12px;
+    align-items:center;
 
-  cursor:pointer;
+    gap:7px;
+
+    font-size:12px;
+
+    cursor:pointer;
+
 }
 
+
 .check input{
-  accent-color:var(--blue);
+
+    width:15px;
+
+    height:15px;
+
+    accent-color:var(--blue);
+
 }
 
 
 /* =========================================================
-   START BUTTON
+   BUTTON
 ========================================================= */
 
 .start-btn{
-  width:100%;
 
-  margin-top:18px;
+    width:100%;
 
-  min-height:46px;
+    margin-top:18px;
 
-  border:0;
-  border-radius:9px;
+    min-height:46px;
 
-  background:var(--blue);
+    border:0;
 
-  color:#fff;
+    border-radius:9px;
 
-  font-size:14px;
-  font-weight:800;
+    background:var(--blue);
 
-  cursor:pointer;
+    color:#fff;
 
-  transition:.15s ease;
+    font-size:14px;
+
+    font-weight:800;
+
+    cursor:pointer;
+
+    transition:.15s ease;
+
 }
+
 
 .start-btn:hover{
-  background:var(--blue-dark);
+
+    background:var(--blue-dark);
+
 }
 
+
 .start-btn:disabled{
-  opacity:.55;
-  cursor:not-allowed;
+
+    opacity:.55;
+
+    cursor:not-allowed;
+
 }
 
 
@@ -471,66 +792,78 @@ main{
 ========================================================= */
 
 .status-line{
-  margin-top:10px;
 
-  color:var(--dim);
+    margin-top:10px;
 
-  font-family:var(--mono);
+    color:var(--dim);
 
-  font-size:11px;
+    font-family:var(--mono);
+
+    font-size:11px;
+
+    min-height:16px;
+
 }
 
-#apiStatus{
-  min-height:16px;
-}
-
-
-/* =========================================================
-   PROGRESS
-========================================================= */
 
 .progress-wrap{
-  margin-top:18px;
+
+    margin-top:18px;
+
 }
+
 
 .progress-track{
-  width:100%;
-  height:9px;
 
-  background:#e9eef5;
+    width:100%;
 
-  border-radius:999px;
+    height:9px;
 
-  overflow:hidden;
+    background:#e9eef5;
+
+    border-radius:999px;
+
+    overflow:hidden;
+
 }
+
 
 .progress-fill{
-  width:0%;
-  height:100%;
 
-  background:var(--blue);
+    width:0%;
 
-  border-radius:999px;
+    height:100%;
 
-  transition:width .25s ease;
+    background:var(--blue);
+
+    border-radius:999px;
+
+    transition:width .25s ease;
+
 }
+
 
 .stage-label{
-  display:flex;
 
-  justify-content:space-between;
+    display:flex;
 
-  margin-top:8px;
+    justify-content:space-between;
 
-  color:var(--dim);
+    margin-top:8px;
 
-  font-family:var(--mono);
+    color:var(--dim);
 
-  font-size:11px;
+    font-family:var(--mono);
+
+    font-size:11px;
+
 }
 
+
 .stage-label .pct{
-  color:var(--text);
+
+    color:var(--text);
+
 }
 
 
@@ -539,188 +872,231 @@ main{
 ========================================================= */
 
 .results-header{
-  display:flex;
-  align-items:center;
 
-  gap:7px;
+    display:flex;
 
-  margin-bottom:14px;
+    align-items:baseline;
+
+    gap:8px;
+
+    margin-bottom:14px;
+
 }
+
 
 .results-header .count{
-  font-size:26px;
-  font-weight:800;
 
-  color:var(--text);
+    font-size:26px;
+
+    font-weight:800;
+
+    color:var(--text);
+
 }
+
 
 .provider-badge{
-  margin-left:auto;
 
-  color:var(--dim);
+    margin-left:auto;
 
-  font-family:var(--mono);
+    color:var(--dim);
 
-  font-size:11px;
+    font-family:var(--mono);
 
-  background:var(--panel-2);
+    font-size:11px;
 
-  padding:5px 9px;
+    background:var(--panel-2);
 
-  border-radius:6px;
+    padding:5px 9px;
+
+    border-radius:6px;
+
 }
+
 
 .clips-grid{
-  display:grid;
 
-  grid-template-columns:
-    repeat(auto-fill,minmax(230px,1fr));
+    display:grid;
 
-  gap:14px;
+    grid-template-columns:
+        repeat(auto-fill,minmax(230px,1fr));
+
+    gap:14px;
+
 }
+
 
 .clip-card{
-  overflow:hidden;
 
-  background:#fff;
+    overflow:hidden;
 
-  border:1px solid var(--line);
+    background:#fff;
 
-  border-radius:11px;
+    border:1px solid var(--line);
+
+    border-radius:10px;
+
+    box-shadow:
+        0 3px 12px
+        rgba(15,23,42,.05);
+
 }
+
 
 .clip-card video{
-  width:100%;
 
-  aspect-ratio:9/16;
+    width:100%;
 
-  display:block;
+    aspect-ratio:9/16;
 
-  background:#111;
+    object-fit:cover;
+
+    background:#111;
+
+    display:block;
+
 }
+
 
 .clip-body{
-  padding:12px;
+
+    padding:12px;
+
 }
+
 
 .clip-title{
-  display:flex;
 
-  justify-content:space-between;
-  align-items:flex-start;
+    display:flex;
 
-  gap:8px;
+    justify-content:space-between;
 
-  font-size:11px;
+    gap:8px;
 
-  font-family:var(--mono);
+    font-size:11px;
+
+    font-family:var(--mono);
+
 }
 
-.clip-title > span:first-child{
-  color:var(--text);
-}
 
 .badge{
-  flex-shrink:0;
 
-  padding:3px 7px;
+    padding:3px 7px;
 
-  border-radius:5px;
+    border-radius:6px;
 
-  font-size:10px;
-  font-weight:800;
+    font-size:10px;
+
 }
+
 
 .badge.pass{
-  background:#ecfdf5;
-  color:#047857;
+
+    background:#dcfce7;
+
+    color:#166534;
+
 }
+
 
 .badge.fail{
-  background:#fef2f2;
-  color:#b91c1c;
+
+    background:#fee2e2;
+
+    color:#991b1b;
+
 }
+
 
 .clip-topic{
-  margin-top:10px;
 
-  font-size:13px;
+    margin-top:9px;
+
+    font-size:13px;
+
 }
+
 
 .clip-caption{
-  margin-top:7px;
 
-  color:var(--dim);
+    margin-top:6px;
 
-  font-size:12px;
-  line-height:1.5;
+    color:var(--dim);
+
+    font-size:12px;
+
+    line-height:1.45;
+
 }
+
 
 .clip-tags{
-  display:flex;
-  flex-wrap:wrap;
 
-  gap:5px;
+    display:flex;
 
-  margin-top:9px;
+    flex-wrap:wrap;
+
+    gap:5px;
+
+    margin-top:8px;
+
 }
+
 
 .tag{
-  background:var(--blue-soft);
 
-  color:var(--blue);
+    background:var(--blue-soft);
 
-  border-radius:5px;
+    color:var(--blue-dark);
 
-  padding:3px 6px;
+    padding:3px 6px;
 
-  font-size:10px;
+    border-radius:5px;
+
+    font-size:10px;
+
 }
+
 
 .clip-actions{
-  display:flex;
 
-  gap:6px;
+    display:flex;
 
-  margin-top:11px;
+    gap:6px;
+
+    margin-top:10px;
+
 }
+
 
 .clip-actions button{
-  border:1px solid var(--line);
 
-  background:#fff;
+    flex:1;
 
-  color:var(--text);
+    border:1px solid var(--line);
 
-  border-radius:7px;
+    background:#fff;
 
-  padding:7px 9px;
+    color:var(--text);
 
-  font-size:11px;
+    border-radius:7px;
 
-  cursor:pointer;
+    padding:7px;
+
+    cursor:pointer;
+
+    font-size:11px;
+
 }
+
 
 .clip-actions button:hover{
-  border-color:#bfdbfe;
 
-  background:var(--blue-soft);
+    background:var(--blue-soft);
 
-  color:var(--blue);
-}
+    border-color:#bfdbfe;
 
-
-/* =========================================================
-   LIMITS
-========================================================= */
-
-.limits{
-  margin:12px 0 0;
-  padding-left:18px;
-
-  color:var(--dim);
-
-  font-size:12px;
 }
 
 
@@ -729,249 +1105,134 @@ main{
 ========================================================= */
 
 .toast{
-  position:fixed;
 
-  left:50%;
-  bottom:24px;
+    position:fixed;
 
-  transform:translateX(-50%);
+    right:20px;
 
-  max-width:min(90vw,650px);
+    bottom:20px;
 
-  display:none;
+    max-width:380px;
 
-  padding:11px 15px;
+    background:#172033;
 
-  border-radius:9px;
+    color:#fff;
 
-  background:#172033;
-  color:#fff;
+    padding:12px 15px;
 
-  font-size:12px;
+    border-radius:9px;
 
-  box-shadow:0 10px 30px rgba(15,23,42,.2);
+    font-size:13px;
 
-  z-index:2000;
+    display:none;
+
+    z-index:99999;
+
 }
 
 
 /* =========================================================
-   FOOTER
-========================================================= */
-
-.site-footer{
-  margin-top:24px;
-
-  padding:17px 24px;
-
-  border-top:1px solid var(--line);
-
-  background:#fff;
-
-  color:var(--dim);
-
-  font-size:12px;
-}
-
-.site-footer-inner{
-  max-width:1180px;
-
-  margin:auto;
-
-  display:flex;
-
-  justify-content:space-between;
-
-  align-items:center;
-
-  gap:15px;
-}
-
-
-/* =========================================================
-   RESPONSIVE
+   MOBILE
 ========================================================= */
 
 @media(max-width:900px){
 
-  main{
-    grid-template-columns:1fr;
+    main{
 
-    padding:18px 16px 40px;
-  }
+        grid-template-columns:1fr;
 
-  .panel.full{
-    grid-column:auto;
-  }
+        padding:16px;
 
-  .settings-grid{
-    grid-template-columns:
-      repeat(2,1fr);
-  }
+    }
 
 }
+
 
 @media(max-width:650px){
 
-  .site-header{
-    height:60px;
+    .site-header{
 
-    padding:0 14px;
-  }
+        padding:0 14px;
 
-  .site-logo{
-    font-size:17px;
-  }
+    }
 
-  .header-right{
-    gap:10px;
-  }
+    .site-logo{
 
-  .clip-link{
-    display:none;
-  }
+        font-size:17px;
 
-  .account-link span:last-child{
-    display:none;
-  }
+    }
 
-  .home-link{
-    font-size:13px;
-  }
+    .header-right{
 
-  .account-icon{
-    width:29px;
-    height:29px;
-  }
+        gap:7px;
 
-  .settings-grid{
-    grid-template-columns:1fr;
-  }
+    }
 
-  .yt-row{
-    grid-template-columns:1fr;
-  }
+    .clip-link{
 
-  .site-footer-inner{
-    flex-direction:column;
-    align-items:flex-start;
-  }
+        display:none;
+
+    }
+
+    .account-button{
+
+        padding:4px;
+
+    }
+
+    .account-button #navName{
+
+        display:none;
+
+    }
+
+    .settings-grid{
+
+        grid-template-columns:1fr;
+
+    }
+
+    .checks{
+
+        grid-template-columns:1fr;
+
+    }
 
 }
-/* ACCOUNT DROPDOWN */
 
-.account{
-    position:relative;
+</style>
+
+<style id="CLIPPARTY_ACCOUNT_FIX_CSS">
+.account {
+    position: relative !important;
 }
 
-.account-button{
-    border:0;
-    background:transparent;
-    cursor:pointer;
-    display:flex;
-    align-items:center;
-    gap:8px;
-    font:inherit;
-    color:inherit;
-    padding:6px 8px;
+.account-menu.open {
+    display: block !important;
+    visibility: visible !important;
+    opacity: 1 !important;
+    pointer-events: auto !important;
+}
+</style>
+<style id="CLIPPARTY-DROPDOWN-FINAL">
+.account {
+    position: relative !important;
+    z-index: 99999 !important;
 }
 
-.account-avatar{
-    width:38px;
-    height:38px;
-    border-radius:50%;
-    display:flex;
-    align-items:center;
-    justify-content:center;
-    background:#f1f6ff;
-    border:1px solid #dbe7ff;
-    color:#2563eb;
-    font-weight:700;
+.account-button {
+    cursor: pointer !important;
+    position: relative !important;
+    z-index: 100000 !important;
 }
 
-.chevron{
-    font-size:10px;
-    margin-left:2px;
-}
-
-.account-menu{
-    position:absolute;
-    top:51px;
-    right:0;
-    width:255px;
-    background:#fff;
-    border:1px solid #e5e7eb;
-    border-radius:14px;
-    box-shadow:0 18px 45px rgba(15,23,42,.14);
-    padding:8px;
-    display:none;
-    z-index:9999;
-}
-
-.account-menu.open{
-    display:block;
-}
-
-.menu-user{
-    padding:12px;
-    border-bottom:1px solid #edf1f5;
-    margin-bottom:6px;
-}
-
-.menu-user strong{
-    display:block;
-    font-size:13px;
-}
-
-.menu-user > span{
-    display:block;
-    margin-top:3px;
-    color:#64748b;
-    font-size:12px;
-    overflow:hidden;
-    text-overflow:ellipsis;
-}
-
-.menu-token{
-    margin-top:9px;
-    padding:8px 10px;
-    border-radius:9px;
-    background:#eff6ff;
-    color:#1d4ed8;
-    font-family:monospace;
-    font-size:11px;
-    font-weight:700;
-}
-
-.menu-link{
-    display:flex;
-    align-items:center;
-    gap:10px;
-    padding:10px 11px;
-    border-radius:9px;
-    font-size:13px;
-    font-weight:600;
-    text-decoration:none;
-    color:inherit;
-}
-
-.menu-link:hover{
-    background:#f8fafc;
-}
-
-.menu-icon{
-    width:20px;
-    text-align:center;
-}
-
-.menu-divider{
-    height:1px;
-    background:#edf1f5;
-    margin:6px 0;
-}
-
-.menu-logout{
-    color:#dc2626;
+.account-menu.open {
+    display: block !important;
+    visibility: visible !important;
+    opacity: 1 !important;
+    pointer-events: auto !important;
+    position: absolute !important;
+    z-index: 999999 !important;
 }
 </style>
 </head>
@@ -981,96 +1242,204 @@ main{
 
 
 <!-- =======================================================
-     UNIVERSELE HEADER
+     HEADER
 ======================================================= -->
 
 <header class="site-header">
 
-  <div class="header-left">
 
-    <a href="/ui/" class="home-link">
-      Home
-    </a>
-
-  </div>
-
-
-  <a href="/ui/" class="site-logo">
-    Clip<span>Party</span>.nl
-  </a>
-
-
-  <div class="header-right">
-
-    <a href="/ui/clip.html" class="clip-link">
-      Clip maken
-    </a>
-
-    <div class="account">
-
-    <button
-        class="account-button"
-        id="accountButton"
-        type="button"
-    >
-        <span class="account-avatar" id="navAvatar">C</span>
-        <span id="navName">Account</span>
-        <span class="chevron">â–¼</span>
-    </button>
-
-    <div class="account-menu" id="accountMenu">
-
-        <div class="menu-user">
-            <strong id="menuName">Account</strong>
-            <span id="menuEmail"></span>
-
-            <div class="menu-token">
-                â—‰ <span id="menuTokens">50</span>
-                tokens beschikbaar
-            </div>
-        </div>
-
-        <a class="menu-link" href="/ui/account.html">
-            <span class="menu-icon">ðŸ‘¤</span>
-            Mijn account
-        </a>
-
-        <a class="menu-link" href="/ui/clips.html">
-            <span class="menu-icon">ðŸŽ¬</span>
-            Mijn clips
-        </a>
-
-        <a class="menu-link" href="/ui/account.html#gegevens">
-            <span class="menu-icon">ðŸ“‹</span>
-            Accountgegevens
-        </a>
-
-        <a class="menu-link" href="/ui/account.html#instellingen">
-            <span class="menu-icon">âš™ï¸</span>
-            Instellingen
-        </a>
-
-        <a class="menu-link" href="/ui/account.html#tokens">
-            <span class="menu-icon">ðŸ’³</span>
-            Abonnement & tokens
-        </a>
-
-        <div class="menu-divider"></div>
+    <div class="header-left">
 
         <a
-            class="menu-link menu-logout"
-            href="#"
-            onclick="logout();return false;"
+            href="/ui/"
+            class="home-link"
         >
-            <span class="menu-icon">ðŸšª</span>
-            Uitloggen
+            Home
         </a>
 
     </div>
 
-</div>
 
-  </div>
+    <a
+        href="/ui/"
+        class="site-logo"
+    >
+        Clip<span>Party</span>.nl
+    </a>
+
+
+    <div class="header-right">
+
+
+        <a
+            href="/ui/clip.html"
+            class="clip-link"
+        >
+            Clip maken
+        </a>
+
+
+        <div class="account">
+
+
+            <button
+                class="account-button"
+                id="accountButton"
+                type="button" onclick="document.getElementById('accountMenu').classList.toggle('open');" onclick="event.stopPropagation(); document.getElementById('accountMenu').classList.toggle('open')"
+            >
+
+                <span
+                    class="account-avatar"
+                    id="navAvatar"
+                >C</span>
+
+                <span id="navName">
+                    Account
+                </span>
+
+                <span class="chevron">
+                    &#9660;
+                </span>
+
+            </button>
+
+
+            <div
+                class="account-menu"
+                id="accountMenu"
+            >
+
+
+                <div class="menu-user">
+
+                    <strong id="menuName">
+                        Account
+                    </strong>
+
+                    <span id="menuEmail"></span>
+
+
+                    <div class="menu-token">
+
+                        &#9673;
+
+                        <span id="menuTokens">
+                            50
+                        </span>
+
+                        tokens beschikbaar
+
+                    </div>
+
+                </div>
+
+
+                <a
+                    class="menu-link"
+                    href="/ui/account.html"
+                >
+
+                    <span class="menu-icon">
+                        &#128100;
+                    </span>
+
+                    <span>
+                        Mijn account
+                    </span>
+
+                </a>
+
+
+                <a
+                    class="menu-link"
+                    href="/ui/clips.html"
+                >
+
+                    <span class="menu-icon">
+                        &#127916;
+                    </span>
+
+                    <span>
+                        Mijn clips
+                    </span>
+
+                </a>
+
+
+                <a
+                    class="menu-link"
+                    href="/ui/account.html#gegevens"
+                >
+
+                    <span class="menu-icon">
+                        &#128203;
+                    </span>
+
+                    <span>
+                        Accountgegevens
+                    </span>
+
+                </a>
+
+
+                <a
+                    class="menu-link"
+                    href="/ui/account.html#instellingen"
+                >
+
+                    <span class="menu-icon">
+                        &#9881;
+                    </span>
+
+                    <span>
+                        Instellingen
+                    </span>
+
+                </a>
+
+
+                <a
+                    class="menu-link"
+                    href="/ui/account.html#tokens"
+                >
+
+                    <span class="menu-icon">
+                        &#128179;
+                    </span>
+
+                    <span>
+                        Abonnement &amp; tokens
+                    </span>
+
+                </a>
+
+
+                <div class="menu-divider"></div>
+
+
+                <a
+                    class="menu-link menu-logout"
+                    href="#"
+                    onclick="logout();return false;"
+                >
+
+                    <span class="menu-icon">
+                        &#128682;
+                    </span>
+
+                    <span>
+                        Uitloggen
+                    </span>
+
+                </a>
+
+
+            </div>
+
+        </div>
+
+
+    </div>
 
 </header>
 
@@ -1082,491 +1451,549 @@ main{
 <main>
 
 
-  <!-- 01 CAMPAGNEBRIEFING -->
+    <!-- =====================================================
+         01 BRIEFING
+    ====================================================== -->
 
-  <section class="panel">
-
-    <h2>
-      <span class="n">01</span>
-      Campagnebriefing
-    </h2>
-
-    <div class="dropzone" id="briefDrop">
-
-      Sleep hier je briefing
-      (PDF / DOCX / TXT)
-      of klik om te kiezen
-
-      <input
-        type="file"
-        id="briefInput"
-        accept=".pdf,.docx,.txt"
-      >
-
-    </div>
-
-    <div
-      class="filelist"
-      id="briefList">
-    </div>
-
-  </section>
+    <section class="panel">
 
 
-  <!-- 02 BRONVIDEO'S -->
+        <h2>
 
-  <section class="panel">
+            <span class="n">
+                01
+            </span>
 
-    <h2>
-      <span class="n">02</span>
-      Bronvideo's
-    </h2>
+            Campagnebriefing
 
-    <div class="dropzone" id="videoDrop">
-
-      Sleep hier Ã©Ã©n of meerdere video's
-      (MP4 / MOV / MKV / WEBM)
-
-      <br>
-
-      <small style="color:var(--dim)">
-        Maximaal 5 video's Â· Maximale videoduur: 60 minuten.
-      </small>
-
-      <input
-        type="file"
-        id="videoInput"
-        accept=".mp4,.mov,.mkv,.webm"
-        multiple
-      >
-
-    </div>
-
-    <div
-      class="filelist"
-      id="videoList">
-    </div>
+        </h2>
 
 
-    <h2 style="margin-top:18px">
-
-      <span class="n">03</span>
-      YouTube-URL
-
-    </h2>
-
-
-    <div class="yt-row">
-
-      <input
-        type="url"
-        id="ytUrl"
-        placeholder="https://www.youtube.com/watch?v=â€¦"
-      >
-
-      <button
-        type="button"
-        class="clip-actions button"
-        onclick="addYoutube()"
-        style="
-          background:var(--panel-2);
-          border:1px solid var(--line);
-          color:var(--text);
-          border-radius:8px;
-          padding:0 16px;
-          cursor:pointer;
-          font-family:var(--mono);
-        "
-      >
-        Toevoegen
-      </button>
-
-    </div>
-
-
-    <div
-      class="filelist"
-      id="ytList">
-    </div>
-
-  </section>
-
-
-  <!-- 04 INSTELLINGEN -->
-
-  <section class="panel full">
-
-    <h2>
-      <span class="n">04</span>
-      Instellingen
-    </h2>
-
-
-    <div class="settings-grid">
-
-
-      <div class="field">
-
-        <label>
-          Doel aantal clips
-        </label>
-
-        <input
-          type="number"
-          id="minClips"
-          value="1"
-          min="1"
-          max="50"
+        <div
+            class="dropzone"
+            id="briefDrop"
         >
 
-      </div>
+            Sleep hier je briefing
+            (PDF / DOCX / TXT)
+            of klik om te kiezen
 
 
-      <div class="field">
-
-        <label>
-          Maximum clips
-        </label>
-
-        <input
-          type="number"
-          id="maxClips"
-          value="50"
-          min="1"
-          max="50"
-        >
-
-      </div>
-
-
-      <div class="field">
-
-        <label>
-          Maximum duur (sec)
-        </label>
-
-        <input
-          type="number"
-          id="maxDuration"
-          value="60"
-          min="5"
-          max="60"
-        >
-
-      </div>
-
-
-      <div class="field">
-
-        <label>
-          Voorkeur duur (sec)
-        </label>
-
-        <div class="duration-row">
-
-          <input
-            type="number"
-            id="prefMin"
-            value="15"
-            min="1"
-            max="60"
-          >
-
-          <input
-            type="number"
-            id="prefMax"
-            value="45"
-            min="1"
-            max="60"
-          >
+            <input
+                type="file"
+                id="briefInput"
+                accept=".pdf,.docx,.txt"
+            >
 
         </div>
 
-      </div>
-
-
-      <div class="field">
-
-        <label>
-          Aspect ratio
-        </label>
-
-        <select id="aspectRatio">
-
-          <option value="9:16">
-            9:16 â€” TikTok / Reels / Shorts
-          </option>
-
-          <option value="1:1">
-            1:1
-          </option>
-
-          <option value="16:9">
-            16:9
-          </option>
-
-        </select>
-
-      </div>
-
-
-      <div class="field">
-
-        <label>
-          Resolutie
-        </label>
-
-        <select id="resolution">
-
-          <option value="1080x1920">
-            1080 Ã— 1920
-          </option>
-
-          <option value="720x1280">
-            720 Ã— 1280
-          </option>
-
-          <option value="1080x1080">
-            1080 Ã— 1080
-          </option>
-
-          <option value="1920x1080">
-            1920 Ã— 1080
-          </option>
-
-        </select>
-
-      </div>
-
-
-      <div class="field">
-
-        <label>
-          LLM provider
-        </label>
-
-        <select id="llmProvider">
-
-          <option value="groq" selected>
-            Groq (standaard)
-          </option>
-
-          <option value="anthropic">
-            Anthropic (optioneel)
-          </option>
-
-        </select>
-
-      </div>
-
-    </div>
-
-
-    <div class="checks">
-
-
-      <label class="check">
-
-        <input
-          type="checkbox"
-          id="facePriority"
-          checked
-        >
-
-        Gezicht prioriteren
-
-      </label>
-
-
-      <label class="check">
-
-        <input
-          type="checkbox"
-          id="avoidAudioOnly"
-          checked
-        >
-
-        Audio-only vermijden
-
-      </label>
-
-
-      <label class="check">
-
-        <input
-          type="checkbox"
-          id="subtitles"
-        >
-
-        Ondertiteling
-
-      </label>
-
-
-      <label class="check">
-
-        <input
-          type="checkbox"
-          id="hooks"
-          checked
-        >
-
-        Hook
-
-      </label>
-
-
-      <label class="check">
-
-        <input
-          type="checkbox"
-          id="highestQuality"
-          checked
-        >
-
-        Hoogste kwaliteit
-
-      </label>
-
-
-      <label class="check">
-
-        <input
-          type="checkbox"
-          id="applyCampaignRules"
-          checked
-        >
-
-        Campagneregels toepassen
-
-      </label>
-
-
-      <label class="check">
-
-        <input
-          type="checkbox"
-          id="verifyExport"
-          checked
-        >
-
-        Export controleren
-
-      </label>
-
-
-    </div>
-
-
-    <button
-      class="start-btn"
-      id="startBtn"
-      onclick="startClipping()"
-    >
-      Start Clipping
-    </button>
-
-
-    <div
-      class="status-line"
-      id="apiStatus"
-    >
-      Backend controleren...
-    </div>
-
-
-    <div
-      class="progress-wrap"
-      id="progressWrap"
-      style="display:none"
-    >
-
-      <div class="progress-track">
 
         <div
-          class="progress-fill"
-          id="progressFill"
+            class="filelist"
+            id="briefList"
         ></div>
 
-      </div>
+
+    </section>
 
 
-      <div class="stage-label">
 
-        <span id="stageLabel">
-          In wachtrij
-        </span>
+    <!-- =====================================================
+         02 VIDEO'S
+    ====================================================== -->
 
-        <span
-          class="pct"
-          id="stagePct"
+    <section class="panel">
+
+
+        <h2>
+
+            <span class="n">
+                02
+            </span>
+
+            Bronvideo's
+
+        </h2>
+
+
+        <div
+            class="dropzone"
+            id="videoDrop"
         >
-          0%
-        </span>
 
-      </div>
+            Sleep hier één of meerdere video's
+            (MP4 / MOV / MKV / WEBM)
 
+            <br>
 
-      <div
-        class="stage-label"
-        id="jobModelLine"
-        style="display:none;margin-top:4px;"
-      ></div>
-
-    </div>
+            <small>
+                Maximaal 5 video's ·
+                Maximale videoduur: 60 minuten.
+            </small>
 
 
-    <ul
-      class="limits"
-      id="limitsList"
-      style="display:none"
-    ></ul>
+            <input
+                type="file"
+                id="videoInput"
+                accept=".mp4,.mov,.mkv,.webm"
+                multiple
+            >
 
-  </section>
-
-
-  <!-- RESULTATEN -->
-
-  <section
-    class="panel full"
-    id="resultsSection"
-    style="display:none"
-  >
-
-    <div class="results-header">
-
-      <span
-        class="count"
-        id="resultCount"
-      >
-        0
-      </span>
-
-      <span
-        style="
-          color:var(--dim);
-          font-family:var(--mono);
-          font-size:13px;
-        "
-      >
-        clips created
-      </span>
+        </div>
 
 
-      <span
-        class="provider-badge"
-        id="providerBadge"
-      ></span>
-
-    </div>
+        <div
+            class="filelist"
+            id="videoList"
+        ></div>
 
 
-    <div
-      class="clips-grid"
-      id="clipsGrid"
-    ></div>
+        <h2
+            style="margin-top:18px"
+        >
 
-  </section>
+            <span class="n">
+                03
+            </span>
+
+            YouTube-URL
+
+        </h2>
+
+
+        <div class="yt-row">
+
+
+            <input
+                type="url"
+                id="ytUrl"
+                placeholder="https://www.youtube.com/watch?v=..."
+            >
+
+
+            <button
+                type="button"
+                onclick="addYoutube()"
+                style="
+                    background:#f8fafc;
+                    border:1px solid #dfe7f1;
+                    color:#172033;
+                    border-radius:8px;
+                    padding:0 16px;
+                    cursor:pointer;
+                    font-family:var(--mono);
+                    white-space:nowrap;
+                "
+            >
+                Toevoegen
+            </button>
+
+
+        </div>
+
+
+        <div
+            class="filelist"
+            id="ytList"
+        ></div>
+
+
+    </section>
+
+
+
+    <!-- =====================================================
+         04 INSTELLINGEN
+    ====================================================== -->
+
+    <section class="panel full">
+
+
+        <h2>
+
+            <span class="n">
+                04
+            </span>
+
+            Instellingen
+
+        </h2>
+
+
+        <div class="settings-grid">
+
+
+            <div class="field">
+
+                <label>
+                    Minimaal aantal clips
+                </label>
+
+                <input
+                    type="number"
+                    id="minClips"
+                    value="0"
+                    min="0"
+                    max="50"
+                >
+
+            </div>
+
+
+            <div class="field">
+
+                <label>
+                    Maximaal aantal clips
+                </label>
+
+                <input
+                    type="number"
+                    id="maxClips"
+                    value="50"
+                    min="1"
+                    max="50"
+                >
+
+            </div>
+
+
+            <div class="field">
+
+                <label>
+                    Maximale clipduur
+                </label>
+
+                <input
+                    type="number"
+                    id="maxDuration"
+                    value="60"
+                    min="1"
+                    max="60"
+                >
+
+            </div>
+
+
+            <div class="field">
+
+                <label>
+                    Voorkeursduur
+                </label>
+
+
+                <div class="duration-row">
+
+
+                    <input
+                        type="number"
+                        id="prefMin"
+                        value="15"
+                        min="1"
+                        max="60"
+                        placeholder="Min"
+                    >
+
+
+                    <input
+                        type="number"
+                        id="prefMax"
+                        value="35"
+                        min="1"
+                        max="60"
+                        placeholder="Max"
+                    >
+
+
+                </div>
+
+            </div>
+
+
+            <div class="field">
+
+                <label>
+                    Beeldverhouding
+                </label>
+
+                <select id="aspectRatio">
+
+                    <option value="9:16">
+                        9:16
+                    </option>
+
+                    <option value="1:1">
+                        1:1
+                    </option>
+
+                    <option value="16:9">
+                        16:9
+                    </option>
+
+                </select>
+
+            </div>
+
+
+            <div class="field">
+
+                <label>
+                    Resolutie
+                </label>
+
+                <select id="resolution">
+
+                    <option value="1080x1920">
+                        1080 × 1920
+                    </option>
+
+                    <option value="720x1280">
+                        720 × 1280
+                    </option>
+
+                </select>
+
+            </div>
+
+
+            <div class="field">
+
+                <label>
+                    LLM-provider
+                </label>
+
+                <select id="llmProvider">
+
+                    <option value="groq" selected>
+                        Groq
+                    </option>
+
+                    <option value="anthropic">
+                        Anthropic
+                    </option>
+
+                </select>
+
+            </div>
+
+
+        </div>
+
+
+        <div class="checks">
+
+
+            <label class="check">
+
+                <input
+                    type="checkbox"
+                    id="facePriority"
+                    checked
+                >
+
+                Gezicht prioriteren
+
+            </label>
+
+
+            <label class="check">
+
+                <input
+                    type="checkbox"
+                    id="avoidAudioOnly"
+                    checked
+                >
+
+                Audio-only vermijden
+
+            </label>
+
+
+            <label class="check">
+
+                <input
+                    type="checkbox"
+                    id="subtitles"
+                >
+
+                Ondertiteling
+
+            </label>
+
+
+            <label class="check">
+
+                <input
+                    type="checkbox"
+                    id="hooks"
+                    checked
+                >
+
+                Hook
+
+            </label>
+
+
+            <label class="check">
+
+                <input
+                    type="checkbox"
+                    id="highestQuality"
+                    checked
+                >
+
+                Hoogste kwaliteit
+
+            </label>
+
+
+            <label class="check">
+
+                <input
+                    type="checkbox"
+                    id="applyCampaignRules"
+                    checked
+                >
+
+                Campagneregels toepassen
+
+            </label>
+
+
+            <label class="check">
+
+                <input
+                    type="checkbox"
+                    id="verifyExport"
+                    checked
+                >
+
+                Export controleren
+
+            </label>
+
+
+        </div>
+
+
+        <button
+            class="start-btn"
+            id="startBtn"
+            onclick="startClipping()"
+        >
+            Start Clipping
+        </button>
+
+
+        <div
+            class="status-line"
+            id="apiStatus"
+        >
+            Backend controleren...
+        </div>
+
+
+        <div
+            class="progress-wrap"
+            id="progressWrap"
+            style="display:none"
+        >
+
+
+            <div class="progress-track">
+
+                <div
+                    class="progress-fill"
+                    id="progressFill"
+                ></div>
+
+            </div>
+
+
+            <div class="stage-label">
+
+                <span id="stageLabel">
+                    In wachtrij
+                </span>
+
+                <span
+                    class="pct"
+                    id="stagePct"
+                >
+                    0%
+                </span>
+
+            </div>
+
+
+            <div
+                class="stage-label"
+                id="jobModelLine"
+                style="display:none"
+            ></div>
+
+
+        </div>
+
+
+        <ul
+            id="limitsList"
+            style="display:none"
+        ></ul>
+
+
+    </section>
+
+
+
+    <!-- =====================================================
+         RESULTATEN
+    ====================================================== -->
+
+    <section
+        class="panel full"
+        id="resultsSection"
+        style="display:none"
+    >
+
+
+        <div class="results-header">
+
+
+            <span
+                class="count"
+                id="resultCount"
+            >
+                0
+            </span>
+
+
+            <span
+                style="
+                    color:var(--dim);
+                    font-family:var(--mono);
+                    font-size:13px;
+                "
+            >
+                clips created
+            </span>
+
+
+            <span
+                class="provider-badge"
+                id="providerBadge"
+            ></span>
+
+
+        </div>
+
+
+        <div
+            class="clips-grid"
+            id="clipsGrid"
+        ></div>
+
+
+    </section>
 
 
 </main>
@@ -1576,28 +2003,45 @@ main{
      FOOTER
 ======================================================= -->
 
-<footer class="site-footer">
+<footer
+    style="
+        border-top:1px solid var(--line);
+        background:#fff;
+        color:var(--dim);
+        padding:18px 24px;
+        font-size:12px;
+    "
+>
 
-  <div class="site-footer-inner">
+    <div
+        style="
+            max-width:1180px;
+            margin:auto;
+            display:flex;
+            justify-content:space-between;
+            gap:15px;
+        "
+    >
 
-    <span>
-      <strong>ClipParty</strong>
-      Â· AI clipping voor creators & clippers
-    </span>
+        <span>
+            <strong>ClipParty</strong>
+            · AI clipping voor creators &amp; clippers
+        </span>
 
-    <span>
-      Â© 2026 ClipParty
-    </span>
+        <span>
+            © 2026 ClipParty
+        </span>
 
-  </div>
+    </div>
 
 </footer>
 
 
 <div
-  class="toast"
-  id="toast"
+    class="toast"
+    id="toast"
 ></div>
+
 
 
 <script>
@@ -1606,6 +2050,12 @@ main{
 /* =========================================================
    CONFIG
 ========================================================= */
+
+/*
+   BELANGRIJK:
+   Lege API = dezelfde server waarop ClipParty draait.
+   Hierdoor werkt de site lokaal én op Render.
+*/
 
 const API = "";
 
@@ -1626,63 +2076,298 @@ let pollTimer = null;
 
 
 /* =========================================================
-   PLATFORM CAMPAIGN
+   HELPERS
 ========================================================= */
 
-const selectedPlatformCampaign =
-  JSON.parse(
-    localStorage.getItem(
-      "selectedPlatformCampaign"
-    ) || "null"
-  );
+function escapeHtml(value){
+
+    return String(value ?? "")
+
+        .replace(/&/g,"&amp;")
+
+        .replace(/</g,"&lt;")
+
+        .replace(/>/g,"&gt;")
+
+        .replace(/"/g,"&quot;")
+
+        .replace(/'/g,"&#039;");
+
+}
 
 
-if(selectedPlatformCampaign){
+function toast(message){
 
-  setTimeout(()=>{
+    const element =
+        document.getElementById("toast");
 
-    const el =
-      document.querySelector(
-        "input[name=campaignName],#campaignName"
-      );
+    element.textContent =
+        message;
 
-    if(
-      el &&
-      !el.value
-    ){
+    element.style.display =
+        "block";
 
-      el.value =
-        selectedPlatformCampaign.name;
+    clearTimeout(
+        element._timer
+    );
 
-    }
-
-  },300);
+    element._timer =
+        setTimeout(
+            ()=>{
+                element.style.display =
+                    "none";
+            },
+            5000
+        );
 
 }
 
 
 /* =========================================================
-   TOAST
+   ACCOUNT DROPDOWN
 ========================================================= */
 
-function toast(msg){
-
-  const t =
-    document.getElementById("toast");
-
-  t.textContent = msg;
-
-  t.style.display = "block";
-
-  clearTimeout(t._hideTimer);
-
-  t._hideTimer =
-    setTimeout(
-      ()=>{
-        t.style.display = "none";
-      },
-      5000
+const accountButton =
+    document.getElementById(
+        "accountButton"
     );
+
+const accountMenu =
+    document.getElementById(
+        "accountMenu"
+    );
+
+
+if(
+    accountButton &&
+    accountMenu
+){
+
+    accountButton.addEventListener(
+        "click",
+        function(event){
+
+            event.stopPropagation();
+
+            accountMenu.classList.toggle(
+                "open"
+            );
+
+        }
+    );
+
+
+    document.addEventListener(
+        "click",
+        function(event){
+
+            if(
+                !event.target.closest(
+                    ".account"
+                )
+            ){
+
+                accountMenu.classList.remove(
+                    "open"
+                );
+
+            }
+
+        }
+    );
+
+}
+
+
+/* =========================================================
+   ACCOUNT INFO
+========================================================= */
+
+async function loadAccountInfo(){
+
+    try{
+
+        const response =
+            await fetch(
+                API + "/api/auth/me",
+                {
+                    credentials:"include"
+                }
+            );
+
+
+        if(!response.ok){
+
+            /*
+               Niet ingelogd:
+               accountmenu blijft wel zichtbaar,
+               maar de knop leidt naar login.
+            */
+
+            accountButton.onclick =
+                function(){
+
+                    window.location.href =
+                        "/ui/login.html";
+
+                };
+
+            return;
+
+        }
+
+
+        const data =
+            await response.json();
+
+
+        const user =
+            data.user || data;
+
+
+        const name =
+            user.name ||
+            user.email ||
+            "Account";
+
+
+        const email =
+            user.email ||
+            "";
+
+
+        const navName =
+            document.getElementById(
+                "navName"
+            );
+
+
+        const navAvatar =
+            document.getElementById(
+                "navAvatar"
+            );
+
+
+        const menuName =
+            document.getElementById(
+                "menuName"
+            );
+
+
+        const menuEmail =
+            document.getElementById(
+                "menuEmail"
+            );
+
+
+        if(navName){
+
+            navName.textContent =
+                name;
+
+        }
+
+
+        if(navAvatar){
+
+            navAvatar.textContent =
+                name
+                    .trim()
+                    .charAt(0)
+                    .toUpperCase();
+
+        }
+
+
+        if(menuName){
+
+            menuName.textContent =
+                name;
+
+        }
+
+
+        if(menuEmail){
+
+            menuEmail.textContent =
+                email;
+
+        }
+
+
+        /*
+           Tokenwaarde indien backend die
+           terugstuurt.
+        */
+
+        const tokenBalance =
+            user.tokens ??
+            user.token_balance;
+
+
+        if(
+            tokenBalance !== undefined
+        ){
+
+            const tokenElement =
+                document.getElementById(
+                    "menuTokens"
+                );
+
+            if(tokenElement){
+
+                tokenElement.textContent =
+                    tokenBalance;
+
+            }
+
+        }
+
+    }
+    catch(error){
+
+        console.error(
+            "Account laden mislukt:",
+            error
+        );
+
+    }
+
+}
+
+
+loadAccountInfo();
+
+
+/* =========================================================
+   LOGOUT
+========================================================= */
+
+async function logout(){
+
+    try{
+
+        await fetch(
+            API + "/api/auth/logout",
+            {
+                method:"POST",
+                credentials:"include"
+            }
+        );
+
+    }
+    catch(error){
+
+        console.error(
+            "Logout mislukt:",
+            error
+        );
+
+    }
+
+
+    window.location.href =
+        "/ui/login.html";
 
 }
 
@@ -1693,85 +2378,79 @@ function toast(msg){
 
 async function checkHealth(){
 
-  const el =
-    document.getElementById("apiStatus");
-
-  try{
-
-    const r =
-      await fetch(
-        API + "/api/health"
-      );
-
-    if(!r.ok){
-
-      throw new Error(
-        "HTTP " + r.status
-      );
-
-    }
-
-    const data =
-      await r.json();
+    const element =
+        document.getElementById(
+            "apiStatus"
+        );
 
 
-    const modelInfo =
-      data.available
+    try{
 
-        ? `LLM: ${data.llm_provider} (${data.llm_model})`
+        const response =
+            await fetch(
+                API + "/api/health"
+            );
 
-        : `LLM: geen geschikt Groq-model beschikbaar -- ${data.llm_detail || ""}`;
+
+        if(!response.ok){
+
+            throw new Error(
+                "HTTP " +
+                response.status
+            );
+
+        }
 
 
-    if(!data.available){
+        const data =
+            await response.json();
 
-      el.textContent =
-        "Backend online â€” LET OP: " +
-        modelInfo;
 
-      el.style.color =
-        "var(--warn)";
+        const modelInfo =
+            data.available
 
-    }
+                ? "LLM: " +
+                  data.llm_provider +
+                  " (" +
+                  data.llm_model +
+                  ")"
 
-    else if(
-      data.warnings &&
-      data.warnings.length
-    ){
+                : "LLM-configuratie controleren";
 
-      el.textContent =
-        "Backend online â€” " +
-        modelInfo +
-        " â€” " +
-        data.warnings.join(" / ");
 
-      el.style.color =
-        "var(--warn)";
+        if(
+            !data.available
+        ){
 
-    }
+            element.textContent =
+                "Backend online — " +
+                modelInfo;
 
-    else{
+            element.style.color =
+                "var(--warn)";
 
-      el.textContent =
-        "Backend online â€” " +
-        modelInfo;
+        }
+        else{
 
-      el.style.color =
-        "var(--green)";
+            element.textContent =
+                "Backend online — " +
+                modelInfo;
+
+            element.style.color =
+                "var(--green)";
+
+        }
 
     }
+    catch(error){
 
-  }
-  catch(e){
+        element.textContent =
+            "Backend niet bereikbaar.";
 
-    el.textContent =
-      "Backend niet bereikbaar op " +
-      API;
+        element.style.color =
+            "var(--danger)";
 
-    el.style.color =
-      "var(--danger)";
-
-  }
+    }
 
 }
 
@@ -1785,54 +2464,64 @@ checkHealth();
 
 async function uploadFile(file){
 
-  const fd =
-    new FormData();
-
-  fd.append(
-    "file",
-    file
-  );
+    const formData =
+        new FormData();
 
 
-  const r =
-    await fetch(
-      API + "/api/upload",
-      {
-        method:"POST",
-        body:fd
-      }
+    formData.append(
+        "file",
+        file
     );
 
 
-  if(!r.ok){
+    const response =
+        await fetch(
+            API + "/api/upload",
+            {
+                method:"POST",
+                body:formData
+            }
+        );
 
-    let detail =
-      "upload mislukt: " +
-      file.name;
 
-    try{
+    if(!response.ok){
 
-      const d =
-        await r.json();
+        let detail =
+            "Upload mislukt: " +
+            file.name;
 
-      if(d.detail){
 
-        detail =
-          typeof d.detail === "string"
-            ? d.detail
-            : JSON.stringify(d.detail);
+        try{
 
-      }
+            const data =
+                await response.json();
+
+
+            if(data.detail){
+
+                detail =
+                    typeof data.detail === "string"
+
+                        ? data.detail
+
+                        : JSON.stringify(
+                            data.detail
+                        );
+
+            }
+
+        }
+        catch(error){}
+
+
+        throw new Error(
+            detail
+        );
 
     }
-    catch(e){}
-
-    throw new Error(detail);
-
-  }
 
 
-  return await r.json();
+    return await response.json();
 
 }
 
@@ -1842,82 +2531,93 @@ async function uploadFile(file){
 ========================================================= */
 
 function setupDropzone(
-  zoneId,
-  inputId,
-  onFiles
+    zoneId,
+    inputId,
+    onFiles
 ){
 
-  const zone =
-    document.getElementById(zoneId);
-
-  const input =
-    document.getElementById(inputId);
-
-
-  zone.addEventListener(
-    "click",
-    ()=>{
-      input.click();
-    }
-  );
+    const zone =
+        document.getElementById(
+            zoneId
+        );
 
 
-  input.addEventListener(
-    "change",
-    ()=>{
-      onFiles(
-        Array.from(
-          input.files
-        )
-      );
-
-      input.value = "";
-    }
-  );
+    const input =
+        document.getElementById(
+            inputId
+        );
 
 
-  zone.addEventListener(
-    "dragover",
-    e=>{
-
-      e.preventDefault();
-
-      zone.classList.add(
-        "drag"
-      );
-
-    }
-  );
+    zone.addEventListener(
+        "click",
+        ()=>{
+            input.click();
+        }
+    );
 
 
-  zone.addEventListener(
-    "dragleave",
-    ()=>{
-      zone.classList.remove(
-        "drag"
-      );
-    }
-  );
+    input.addEventListener(
+        "change",
+        ()=>{
+
+            onFiles(
+                Array.from(
+                    input.files
+                )
+            );
+
+            input.value =
+                "";
+
+        }
+    );
 
 
-  zone.addEventListener(
-    "drop",
-    e=>{
+    zone.addEventListener(
+        "dragover",
+        event=>{
 
-      e.preventDefault();
+            event.preventDefault();
 
-      zone.classList.remove(
-        "drag"
-      );
+            zone.classList.add(
+                "drag"
+            );
 
-      onFiles(
-        Array.from(
-          e.dataTransfer.files
-        )
-      );
+        }
+    );
 
-    }
-  );
+
+    zone.addEventListener(
+        "dragleave",
+        ()=>{
+
+            zone.classList.remove(
+                "drag"
+            );
+
+        }
+    );
+
+
+    zone.addEventListener(
+        "drop",
+        event=>{
+
+            event.preventDefault();
+
+            zone.classList.remove(
+                "drag"
+            );
+
+
+            onFiles(
+                Array.from(
+                    event.dataTransfer.files
+                )
+            );
+
+        }
+    );
 
 }
 
@@ -1927,58 +2627,74 @@ function setupDropzone(
 ========================================================= */
 
 setupDropzone(
-  "briefDrop",
-  "briefInput",
+    "briefDrop",
+    "briefInput",
 
-  async(files)=>{
+    async files=>{
 
-    if(!files.length){
-      return;
+        if(!files.length){
+
+            return;
+
+        }
+
+
+        try{
+
+            const result =
+                await uploadFile(
+                    files[0]
+                );
+
+
+            briefPath =
+                result.path;
+
+
+            document.getElementById(
+                "briefList"
+            ).innerHTML =
+
+                `<div class="fileitem">
+
+                    <span>
+                        ${escapeHtml(
+                            result.filename
+                        )}
+                    </span>
+
+                    <button
+                        onclick="clearBrief()"
+                    >
+                        ✕
+                    </button>
+
+                </div>`;
+
+        }
+        catch(error){
+
+            toast(
+                error.message
+            );
+
+        }
+
     }
-
-
-    try{
-
-      const res =
-        await uploadFile(
-          files[0]
-        );
-
-
-      briefPath =
-        res.path;
-
-
-      document.getElementById(
-        "briefList"
-      ).innerHTML =
-
-        `<div class="fileitem">
-          <span>${escapeHtml(res.filename)}</span>
-          <button onclick="clearBrief()">âœ•</button>
-        </div>`;
-
-    }
-    catch(e){
-
-      toast(
-        e.message
-      );
-
-    }
-
-  }
 
 );
 
 
 function clearBrief(){
 
-  briefPath = null;
+    briefPath =
+        null;
 
-  document.getElementById(
-    "briefList"
-  ).innerHTML = "";
+
+    document.getElementById(
+        "briefList"
+    ).innerHTML =
+        "";
 
 }
 
@@ -1988,105 +2704,107 @@ function clearBrief(){
 ========================================================= */
 
 setupDropzone(
-  "videoDrop",
-  "videoInput",
+    "videoDrop",
+    "videoInput",
 
-  async(files)=>{
+    async files=>{
 
-    const remaining =
-      Math.max(
-        0,
-        5 - videoPaths.length
-      );
-
-
-    for(
-      const f of files.slice(
-        0,
-        remaining
-      )
-    ){
-
-      if(
-        videoPaths.length >= 5
-      ){
-
-        break;
-
-      }
+        const remaining =
+            Math.max(
+                0,
+                5 - videoPaths.length
+            );
 
 
-      try{
+        for(
+            const file of
+            files.slice(
+                0,
+                remaining
+            )
+        ){
 
-        const res =
-          await uploadFile(f);
+            try{
+
+                const result =
+                    await uploadFile(
+                        file
+                    );
 
 
-        videoPaths.push({
+                videoPaths.push({
 
-          label:
-            res.filename,
+                    label:
+                        result.filename,
 
-          path:
-            res.path
+                    path:
+                        result.path
 
-        });
+                });
 
-      }
-      catch(e){
+            }
+            catch(error){
 
-        toast(
-          e.message
-        );
+                toast(
+                    error.message
+                );
 
-      }
+            }
+
+        }
+
+
+        renderVideoList();
 
     }
-
-
-    renderVideoList();
-
-  }
 
 );
 
 
 function renderVideoList(){
 
-  document.getElementById(
-    "videoList"
-  ).innerHTML =
+    const element =
+        document.getElementById(
+            "videoList"
+        );
 
-    videoPaths.map(
-      (v,i)=>
 
-        `<div class="fileitem">
+    element.innerHTML =
 
-          <span>
-            ${escapeHtml(v.label)}
-          </span>
+        videoPaths.map(
+            (video,index)=>`
 
-          <button
-            onclick="removeVideo(${i})"
-          >
-            âœ•
-          </button>
+                <div class="fileitem">
 
-        </div>`
+                    <span>
+                        ${escapeHtml(
+                            video.label
+                        )}
+                    </span>
 
-    ).join("");
+                    <button
+                        onclick="removeVideo(${index})"
+                    >
+                        ✕
+                    </button>
+
+                </div>
+
+            `
+        ).join("");
 
 }
 
 
-function removeVideo(i){
+function removeVideo(index){
 
-  videoPaths.splice(
-    i,
-    1
-  );
+    videoPaths.splice(
+        index,
+        1
+    );
 
-  renderVideoList();
+
+    renderVideoList();
 
 }
 
@@ -2097,156 +2815,150 @@ function removeVideo(i){
 
 async function addYoutube(){
 
-  const input =
-    document.getElementById(
-      "ytUrl"
-    );
+    const input =
+        document.getElementById(
+            "ytUrl"
+        );
 
 
-  const url =
-    input.value.trim();
+    const url =
+        input.value.trim();
 
 
-  if(!url){
-    return;
-  }
+    if(!url){
 
-
-  if(
-    youtubeUrls.includes(url)
-  ){
-
-    toast(
-      "Deze YouTube-URL is al toegevoegd."
-    );
-
-    return;
-
-  }
-
-
-  youtubeUrls.push(
-    url
-  );
-
-
-  input.value = "";
-
-  renderYtList();
-
-
-  try{
-
-    const r =
-      await fetch(
-        API + "/api/youtube/resolve",
-        {
-          method:"POST",
-
-          headers:{
-            "Content-Type":
-              "application/json"
-          },
-
-          body:
-            JSON.stringify({
-              url
-            })
-        }
-      );
-
-
-    if(r.ok){
-
-      const meta =
-        await r.json();
-
-
-      renderYtList(
-
-        meta.title
-          ? `${url} â€” "${meta.title}"`
-          : null,
-
-        url
-
-      );
+        return;
 
     }
 
-  }
-  catch(e){
 
-    /*
-      Resolve is optioneel.
-      De download gebeurt bij het
-      starten van de clipping-job.
-    */
+    youtubeUrls.push(
+        url
+    );
 
-  }
+
+    input.value =
+        "";
+
+
+    renderYtList();
+
+
+    try{
+
+        const response =
+            await fetch(
+                API + "/api/youtube/resolve",
+                {
+                    method:"POST",
+
+                    headers:{
+                        "Content-Type":
+                            "application/json"
+                    },
+
+                    body:
+                        JSON.stringify({
+                            url:url
+                        })
+
+                }
+            );
+
+
+        if(response.ok){
+
+            const metadata =
+                await response.json();
+
+
+            if(metadata.title){
+
+                renderYtList(
+                    `${url} — "${metadata.title}"`,
+                    url
+                );
+
+            }
+
+        }
+
+    }
+    catch(error){
+
+        /*
+           Resolve is optioneel.
+           De URL kan nog steeds
+           bij het starten worden gebruikt.
+        */
+
+    }
 
 }
 
 
 function renderYtList(
-  overrideLabel,
-  overrideUrl
+    overrideLabel,
+    overrideUrl
 ){
 
-  const el =
-    document.getElementById(
-      "ytList"
-    );
+    const element =
+        document.getElementById(
+            "ytList"
+        );
 
 
-  el.innerHTML =
+    element.innerHTML =
 
-    youtubeUrls.map(
-      (u,i)=>{
+        youtubeUrls.map(
+            (url,index)=>{
 
-        const label =
-          (
-            overrideUrl === u &&
-            overrideLabel
-          )
+                const label =
+                    (
+                        overrideUrl === url &&
+                        overrideLabel
+                    )
 
-            ? overrideLabel
-            : u;
+                        ? overrideLabel
+
+                        : url;
 
 
-        return `
+                return `
 
-          <div class="fileitem">
+                    <div class="fileitem">
 
-            <span>
-              ${escapeHtml(label)}
-            </span>
+                        <span>
+                            ${escapeHtml(
+                                label
+                            )}
+                        </span>
 
-            <button
-              onclick="removeYt(${i})"
-            >
-              âœ•
-            </button>
+                        <button
+                            onclick="removeYt(${index})"
+                        >
+                            ✕
+                        </button>
 
-          </div>
+                    </div>
 
-        `;
+                `;
 
-      }
-
-    ).join("");
+            }
+        ).join("");
 
 }
 
 
-function removeYt(i){
+function removeYt(index){
 
-  youtubeUrls.splice(
-    i,
-    1
-  );
+    youtubeUrls.splice(
+        index,
+        1
+    );
 
-  renderYtList();
+
+    renderYtList();
 
 }
 
@@ -2257,82 +2969,94 @@ function removeYt(i){
 
 function collectSettings(){
 
-  return {
+    return {
 
-    min_clips:
-      parseInt(
-        document.getElementById(
-          "minClips"
-        ).value
-      ),
+        min_clips:
+            parseInt(
+                document.getElementById(
+                    "minClips"
+                ).value
+            ),
 
-    max_clips:
-      parseInt(
-        document.getElementById(
-          "maxClips"
-        ).value
-      ),
 
-    max_duration:
-      parseInt(
-        document.getElementById(
-          "maxDuration"
-        ).value
-      ),
+        max_clips:
+            parseInt(
+                document.getElementById(
+                    "maxClips"
+                ).value
+            ),
 
-    preferred_min_duration:
-      parseInt(
-        document.getElementById(
-          "prefMin"
-        ).value
-      ),
 
-    preferred_max_duration:
-      parseInt(
-        document.getElementById(
-          "prefMax"
-        ).value
-      ),
+        max_duration:
+            parseInt(
+                document.getElementById(
+                    "maxDuration"
+                ).value
+            ),
 
-    aspect_ratio:
-      document.getElementById(
-        "aspectRatio"
-      ).value,
 
-    resolution:
-      document.getElementById(
-        "resolution"
-      ).value,
+        preferred_min_duration:
+            parseInt(
+                document.getElementById(
+                    "prefMin"
+                ).value
+            ),
 
-    subtitles:
-      document.getElementById(
-        "subtitles"
-      ).checked,
 
-    hooks:
-      document.getElementById(
-        "hooks"
-      ).checked,
+        preferred_max_duration:
+            parseInt(
+                document.getElementById(
+                    "prefMax"
+                ).value
+            ),
 
-    face_priority:
-      document.getElementById(
-        "facePriority"
-      ).checked,
 
-    quality:
-      document.getElementById(
-        "highestQuality"
-      ).checked
+        aspect_ratio:
+            document.getElementById(
+                "aspectRatio"
+            ).value,
 
-        ? "highest"
-        : "standard",
 
-    llm_provider:
-      document.getElementById(
-        "llmProvider"
-      ).value
+        resolution:
+            document.getElementById(
+                "resolution"
+            ).value,
 
-  };
+
+        subtitles:
+            document.getElementById(
+                "subtitles"
+            ).checked,
+
+
+        hooks:
+            document.getElementById(
+                "hooks"
+            ).checked,
+
+
+        face_priority:
+            document.getElementById(
+                "facePriority"
+            ).checked,
+
+
+        quality:
+            document.getElementById(
+                "highestQuality"
+            ).checked
+
+                ? "highest"
+
+                : "standard",
+
+
+        llm_provider:
+            document.getElementById(
+                "llmProvider"
+            ).value
+
+    };
 
 }
 
@@ -2343,956 +3067,866 @@ function collectSettings(){
 
 async function startClipping(){
 
-  if(!briefPath){
+    if(!briefPath){
 
-    toast(
-      "Upload eerst een campagnebriefing."
-    );
+        toast(
+            "Upload eerst een campagnebriefing."
+        );
 
-    return;
-
-  }
-
-
-  if(
-    !videoPaths.length &&
-    !youtubeUrls.length
-  ){
-
-    toast(
-      "Voeg minstens Ã©Ã©n bronvideo of YouTube-URL toe."
-    );
-
-    return;
-
-  }
-
-
-  const btn =
-    document.getElementById(
-      "startBtn"
-    );
-
-
-  btn.disabled = true;
-
-
-  document.getElementById(
-    "progressWrap"
-  ).style.display = "block";
-
-
-  document.getElementById(
-    "resultsSection"
-  ).style.display = "none";
-
-
-  document.getElementById(
-    "limitsList"
-  ).style.display = "none";
-
-
-  document.getElementById(
-    "jobModelLine"
-  ).style.display = "none";
-
-
-  const videos = [
-
-    ...videoPaths.map(
-      v=>v.path
-    ),
-
-    ...youtubeUrls
-
-  ];
-
-
-  try{
-
-    const r =
-      await fetch(
-        API + "/api/campaign/start",
-        {
-
-          method:"POST",
-
-          headers:{
-            "Content-Type":
-              "application/json"
-          },
-
-          body:
-            JSON.stringify({
-
-              campaign_file:
-                briefPath,
-
-              videos:
-
-                videos,
-
-              settings:
-                collectSettings()
-
-            })
-
-        }
-      );
-
-
-    if(!r.ok){
-
-      const err =
-        await r.json();
-
-
-      throw new Error(
-
-        typeof err.detail === "string"
-
-          ? err.detail
-
-          : JSON.stringify(
-              err.detail
-            )
-
-      );
+        return;
 
     }
 
 
-    const data =
-      await r.json();
+    if(
+        !videoPaths.length &&
+        !youtubeUrls.length
+    ){
+
+        toast(
+            "Voeg minstens één bronvideo of YouTube-URL toe."
+        );
+
+        return;
+
+    }
 
 
-    currentJobId =
-      data.job_id;
+    const button =
+        document.getElementById(
+            "startBtn"
+        );
 
 
-    pollTimer =
-      setInterval(
-        pollJob,
-        1500
-      );
+    button.disabled =
+        true;
 
 
-    /*
-      Meteen Ã©Ã©n keer pollen,
-      zodat we niet 1,5 sec wachten.
-    */
-
-    pollJob();
-
-  }
-  catch(e){
-
-    toast(
-      "Kon job niet starten: " +
-      e.message
-    );
+    document.getElementById(
+        "progressWrap"
+    ).style.display =
+        "block";
 
 
-    btn.disabled = false;
+    document.getElementById(
+        "resultsSection"
+    ).style.display =
+        "none";
 
-  }
+
+    document.getElementById(
+        "jobModelLine"
+    ).style.display =
+        "none";
+
+
+    const videos = [
+
+        ...videoPaths.map(
+            video =>
+                video.path
+        ),
+
+        ...youtubeUrls
+
+    ];
+
+
+    try{
+
+        const response =
+            await fetch(
+                API + "/api/campaign/start",
+                {
+
+                    method:"POST",
+
+                    headers:{
+                        "Content-Type":
+                            "application/json"
+                    },
+
+                    credentials:"include",
+
+                    body:
+                        JSON.stringify({
+
+                            campaign_file:
+                                briefPath,
+
+                            videos:
+                                videos,
+
+                            settings:
+                                collectSettings()
+
+                        })
+
+                }
+            );
+
+
+        if(!response.ok){
+
+            const error =
+                await response.json();
+
+
+            throw new Error(
+
+                typeof error.detail === "string"
+
+                    ? error.detail
+
+                    : JSON.stringify(
+                        error.detail
+                    )
+
+            );
+
+        }
+
+
+        const data =
+            await response.json();
+
+
+        currentJobId =
+            data.job_id;
+
+
+        pollTimer =
+            setInterval(
+                pollJob,
+                1500
+            );
+
+
+        await pollJob();
+
+    }
+    catch(error){
+
+        toast(
+            "Kon job niet starten: " +
+            error.message
+        );
+
+
+        button.disabled =
+            false;
+
+    }
 
 }
 
 
 /* =========================================================
-   POLL JOB
+   JOB POLLEN
 ========================================================= */
 
 async function pollJob(){
 
-  if(!currentJobId){
-    return;
-  }
+    if(!currentJobId){
 
-
-  try{
-
-    const r =
-      await fetch(
-        API +
-        `/api/jobs/${currentJobId}`
-      );
-
-
-    if(!r.ok){
-      return;
-    }
-
-
-    const status =
-      await r.json();
-
-
-    const progress =
-      Math.max(
-        0,
-        Math.min(
-          100,
-          Number(
-            status.progress || 0
-          )
-        )
-      );
-
-
-    document.getElementById(
-      "progressFill"
-    ).style.width =
-      progress + "%";
-
-
-    document.getElementById(
-      "stageLabel"
-    ).textContent =
-      status.stage_label ||
-      "Bezig...";
-
-
-    document.getElementById(
-      "stagePct"
-    ).textContent =
-      progress + "%";
-
-
-    const modelLine =
-      document.getElementById(
-        "jobModelLine"
-      );
-
-
-    if(
-      status.llm_model_used
-    ){
-
-      modelLine.style.display =
-        "block";
-
-
-      const providerLabel =
-        status.llm_provider_used ===
-        "anthropic"
-
-          ? "Anthropic"
-
-          : "Groq";
-
-
-      modelLine.textContent =
-        `LLM: ${providerLabel} (${status.llm_model_used})`;
+        return;
 
     }
 
 
-    if(
-      status.status ===
-      "completed"
-    ){
+    try{
 
-      clearInterval(
-        pollTimer
-      );
-
-
-      document.getElementById(
-        "startBtn"
-      ).disabled = false;
+        const response =
+            await fetch(
+                API +
+                "/api/jobs/" +
+                encodeURIComponent(
+                    currentJobId
+                )
+            );
 
 
-      await loadResults();
+        if(!response.ok){
+
+            return;
+
+        }
+
+
+        const status =
+            await response.json();
+
+
+        const progress =
+            Number(
+                status.progress || 0
+            );
+
+
+        document.getElementById(
+            "progressFill"
+        ).style.width =
+            progress + "%";
+
+
+        document.getElementById(
+            "stageLabel"
+        ).textContent =
+            status.stage_label ||
+            status.stage ||
+            "Bezig...";
+
+
+        document.getElementById(
+            "stagePct"
+        ).textContent =
+            progress + "%";
+
+
+        const modelLine =
+            document.getElementById(
+                "jobModelLine"
+            );
+
+
+        if(
+            status.llm_model_used
+        ){
+
+            modelLine.style.display =
+                "block";
+
+
+            const provider =
+                status.llm_provider_used ===
+                "anthropic"
+
+                    ? "Anthropic"
+
+                    : "Groq";
+
+
+            modelLine.textContent =
+                "LLM: " +
+                provider +
+                " (" +
+                status.llm_model_used +
+                ")";
+
+        }
+
+
+        if(
+            status.status ===
+            "completed"
+        ){
+
+            clearInterval(
+                pollTimer
+            );
+
+
+            document.getElementById(
+                "startBtn"
+            ).disabled =
+                false;
+
+
+            await loadResults();
+
+        }
+
+
+        if(
+            status.status ===
+            "failed"
+        ){
+
+            clearInterval(
+                pollTimer
+            );
+
+
+            document.getElementById(
+                "startBtn"
+            ).disabled =
+                false;
+
+
+            toast(
+                "Job mislukt: " +
+                (
+                    status.error ||
+                    "onbekende fout"
+                )
+            );
+
+        }
 
     }
+    catch(error){
 
-
-    if(
-      status.status ===
-      "failed"
-    ){
-
-      clearInterval(
-        pollTimer
-      );
-
-
-      document.getElementById(
-        "startBtn"
-      ).disabled = false;
-
-
-      toast(
-        "Job mislukt: " +
-        (
-          status.error ||
-          "onbekende fout"
-        )
-      );
+        console.error(
+            "Job polling error:",
+            error
+        );
 
     }
-
-  }
-  catch(e){
-
-    /*
-      Tijdelijke netwerkfouten
-      negeren we tijdens het pollen.
-    */
-
-  }
 
 }
 
 
 /* =========================================================
-   LOAD RESULTS
+   RESULTATEN
 ========================================================= */
 
 async function loadResults(){
 
-  const r =
-    await fetch(
-      API +
-      `/api/jobs/${currentJobId}/report`
-    );
+    const response =
+        await fetch(
+            API +
+            "/api/jobs/" +
+            encodeURIComponent(
+                currentJobId
+            ) +
+            "/report"
+        );
 
 
-  if(!r.ok){
-    return;
-  }
+    if(!response.ok){
+
+        return;
+
+    }
 
 
-  const report =
-    await r.json();
+    const report =
+        await response.json();
 
 
-  document.getElementById(
-    "resultsSection"
-  ).style.display =
-    "block";
-
-
-  document.getElementById(
-    "resultCount"
-  ).textContent =
-    report.aantal_definitief || 0;
-
-
-  const providerLabel =
-    report.llm_provider_used ===
-    "anthropic"
-
-      ? "Anthropic"
-
-      : "Groq";
-
-
-  document.getElementById(
-    "providerBadge"
-  ).textContent =
-
-    "LLM: " +
-    providerLabel +
-
-    (
-      report.llm_model_used
-        ? " (" +
-          report.llm_model_used +
-          ")"
-        : ""
-    );
-
-
-  const list =
     document.getElementById(
-      "limitsList"
-    );
+        "resultsSection"
+    ).style.display =
+        "block";
 
 
-  list.style.display =
-    "none";
-
-
-  list.innerHTML =
-    "";
-
-
-  const clipsGrid =
     document.getElementById(
-      "clipsGrid"
-    );
+        "resultCount"
+    ).textContent =
+        report.aantal_definitief ??
+        (
+            report.clips
+                ? report.clips.length
+                : 0
+        );
 
 
-  if(
-    !report.clips ||
-    !report.clips.length
-  ){
+    const provider =
+        report.llm_provider_used ===
+        "anthropic"
 
-    clipsGrid.innerHTML =
+            ? "Anthropic"
 
-      `<div
-        style="
-          padding:18px;
-          border:1px solid #dbeafe;
-          border-radius:10px;
-          background:#eff6ff;
-          color:#1e3a8a;
-          font-family:var(--mono);
-          font-size:12px;
-        "
-      >
-        ClipParty kon in deze run geen geldige clip produceren.
-        De technische details staan niet als storende melding in de interface.
-      </div>`;
-
-    return;
-
-  }
+            : "Groq";
 
 
-  clipsGrid.innerHTML =
+    document.getElementById(
+        "providerBadge"
+    ).textContent =
 
-    report.clips.map(
-      c=>`
+        "LLM: " +
+        provider +
 
-        <div class="clip-card">
+        (
+            report.llm_model_used
 
-          <video
-            controls
-            preload="metadata"
-            src="${API}/api/files/${encodeURIComponent(c.file_id)}"
-          ></video>
+                ? " (" +
+                  report.llm_model_used +
+                  ")"
 
-
-          <div class="clip-body">
-
-
-            <div class="clip-title">
-
-              <span>
-                ${escapeHtml(c.filename || "Clip")}
-                Â·
-                ${Number(c.duration || 0).toFixed(1)}s
-                Â·
-                ${escapeHtml(c.resolution || "")}
-              </span>
+                : ""
+        );
 
 
-              <span
-                class="badge ${
-                  c.compliance === "PASS"
-                    ? "pass"
-                    : "fail"
-                }"
-              >
-                ${escapeHtml(c.compliance || "")}
-              </span>
+    const clips =
+        report.clips || [];
 
+
+    if(!clips.length){
+
+        document.getElementById(
+            "clipsGrid"
+        ).innerHTML = `
+
+            <div
+                style="
+                    padding:18px;
+                    border:1px solid #dbeafe;
+                    border-radius:10px;
+                    background:#eff6ff;
+                    color:#1e3a8a;
+                    font-size:12px;
+                "
+            >
+                ClipParty kon in deze run geen
+                geldige clip produceren.
             </div>
 
+        `;
 
-            <div class="clip-topic">
+        return;
 
-              <b>
-                ${escapeHtml(
-                  c.onderwerp || "-"
-                )}
-              </b>
-
-            </div>
+    }
 
 
-            <div class="clip-caption">
+    document.getElementById(
+        "clipsGrid"
+    ).innerHTML =
 
-              ${escapeHtml(
-                c.caption || ""
-              )}
+        clips.map(
+            clip=>{
 
-            </div>
-
-
-            <div class="clip-tags">
-
-              ${
-                (c.hashtags || [])
-                  .map(
-                    h=>
-
-                      `<span class="tag">
-                        #${escapeHtml(
-                          String(h)
-                            .replace(/^#/,"")
-                        )}
-                      </span>`
-
-                  )
-                  .join("")
-              }
-
-            </div>
+                const fileId =
+                    clip.file_id;
 
 
-            <div class="clip-actions">
+                const fileUrl =
+                    API +
+                    "/api/files/" +
+                    encodeURIComponent(
+                        fileId
+                    );
 
 
-              <button
-                onclick="openClip('${safeJs(c.file_id)}')"
-              >
-                Preview
-              </button>
+                const duration =
+                    Number(
+                        clip.duration || 0
+                    ).toFixed(1);
 
 
-              <button
-                onclick="copyClipPath('${safeJs(c.path || "")}')"
-              >
-                Copy Path
-              </button>
+                const resolution =
+                    clip.resolution ||
+                    "";
 
 
-              <button
-                onclick="downloadClip('${safeJs(c.file_id)}')"
-              >
-                Download
-              </button>
+                const filename =
+                    clip.filename ||
+                    "Clip";
 
 
-            </div>
+                const compliance =
+                    clip.compliance ||
+                    "";
 
 
-          </div>
+                const topic =
+                    clip.onderwerp ||
+                    "";
 
-        </div>
 
-      `
+                const caption =
+                    clip.caption ||
+                    "";
 
-    ).join("");
+
+                const hashtags =
+                    clip.hashtags ||
+                    [];
+
+
+                return `
+
+                    <div class="clip-card">
+
+
+                        <video
+                            controls
+                            preload="metadata"
+                            src="${fileUrl}"
+                        ></video>
+
+
+                        <div class="clip-body">
+
+
+                            <div class="clip-title">
+
+                                <span>
+                                    ${escapeHtml(
+                                        filename
+                                    )}
+                                    ·
+                                    ${duration}s
+                                    ${resolution
+                                        ? " · " +
+                                          escapeHtml(
+                                              resolution
+                                          )
+                                        : ""}
+                                </span>
+
+
+                                <span
+                                    class="
+                                        badge
+                                        ${
+                                            compliance ===
+                                            "PASS"
+
+                                                ? "pass"
+
+                                                : "fail"
+                                        }
+                                    "
+                                >
+                                    ${escapeHtml(
+                                        compliance
+                                    )}
+                                </span>
+
+                            </div>
+
+
+                            ${
+                                topic
+
+                                    ? `
+                                        <div class="clip-topic">
+                                            <b>
+                                                ${escapeHtml(
+                                                    topic
+                                                )}
+                                            </b>
+                                        </div>
+                                      `
+
+                                    : ""
+                            }
+
+
+                            ${
+                                caption
+
+                                    ? `
+                                        <div class="clip-caption">
+                                            ${escapeHtml(
+                                                caption
+                                            )}
+                                        </div>
+                                      `
+
+                                    : ""
+                            }
+
+
+                            <div class="clip-tags">
+
+                                ${
+
+                                    hashtags.map(
+                                        hashtag => `
+
+                                            <span class="tag">
+                                                #
+                                                ${escapeHtml(
+                                                    String(
+                                                        hashtag
+                                                    ).replace(
+                                                        /^#/,
+                                                        ""
+                                                    )
+                                                )}
+                                            </span>
+
+                                        `
+                                    ).join("")
+
+                                }
+
+                            </div>
+
+
+                            <div class="clip-actions">
+
+
+                                <button
+                                    type="button"
+                                    onclick="
+                                        window.open(
+                                            '${fileUrl}',
+                                            '_blank'
+                                        )
+                                    "
+                                >
+                                    Preview
+                                </button>
+
+
+                                <button
+                                    type="button"
+                                    onclick="
+                                        downloadClip(
+                                            '${fileUrl}',
+                                            '${escapeHtml(
+                                                filename
+                                            )}'
+                                        )
+                                    "
+                                >
+                                    Download
+                                </button>
+
+
+                            </div>
+
+
+                        </div>
+
+                    </div>
+
+                `;
+
+            }
+        ).join("");
 
 }
 
 
 /* =========================================================
-   RESULT ACTIONS
+   DOWNLOAD
 ========================================================= */
 
-function openClip(fileId){
+function downloadClip(
+    url,
+    filename
+){
 
-  window.open(
-    API +
-    "/api/files/" +
-    encodeURIComponent(
-      fileId
-    ),
-    "_blank"
-  );
-
-}
-
-
-function downloadClip(fileId){
-
-  const a =
-    document.createElement(
-      "a"
-    );
-
-  a.href =
-    API +
-    "/api/files/" +
-    encodeURIComponent(
-      fileId
-    );
-
-  a.download = "";
-
-  document.body.appendChild(
-    a
-  );
-
-  a.click();
-
-  a.remove();
-
-}
-
-
-async function copyClipPath(path){
-
-  try{
-
-    await navigator.clipboard.writeText(
-      path
-    );
-
-    toast(
-      "Pad gekopieerd"
-    );
-
-  }
-  catch(e){
-
-    toast(
-      "Pad kon niet worden gekopieerd."
-    );
-
-  }
-
-}
-
-
-/* =========================================================
-   SECURITY / HTML HELPERS
-========================================================= */
-
-function escapeHtml(value){
-
-  return String(
-    value ?? ""
-  )
-
-    .replace(
-      /&/g,
-      "&amp;"
-    )
-
-    .replace(
-      /</g,
-      "&lt;"
-    )
-
-    .replace(
-      />/g,
-      "&gt;"
-    )
-
-    .replace(
-      /"/g,
-      "&quot;"
-    )
-
-    .replace(
-      /'/g,
-      "&#039;"
-    );
-
-}
-
-
-function safeJs(value){
-
-  return String(
-    value ?? ""
-  )
-    .replace(
-      /\\/g,
-      "\\\\"
-    )
-    .replace(
-      /'/g,
-      "\\'"
-    );
-
-}
-
-
-/* =========================
-   ACCOUNT DROPDOWN
-========================= */
-
-const accountButton =
-    document.getElementById("accountButton");
-
-const accountMenu =
-    document.getElementById("accountMenu");
-
-if (accountButton && accountMenu) {
-
-    accountButton.addEventListener(
-        "click",
-        function(event) {
-
-            event.stopPropagation();
-
-            accountMenu.classList.toggle("open");
-
-        }
-    );
-
-    document.addEventListener(
-        "click",
-        function(event) {
-
-            if (!event.target.closest(".account")) {
-
-                accountMenu.classList.remove("open");
-
-            }
-
-        }
-    );
-
-}
-
-
-/* =========================
-   ACCOUNT INFO
-========================= */
-
-async function loadAccountInfo() {
-
-    try {
-
-        const response = await fetch(
-            "/api/auth/me",
-            {
-                credentials: "include"
-            }
+    const link =
+        document.createElement(
+            "a"
         );
 
-        if (!response.ok) {
-            return;
-        }
 
-        const user = await response.json();
-
-        const name =
-            user.name ||
-            user.full_name ||
-            user.email ||
-            "Account";
-
-        const email =
-            user.email ||
-            "";
-
-        const navName =
-            document.getElementById("navName");
-
-        const menuName =
-            document.getElementById("menuName");
-
-        const menuEmail =
-            document.getElementById("menuEmail");
-
-        const navAvatar =
-            document.getElementById("navAvatar");
-
-        if (navName) {
-            navName.textContent = name;
-        }
-
-        if (menuName) {
-            menuName.textContent = name;
-        }
-
-        if (menuEmail) {
-            menuEmail.textContent = email;
-        }
-
-        if (navAvatar) {
-            navAvatar.textContent =
-                name.charAt(0).toUpperCase();
-        }
-
-    } catch (error) {
-
-        console.error(
-            "Account laden mislukt:",
-            error
-        );
-
-    }
-
-}
+    link.href =
+        url;
 
 
-/* =========================
-   LOGOUT
-========================= */
-
-async function logout() {
-
-    try {
-
-        await fetch(
-            "/api/auth/logout",
-            {
-                method: "POST",
-                credentials: "include"
-            }
-        );
-
-    } catch (error) {
-
-        console.error(
-            "Logout request mislukt:",
-            error
-        );
-
-    }
-
-    window.location.href =
-        "/ui/login.html";
-
-}
+    link.download =
+        filename || "clip.mp4";
 
 
-/* ACCOUNT LADEN */
+    link.target =
+        "_blank";
 
-loadAccountInfo();
 
-/* =========================
-   ACCOUNT DROPDOWN
-========================= */
-
-const accountButton =
-    document.getElementById("accountButton");
-
-const accountMenu =
-    document.getElementById("accountMenu");
-
-if (accountButton && accountMenu) {
-
-    accountButton.addEventListener(
-        "click",
-        function(event) {
-
-            event.stopPropagation();
-
-            accountMenu.classList.toggle("open");
-
-        }
+    document.body.appendChild(
+        link
     );
 
-    document.addEventListener(
-        "click",
-        function(event) {
 
-            if (!event.target.closest(".account")) {
+    link.click();
 
-                accountMenu.classList.remove("open");
 
-            }
-
-        }
-    );
+    link.remove();
 
 }
-
-
-/* =========================
-   ACCOUNT INFO
-========================= */
-
-async function loadAccountInfo() {
-
-    try {
-
-        const response = await fetch(
-            API + "/api/auth/me",
-            {
-                credentials: "include"
-            }
-        );
-
-        if (!response.ok) {
-            return;
-        }
-
-        const data = await response.json();
-
-        const user = data.user || data;
-
-        const name =
-            user.name ||
-            user.email ||
-            "Account";
-
-        const email =
-            user.email ||
-            "";
-
-        const navName =
-            document.getElementById("navName");
-
-        const navAvatar =
-            document.getElementById("navAvatar");
-
-        const menuName =
-            document.getElementById("menuName");
-
-        const menuEmail =
-            document.getElementById("menuEmail");
-
-        if (navName) {
-            navName.textContent = name;
-        }
-
-        if (navAvatar) {
-            navAvatar.textContent =
-                name.charAt(0).toUpperCase();
-        }
-
-        if (menuName) {
-            menuName.textContent = name;
-        }
-
-        if (menuEmail) {
-            menuEmail.textContent = email;
-        }
-
-    } catch (error) {
-
-        console.error(
-            "Accountgegevens laden mislukt:",
-            error
-        );
-
-    }
-
-}
-
-
-/* =========================
-   LOGOUT
-========================= */
-
-async function logout() {
-
-    try {
-
-        await fetch(
-            API + "/api/auth/logout",
-            {
-                method: "POST",
-                credentials: "include"
-            }
-        );
-
-    } catch (error) {
-
-        console.error(
-            "Uitloggen mislukt:",
-            error
-        );
-
-    }
-
-    window.location.href =
-        "/ui/login.html";
-
-}
-
-
-/* Accountgegevens direct laden */
-
-loadAccountInfo();
 
 </script>
 
 
+
+<script>
+(function () {
+    const menu = document.getElementById("accountMenu");
+    const account = document.querySelector(".account");
+
+    if (!menu || !account) return;
+
+    document.addEventListener("click", function (event) {
+        if (!account.contains(event.target)) {
+            menu.classList.remove("open");
+        }
+    });
+})();
+</script>
+<script id="CLIPPARTY_ACCOUNT_FIX_SCRIPT">
+(function () {
+    function initClipPartyAccountDropdown() {
+        const oldButton = document.getElementById("accountButton");
+        const menu = document.getElementById("accountMenu");
+
+        if (!oldButton || !menu) return;
+
+        const button = oldButton.cloneNode(true);
+        oldButton.parentNode.replaceChild(button, oldButton);
+
+        button.addEventListener("click", function (event) {
+            event.preventDefault();
+            event.stopPropagation();
+
+            menu.classList.toggle("open");
+
+            if (menu.classList.contains("open")) {
+                menu.style.display = "block";
+            } else {
+                menu.style.display = "none";
+            }
+        });
+
+        document.addEventListener("click", function (event) {
+            const account = document.querySelector(".account");
+
+            if (account && !account.contains(event.target)) {
+                menu.classList.remove("open");
+                menu.style.display = "none";
+            }
+        });
+
+        menu.addEventListener("click", function (event) {
+            event.stopPropagation();
+        });
+
+        console.log("ClipParty account dropdown actief");
+    }
+
+    if (document.readyState === "loading") {
+        document.addEventListener("DOMContentLoaded", initClipPartyAccountDropdown);
+    } else {
+        initClipPartyAccountDropdown();
+    }
+})();
+</script>
+<script id="CLIPPARTY_SESSION_ACCOUNT_FINAL">
+(function () {
+
+    function getSession() {
+        try {
+            const raw = localStorage.getItem("clipparty_session");
+
+            if (!raw) {
+                return null;
+            }
+
+            const session = JSON.parse(raw);
+
+            if (!session || !session.email) {
+                return null;
+            }
+
+            return session;
+
+        } catch (error) {
+            return null;
+        }
+    }
+
+
+    function initializeLoggedInAccount() {
+
+        const container = document.getElementById("accountContainer");
+        const button = document.getElementById("accountButton");
+        const menu = document.getElementById("accountMenu");
+
+        if (!container || !button || !menu) {
+            return;
+        }
+
+        const session = getSession();
+
+        // NIET INGELOGD
+        if (!session) {
+            container.style.display = "none";
+            return;
+        }
+
+        // WEL INGELOGD
+        container.style.display = "block";
+
+        const name =
+            session.name ||
+            session.email.split("@")[0] ||
+            "Account";
+
+        const email =
+            session.email;
+
+        const tokens =
+            typeof session.tokens === "number"
+                ? session.tokens
+                : 50;
+
+        const initial =
+            name.trim().charAt(0).toUpperCase() || "C";
+
+        document.getElementById("navName").textContent = name;
+        document.getElementById("menuName").textContent = name;
+        document.getElementById("menuEmail").textContent = email;
+        document.getElementById("menuTokens").textContent = tokens;
+        document.getElementById("navAvatar").textContent = initial;
+
+        // Oude click handlers omzeilen
+        const cleanButton = button.cloneNode(true);
+        button.parentNode.replaceChild(cleanButton, button);
+
+        cleanButton.addEventListener("click", function (event) {
+
+            event.preventDefault();
+            event.stopPropagation();
+
+            menu.classList.toggle("open");
+
+        });
+
+        menu.addEventListener("click", function (event) {
+            event.stopPropagation();
+        });
+
+        document.addEventListener("click", function (event) {
+
+            if (!event.target.closest("#accountContainer")) {
+                menu.classList.remove("open");
+            }
+
+        });
+
+        const logoutButton =
+            document.getElementById("accountLogout");
+
+        if (logoutButton) {
+
+            logoutButton.addEventListener("click", function (event) {
+
+                event.preventDefault();
+
+                localStorage.removeItem("clipparty_session");
+
+                window.location.href = "/ui/account.html";
+
+            });
+
+        }
+
+    }
+
+
+    if (document.readyState === "loading") {
+
+        document.addEventListener(
+            "DOMContentLoaded",
+            initializeLoggedInAccount
+        );
+
+    } else {
+
+        initializeLoggedInAccount();
+
+    }
+
+})();
+</script>
 </body>
+
 </html>
+
+
 
