@@ -1279,13 +1279,13 @@ select:focus{
         </a>
 
 
-        <div class="account">
+        <div class="account" id="accountContainer">
 
 
             <button
                 class="account-button"
                 id="accountButton"
-                type="button" onclick="document.getElementById('accountMenu').classList.toggle('open');" onclick="event.stopPropagation(); document.getElementById('accountMenu').classList.toggle('open')"
+                type="button"
             >
 
                 <span
@@ -3735,193 +3735,110 @@ function downloadClip(
 
 
 
-<script>
+
+
+
+<script id="CLIPPARTY_ACCOUNT_CLEAN">
 (function () {
-    const menu = document.getElementById("accountMenu");
-    const account = document.querySelector(".account");
-
-    if (!menu || !account) return;
-
-    document.addEventListener("click", function (event) {
-        if (!account.contains(event.target)) {
-            menu.classList.remove("open");
-        }
-    });
-})();
-</script>
-<script id="CLIPPARTY_ACCOUNT_FIX_SCRIPT">
-(function () {
-    function initClipPartyAccountDropdown() {
-        const oldButton = document.getElementById("accountButton");
-        const menu = document.getElementById("accountMenu");
-
-        if (!oldButton || !menu) return;
-
-        const button = oldButton.cloneNode(true);
-        oldButton.parentNode.replaceChild(button, oldButton);
-
-        button.addEventListener("click", function (event) {
-            event.preventDefault();
-            event.stopPropagation();
-
-            menu.classList.toggle("open");
-
-            if (menu.classList.contains("open")) {
-                menu.style.display = "block";
-            } else {
-                menu.style.display = "none";
-            }
-        });
-
-        document.addEventListener("click", function (event) {
-            const account = document.querySelector(".account");
-
-            if (account && !account.contains(event.target)) {
-                menu.classList.remove("open");
-                menu.style.display = "none";
-            }
-        });
-
-        menu.addEventListener("click", function (event) {
-            event.stopPropagation();
-        });
-
-        console.log("ClipParty account dropdown actief");
-    }
-
-    if (document.readyState === "loading") {
-        document.addEventListener("DOMContentLoaded", initClipPartyAccountDropdown);
-    } else {
-        initClipPartyAccountDropdown();
-    }
-})();
-</script>
-<script id="CLIPPARTY_SESSION_ACCOUNT_FINAL">
-(function () {
-
-    function getSession() {
-        try {
-            const raw = localStorage.getItem("clipparty_session");
-
-            if (!raw) {
-                return null;
-            }
-
-            const session = JSON.parse(raw);
-
-            if (!session || !session.email) {
-                return null;
-            }
-
-            return session;
-
-        } catch (error) {
-            return null;
-        }
-    }
-
-
-    function initializeLoggedInAccount() {
-
+    function init() {
         const container = document.getElementById("accountContainer");
-        const button = document.getElementById("accountButton");
         const menu = document.getElementById("accountMenu");
 
-        if (!container || !button || !menu) {
+        if (!container || !menu) {
+            console.log("ClipParty account: elementen niet gevonden");
             return;
         }
 
-        const session = getSession();
+        // Bepaal loginstatus
+        let session = null;
 
-        // NIET INGELOGD
-        if (!session) {
+        try {
+            const raw =
+                localStorage.getItem("clipparty_session") ||
+                localStorage.getItem("clipparty_user");
+
+            if (raw) {
+                session = JSON.parse(raw);
+            }
+        } catch (e) {
+            session = null;
+        }
+
+        if (!session || !session.email) {
             container.style.display = "none";
             return;
         }
 
-        // WEL INGELOGD
         container.style.display = "block";
 
         const name =
             session.name ||
+            session.full_name ||
+            session.username ||
             session.email.split("@")[0] ||
             "Account";
 
-        const email =
-            session.email;
+        const email = session.email;
 
-        const tokens =
-            typeof session.tokens === "number"
-                ? session.tokens
-                : 50;
+        const avatar = document.getElementById("navAvatar");
+        const navName = document.getElementById("navName");
+        const menuName = document.getElementById("menuName");
+        const menuEmail = document.getElementById("menuEmail");
+        const menuTokens = document.getElementById("menuTokens");
 
-        const initial =
-            name.trim().charAt(0).toUpperCase() || "C";
+        if (avatar) avatar.textContent = name.charAt(0).toUpperCase();
+        if (navName) navName.textContent = name;
+        if (menuName) menuName.textContent = name;
+        if (menuEmail) menuEmail.textContent = email;
 
-        document.getElementById("navName").textContent = name;
-        document.getElementById("menuName").textContent = name;
-        document.getElementById("menuEmail").textContent = email;
-        document.getElementById("menuTokens").textContent = tokens;
-        document.getElementById("navAvatar").textContent = initial;
+        if (menuTokens && typeof session.tokens === "number") {
+            menuTokens.textContent = session.tokens;
+        }
 
-        // Oude click handlers omzeilen
-        const cleanButton = button.cloneNode(true);
-        button.parentNode.replaceChild(cleanButton, button);
+        // Schone beginstatus
+        menu.classList.remove("open");
+        menu.style.display = "none";
 
-        cleanButton.addEventListener("click", function (event) {
-
-            event.preventDefault();
-            event.stopPropagation();
-
-            menu.classList.toggle("open");
-
-        });
-
-        menu.addEventListener("click", function (event) {
-            event.stopPropagation();
-        });
-
+        // Eén centrale klik-handler.
         document.addEventListener("click", function (event) {
+            const button = event.target.closest("#accountButton");
+
+            if (button) {
+                event.preventDefault();
+                event.stopImmediatePropagation();
+
+                const open = menu.classList.contains("open");
+
+                if (open) {
+                    menu.classList.remove("open");
+                    menu.style.display = "none";
+                } else {
+                    menu.classList.add("open");
+                    menu.style.display = "block";
+                }
+
+                return;
+            }
+
+            if (event.target.closest("#accountMenu")) {
+                event.stopPropagation();
+                return;
+            }
 
             if (!event.target.closest("#accountContainer")) {
                 menu.classList.remove("open");
+                menu.style.display = "none";
             }
+        }, true);
 
-        });
-
-        const logoutButton =
-            document.getElementById("accountLogout");
-
-        if (logoutButton) {
-
-            logoutButton.addEventListener("click", function (event) {
-
-                event.preventDefault();
-
-                localStorage.removeItem("clipparty_session");
-
-                window.location.href = "/ui/account.html";
-
-            });
-
-        }
-
+        console.log("ClipParty account dropdown: actief");
     }
-
 
     if (document.readyState === "loading") {
-
-        document.addEventListener(
-            "DOMContentLoaded",
-            initializeLoggedInAccount
-        );
-
+        document.addEventListener("DOMContentLoaded", init);
     } else {
-
-        initializeLoggedInAccount();
-
+        init();
     }
-
 })();
 </script>
 </body>
@@ -3930,123 +3847,6 @@ function downloadClip(
 
 
 
-<script id="CLIPPARTY_ACCOUNT_DEFINITIVE_FIX">
-(function () {
-    function initAccount() {
-        const oldButton = document.getElementById("accountButton");
-        const menu = document.getElementById("accountMenu");
-        const container = document.getElementById("accountContainer");
 
-        if (!oldButton || !menu || !container) {
-            console.log("ClipParty account elements niet gevonden");
-            return;
-        }
 
-        // Maak een volledig nieuwe knop zodat ALLE oude listeners verdwijnen.
-        const button = oldButton.cloneNode(true);
-        button.removeAttribute("onclick");
-        button.removeAttribute("type");
-        button.setAttribute("type", "button");
 
-        oldButton.parentNode.replaceChild(button, oldButton);
-
-        // Start gesloten.
-        menu.classList.remove("open");
-        menu.style.display = "none";
-
-        function getSession() {
-            try {
-                let raw = localStorage.getItem("clipparty_session");
-
-                if (!raw) {
-                    raw = localStorage.getItem("clipparty_user");
-                }
-
-                if (!raw) return null;
-
-                const data = JSON.parse(raw);
-
-                if (!data) return null;
-
-                return data;
-            } catch (e) {
-                return null;
-            }
-        }
-
-        const session = getSession();
-
-        // Niet ingelogd = accountknop verbergen.
-        if (!session) {
-            container.style.display = "none";
-            return;
-        }
-
-        // Ingelogd = accountknop tonen.
-        container.style.display = "block";
-
-        // Accountnaam bepalen.
-        const name =
-            session.name ||
-            session.full_name ||
-            session.username ||
-            session.email ||
-            "Account";
-
-        const email = session.email || "";
-
-        // Eventuele accountvelden bijwerken.
-        const navName = document.getElementById("navName");
-        const menuName = document.getElementById("menuName");
-        const menuEmail = document.getElementById("menuEmail");
-        const navAvatar = document.getElementById("navAvatar");
-
-        if (navName) navName.textContent = name;
-        if (menuName) menuName.textContent = name;
-        if (menuEmail) menuEmail.textContent = email;
-
-        if (navAvatar) {
-            navAvatar.textContent = name.charAt(0).toUpperCase();
-        }
-
-        // DE ENIGE klik-handler voor de accountknop.
-        button.addEventListener("click", function (event) {
-            event.preventDefault();
-            event.stopPropagation();
-
-            const isOpen = menu.classList.contains("open");
-
-            if (isOpen) {
-                menu.classList.remove("open");
-                menu.style.display = "none";
-            } else {
-                menu.classList.add("open");
-                menu.style.display = "block";
-            }
-        });
-
-        // Klik buiten dropdown = sluiten.
-        document.addEventListener("click", function (event) {
-            const account = document.getElementById("accountContainer");
-
-            if (account && !account.contains(event.target)) {
-                menu.classList.remove("open");
-                menu.style.display = "none";
-            }
-        });
-
-        // Klik in menu mag niet direct sluiten.
-        menu.addEventListener("click", function (event) {
-            event.stopPropagation();
-        });
-
-        console.log("ClipParty definitieve account dropdown actief");
-    }
-
-    if (document.readyState === "loading") {
-        document.addEventListener("DOMContentLoaded", initAccount);
-    } else {
-        initAccount();
-    }
-})();
-</script>

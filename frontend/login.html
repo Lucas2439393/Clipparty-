@@ -1,9 +1,9 @@
-<!DOCTYPE html>
+﻿<!DOCTYPE html>
 <html lang="nl">
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>Inloggen – ClipParty.nl</title>
+  <title>Inloggen â€“ ClipParty.nl</title>
 
   <style>
     * {
@@ -314,6 +314,11 @@
       message.textContent = "Succesvol ingelogd. Je wordt doorgestuurd...";
 
       setTimeout(() => {
+        const loggedInUser = (data && data.user) || data || {};
+        const session = { ...loggedInUser, email: loggedInUser.email || email, name: loggedInUser.name || loggedInUser.full_name || loggedInUser.username || email.split('@')[0] };
+        localStorage.setItem('clipparty_session', JSON.stringify(session));
+        localStorage.setItem('clipparty_user', JSON.stringify(session));
+
         window.location.href = "/ui/clip.html";
       }, 500);
 
@@ -328,4 +333,5 @@
 
 </body>
 </html>
+
 
