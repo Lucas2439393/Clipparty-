@@ -3930,3 +3930,123 @@ function downloadClip(
 
 
 
+<script id="CLIPPARTY_ACCOUNT_DEFINITIVE_FIX">
+(function () {
+    function initAccount() {
+        const oldButton = document.getElementById("accountButton");
+        const menu = document.getElementById("accountMenu");
+        const container = document.getElementById("accountContainer");
+
+        if (!oldButton || !menu || !container) {
+            console.log("ClipParty account elements niet gevonden");
+            return;
+        }
+
+        // Maak een volledig nieuwe knop zodat ALLE oude listeners verdwijnen.
+        const button = oldButton.cloneNode(true);
+        button.removeAttribute("onclick");
+        button.removeAttribute("type");
+        button.setAttribute("type", "button");
+
+        oldButton.parentNode.replaceChild(button, oldButton);
+
+        // Start gesloten.
+        menu.classList.remove("open");
+        menu.style.display = "none";
+
+        function getSession() {
+            try {
+                let raw = localStorage.getItem("clipparty_session");
+
+                if (!raw) {
+                    raw = localStorage.getItem("clipparty_user");
+                }
+
+                if (!raw) return null;
+
+                const data = JSON.parse(raw);
+
+                if (!data) return null;
+
+                return data;
+            } catch (e) {
+                return null;
+            }
+        }
+
+        const session = getSession();
+
+        // Niet ingelogd = accountknop verbergen.
+        if (!session) {
+            container.style.display = "none";
+            return;
+        }
+
+        // Ingelogd = accountknop tonen.
+        container.style.display = "block";
+
+        // Accountnaam bepalen.
+        const name =
+            session.name ||
+            session.full_name ||
+            session.username ||
+            session.email ||
+            "Account";
+
+        const email = session.email || "";
+
+        // Eventuele accountvelden bijwerken.
+        const navName = document.getElementById("navName");
+        const menuName = document.getElementById("menuName");
+        const menuEmail = document.getElementById("menuEmail");
+        const navAvatar = document.getElementById("navAvatar");
+
+        if (navName) navName.textContent = name;
+        if (menuName) menuName.textContent = name;
+        if (menuEmail) menuEmail.textContent = email;
+
+        if (navAvatar) {
+            navAvatar.textContent = name.charAt(0).toUpperCase();
+        }
+
+        // DE ENIGE klik-handler voor de accountknop.
+        button.addEventListener("click", function (event) {
+            event.preventDefault();
+            event.stopPropagation();
+
+            const isOpen = menu.classList.contains("open");
+
+            if (isOpen) {
+                menu.classList.remove("open");
+                menu.style.display = "none";
+            } else {
+                menu.classList.add("open");
+                menu.style.display = "block";
+            }
+        });
+
+        // Klik buiten dropdown = sluiten.
+        document.addEventListener("click", function (event) {
+            const account = document.getElementById("accountContainer");
+
+            if (account && !account.contains(event.target)) {
+                menu.classList.remove("open");
+                menu.style.display = "none";
+            }
+        });
+
+        // Klik in menu mag niet direct sluiten.
+        menu.addEventListener("click", function (event) {
+            event.stopPropagation();
+        });
+
+        console.log("ClipParty definitieve account dropdown actief");
+    }
+
+    if (document.readyState === "loading") {
+        document.addEventListener("DOMContentLoaded", initAccount);
+    } else {
+        initAccount();
+    }
+})();
+</script>
