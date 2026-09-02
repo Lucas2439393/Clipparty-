@@ -7,3 +7,6 @@ __pycache__/
 uploads/
 .vscode/
 .idea/
+auth_db.json
+node_modules/
+frontend/clip-backup.html

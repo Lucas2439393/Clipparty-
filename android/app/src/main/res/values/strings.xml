@@ -1,0 +1,7 @@
+<?xml version='1.0' encoding='utf-8'?>
+<resources>
+    <string name="app_name"> ClipParty</string>
+    <string name="title_activity_main"> ClipParty</string>
+    <string name="package_name">nl.clipparty.app</string>
+    <string name="custom_url_scheme">nl.clipparty.app</string>
+</resources>
