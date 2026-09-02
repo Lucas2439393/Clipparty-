@@ -1,39 +1,26 @@
-﻿import hashlib
-import json
+﻿import os
+import hashlib
 import secrets
-import threading
-from pathlib import Path
+from contextlib import contextmanager
 
-BASE_DIR = Path(__file__).resolve().parent.parent
-AUTH_DB_PATH = BASE_DIR / "auth_db.json"
-
-_lock = threading.Lock()
+import psycopg
+from psycopg.rows import dict_row
 
 
-def _load():
-    if not AUTH_DB_PATH.exists():
-        return {"users": {}, "sessions": {}}
+DATABASE_URL = os.getenv("DATABASE_URL")
 
-    try:
-        data = json.loads(AUTH_DB_PATH.read_text(encoding="utf-8"))
-        if not isinstance(data, dict):
-            return {"users": {}, "sessions": {}}
-
-        data.setdefault("users", {})
-        data.setdefault("sessions", {})
-        return data
-    except Exception:
-        return {"users": {}, "sessions": {}}
+if not DATABASE_URL:
+    raise RuntimeError("DATABASE_URL ontbreekt.")
 
 
-_db = _load()
-
-
-def _save():
-    AUTH_DB_PATH.write_text(
-        json.dumps(_db, ensure_ascii=False, indent=2),
-        encoding="utf-8",
-    )
+@contextmanager
+def get_connection():
+    with psycopg.connect(
+        DATABASE_URL,
+        sslmode="require",
+        row_factory=dict_row,
+    ) as conn:
+        yield conn
 
 
 def _hash_password(password: str, salt: str) -> str:
@@ -58,62 +45,87 @@ def create_user(name: str, email: str, password: str) -> dict:
     if len(password) < 8:
         raise ValueError("Wachtwoord moet minimaal 8 tekens bevatten.")
 
-    with _lock:
-        for user in _db["users"].values():
-            if user["email"] == email:
-                raise ValueError("Er bestaat al een account met dit e-mailadres.")
+    user_id = secrets.token_hex(16)
+    salt = secrets.token_hex(16)
+    password_hash = _hash_password(password, salt)
 
-        user_id = secrets.token_hex(16)
-        salt = secrets.token_hex(16)
+    try:
+        with get_connection() as conn:
+            conn.execute(
+                """
+                INSERT INTO public.clipparty_users
+                    (id, name, email, password_hash, salt)
+                VALUES
+                    (%s, %s, %s, %s, %s)
+                """,
+                (
+                    user_id,
+                    name,
+                    email,
+                    password_hash,
+                    salt,
+                ),
+            )
+            conn.commit()
 
-        _db["users"][user_id] = {
-            "id": user_id,
-            "name": name,
-            "email": email,
-            "password_hash": _hash_password(password, salt),
-            "salt": salt,
-        }
+    except psycopg.errors.UniqueViolation:
+        raise ValueError(
+            "Er bestaat al een account met dit e-mailadres."
+        )
 
-        _save()
-
-        return {
-            "id": user_id,
-            "name": name,
-            "email": email,
-        }
+    return {
+        "id": user_id,
+        "name": name,
+        "email": email,
+    }
 
 
 def authenticate(email: str, password: str):
     email = email.strip().lower()
 
-    with _lock:
-        for user in _db["users"].values():
-            if user["email"] != email:
-                continue
+    with get_connection() as conn:
+        user = conn.execute(
+            """
+            SELECT id, name, email, password_hash, salt
+            FROM public.clipparty_users
+            WHERE email = %s
+            LIMIT 1
+            """,
+            (email,),
+        ).fetchone()
 
-            expected = _hash_password(password, user["salt"])
+    if not user:
+        return None
 
-            if secrets.compare_digest(
-                expected,
-                user["password_hash"],
-            ):
-                return {
-                    "id": user["id"],
-                    "name": user["name"],
-                    "email": user["email"],
-                }
+    expected = _hash_password(password, user["salt"])
 
-            return None
+    if not secrets.compare_digest(
+        expected,
+        user["password_hash"],
+    ):
+        return None
 
-    return None
+    return {
+        "id": user["id"],
+        "name": user["name"],
+        "email": user["email"],
+    }
 
 
 def create_session(user_id: str) -> str:
     token = secrets.token_urlsafe(32)
 
-    with _lock:
-        _db["sessions"][token] = user_id
-        _save()
+    with get_connection() as conn:
+        conn.execute(
+            """
+            INSERT INTO public.clipparty_sessions
+                (token, user_id)
+            VALUES
+                (%s, %s)
+            """,
+            (token, user_id),
+        )
+        conn.commit()
 
     return token
 
@@ -122,28 +134,42 @@ def get_user_from_token(token: str):
     if not token:
         return None
 
-    with _lock:
-        user_id = _db["sessions"].get(token)
+    with get_connection() as conn:
+        user = conn.execute(
+            """
+            SELECT
+                u.id,
+                u.name,
+                u.email
+            FROM public.clipparty_sessions s
+            JOIN public.clipparty_users u
+                ON u.id = s.user_id
+            WHERE s.token = %s
+            LIMIT 1
+            """,
+            (token,),
+        ).fetchone()
 
-        if not user_id:
-            return None
+    if not user:
+        return None
 
-        user = _db["users"].get(user_id)
-
-        if not user:
-            return None
-
-        return {
-            "id": user["id"],
-            "name": user["name"],
-            "email": user["email"],
-        }
+    return {
+        "id": user["id"],
+        "name": user["name"],
+        "email": user["email"],
+    }
 
 
 def delete_session(token: str):
     if not token:
         return
 
-    with _lock:
-        _db["sessions"].pop(token, None)
-        _save()
+    with get_connection() as conn:
+        conn.execute(
+            """
+            DELETE FROM public.clipparty_sessions
+            WHERE token = %s
+            """,
+            (token,),
+        )
+        conn.commit()
