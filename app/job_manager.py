@@ -7,6 +7,7 @@ job hergebruikt voor briefingregels of compliance.
 """
 
 import json
+import shutil
 import threading
 import traceback
 import uuid
@@ -115,6 +116,111 @@ def resolve_file(file_id: str) -> Optional[str]:
                     return path
 
     return None
+
+
+# ---------------------------------------------------------------------------
+# INPUT FILE RESOLUTION
+# ---------------------------------------------------------------------------
+#
+# Uploads komen via /api/upload in de map <project>/uploads.
+# De browser krijgt daarvan een absoluut pad terug. Op Render willen we
+# tijdens een job niet blind vertrouwen op dat pad. Daarom zoeken we bij
+# lokale bestanden eerst het opgegeven pad en daarna de uploads-map.
+#
+# Vervolgens kopiëren we de bestanden naar de eigen job-workspace. De
+# pipeline werkt vanaf die kopie.
+# ---------------------------------------------------------------------------
+
+PROJECT_ROOT = Path(__file__).resolve().parent.parent
+UPLOADS_DIR = PROJECT_ROOT / "uploads"
+
+
+def _resolve_local_input(value: str) -> Optional[Path]:
+    """
+    Resolve een lokaal inputbestand robuust.
+
+    1. Gebruik het opgegeven pad als het bestaat.
+    2. Als dat niet bestaat, zoek hetzelfde bestand in uploads/.
+    3. Als ook dat niet lukt, return None.
+
+    HTTP(S)-URL's worden niet als lokaal bestand behandeld.
+    """
+    value = str(value or "").strip()
+
+    if not value:
+        return None
+
+    if value.startswith(("http://", "https://")):
+        return None
+
+    path = Path(value)
+
+    if path.exists() and path.is_file():
+        return path
+
+    if UPLOADS_DIR.exists():
+        basename = path.name
+
+        if basename:
+            direct = UPLOADS_DIR / basename
+
+            if direct.exists() and direct.is_file():
+                return direct
+
+            # Fallback voor eventueel geneste uploadmappen.
+            try:
+                matches = [
+                    p
+                    for p in UPLOADS_DIR.rglob(basename)
+                    if p.is_file()
+                ]
+
+                if matches:
+                    matches.sort(
+                        key=lambda p: p.stat().st_mtime,
+                        reverse=True,
+                    )
+                    return matches[0]
+
+            except Exception:
+                pass
+
+    return None
+
+
+def _prepare_local_input(
+    value: str,
+    destination_dir: Path,
+    label: str,
+) -> Optional[str]:
+    """
+    Resolve en kopieer één lokaal inputbestand naar de job-workspace.
+
+    Returnt het nieuwe lokale pad, of None als het bestand niet gevonden is.
+    """
+    source = _resolve_local_input(value)
+
+    if source is None:
+        return None
+
+    destination_dir.mkdir(
+        parents=True,
+        exist_ok=True,
+    )
+
+    # Gebruik een veilige, unieke naam zodat twee uploads met dezelfde
+    # oorspronkelijke bestandsnaam elkaar nooit overschrijven.
+    destination = (
+        destination_dir
+        / f"{uuid.uuid4().hex[:8]}_{source.name}"
+    )
+
+    shutil.copy2(
+        source,
+        destination,
+    )
+
+    return str(destination)
 
 
 # ---------------------------------------------------------------------------
@@ -575,6 +681,51 @@ def _run_job(job_id: str):
     try:
 
         # ================================================================
+        # 0. INPUTBESTANDEN VEILIG NAAR JOB-WORKSPACE KOPIËREN
+        # ================================================================
+        #
+        # Dit maakt anonieme clipping op Render robuust:
+        # de pipeline gebruikt niet langer rechtstreeks een pad dat
+        # vanuit de browser is aangeleverd.
+        # ================================================================
+
+        input_dir = job_work_dir / "inputs"
+
+        campaign_file_local = _prepare_local_input(
+            req.campaign_file,
+            input_dir,
+            "briefing",
+        )
+
+        if not campaign_file_local:
+            raise RuntimeError(
+                "Campagnebriefing is niet meer beschikbaar op de server."
+            )
+
+        prepared_videos = []
+
+        for video in req.videos:
+            video_value = str(video).strip()
+
+            if youtube.is_youtube_url(video_value):
+                prepared_videos.append(video_value)
+                continue
+
+            local_video = _prepare_local_input(
+                video_value,
+                input_dir,
+                "bronvideo",
+            )
+
+            if local_video:
+                prepared_videos.append(local_video)
+            else:
+                technische_beperkingen.append(
+                    "Bronvideo ontbreekt lokaal en is overgeslagen: "
+                    f"{video_value}"
+                )
+
+        # ================================================================
         # 1. BRIEFING LEZEN
         # ================================================================
 
@@ -589,7 +740,7 @@ def _run_job(job_id: str):
             fallback_reason,
             model_used,
         ) = brief_parser.extract_campaign_profile(
-            req.campaign_file,
+            campaign_file_local,
             provider=req.settings.llm_provider,
         )
 
@@ -608,7 +759,7 @@ def _run_job(job_id: str):
         # 2. BRONVIDEO'S BEPALEN
         # ================================================================
 
-        candidate_videos = list(req.videos)
+        candidate_videos = list(prepared_videos)
 
         if profile.toegestane_bronvideos:
 
@@ -617,9 +768,17 @@ def _run_job(job_id: str):
                     str(value)
                 ).stem.lower()
 
+                # Uploads krijgen een unieke prefix zoals:
+                # 8a12bc34_original-video.mp4
+                # Vergelijk daarom ook het deel na de eerste underscore.
+                if "_" in s:
+                    tail = s.split("_", 1)[1]
+                else:
+                    tail = s
+
                 return "".join(
                     ch
-                    for ch in s
+                    for ch in tail
                     if ch.isalnum()
                 )
 
