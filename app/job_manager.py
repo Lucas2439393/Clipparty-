@@ -137,14 +137,17 @@ UPLOADS_DIR = PROJECT_ROOT / "uploads"
 
 def _resolve_local_input(value: str) -> Optional[Path]:
     """
-    Resolve een lokaal inputbestand robuust.
+    Zoek een lokaal uploadbestand zo robuust mogelijk.
 
-    1. Gebruik het opgegeven pad als het bestaat.
-    2. Als dat niet bestaat, zoek hetzelfde bestand in uploads/.
-    3. Als ook dat niet lukt, return None.
+    We accepteren:
+    - het volledige absolute pad;
+    - de unieke uploadnaam;
+    - de oorspronkelijke bestandsnaam.
 
-    HTTP(S)-URL's worden niet als lokaal bestand behandeld.
+    Dat laatste is belangrijk omdat de frontend niet altijd exact
+    dezelfde bestandsnaam terugstuurt die op de server is opgeslagen.
     """
+
     value = str(value or "").strip()
 
     if not value:
@@ -152,6 +155,100 @@ def _resolve_local_input(value: str) -> Optional[Path]:
 
     if value.startswith(("http://", "https://")):
         return None
+
+    path = Path(value)
+
+    # 1. Het opgegeven pad bestaat exact.
+    if path.exists() and path.is_file():
+        return path
+
+    if not UPLOADS_DIR.exists():
+        return None
+
+    requested_name = path.name
+
+    if not requested_name:
+        return None
+
+    # 2. Exacte bestandsnaam in uploads/.
+    direct = UPLOADS_DIR / requested_name
+
+    if direct.exists() and direct.is_file():
+        return direct
+
+    # 3. Zoek exact dezelfde naam in eventuele submappen.
+    try:
+        exact_matches = [
+            p
+            for p in UPLOADS_DIR.rglob(requested_name)
+            if p.is_file()
+        ]
+
+        if exact_matches:
+            exact_matches.sort(
+                key=lambda p: p.stat().st_mtime,
+                reverse=True,
+            )
+            return exact_matches[0]
+
+    except Exception:
+        pass
+
+    # 4. Zoek op oorspronkelijke bestandsnaam.
+    #
+    # /uploads/8a12bc34_video.mp4
+    # moet bijvoorbeeld ook gevonden worden wanneer de frontend
+    # alleen "video.mp4" heeft meegestuurd.
+    requested_stem = Path(requested_name).stem.lower()
+    requested_suffix = Path(requested_name).suffix.lower()
+
+    def normalize(value: str) -> str:
+        return "".join(
+            ch
+            for ch in value.lower()
+            if ch.isalnum()
+        )
+
+    normalized_requested = normalize(requested_stem)
+
+    try:
+        candidates = []
+
+        for p in UPLOADS_DIR.rglob("*"):
+            if not p.is_file():
+                continue
+
+            if requested_suffix and p.suffix.lower() != requested_suffix:
+                continue
+
+            stem = p.stem.lower()
+            normalized_stem = normalize(stem)
+
+            # Directe match.
+            if normalized_stem == normalized_requested:
+                candidates.append(p)
+                continue
+
+            # Uploads krijgen vaak een 8-karakter prefix:
+            # abc12345_video
+            if "_" in stem:
+                original_part = stem.split("_", 1)[1]
+                normalized_original = normalize(original_part)
+
+                if normalized_original == normalized_requested:
+                    candidates.append(p)
+
+        if candidates:
+            candidates.sort(
+                key=lambda p: p.stat().st_mtime,
+                reverse=True,
+            )
+            return candidates[0]
+
+    except Exception:
+        pass
+
+    return None
 
     path = Path(value)
 
