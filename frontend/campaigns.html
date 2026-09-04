@@ -375,7 +375,7 @@ document.addEventListener('click',e=>{
   if(!e.target.closest('.cp-account')) cpAccountPop?.classList.remove('open');
 });
 
-const API="http://127.0.0.1:8756";
+const API="";
 function esc(s){return String(s??"").replace(/[&<>"']/g,c=>({"&":"&amp;","<":"&lt;",">":"&gt;",'"':"&quot;","'":"&#39;"}[c]));}
 function providerFor(name){
   const n=String(name||"").toLowerCase();
