@@ -1,425 +1,169 @@
 <!doctype html>
 <html lang="nl">
-
 <head>
-
 <meta charset="utf-8">
-
-<meta
-    name="viewport"
-    content="width=device-width, initial-scale=1"
->
+<meta name="viewport" content="width=device-width,initial-scale=1">
 
 <title>Clip Studio — ClipParty.nl</title>
 
-
 <style>
 
-/* =========================================================
-   BASIS
-========================================================= */
-
 :root{
+  --bg:#f5f8fc;
+  --panel:#fff;
+  --panel-2:#f8fafc;
+  --line:#dfe7f1;
+  --text:#172033;
+  --dim:#64748b;
+  --blue:#2563eb;
+  --blue-dark:#1d4ed8;
+  --blue-soft:#eff6ff;
+  --green:#0f9f8f;
+  --warn:#d97706;
+  --danger:#dc2626;
 
-    --bg:#f5f8fc;
-    --panel:#ffffff;
-    --panel-2:#f8fafc;
-
-    --line:#dfe7f1;
-
-    --text:#172033;
-    --dim:#64748b;
-
-    --blue:#2563eb;
-    --blue-dark:#1d4ed8;
-    --blue-soft:#eff6ff;
-
-    --green:#16a34a;
-    --warn:#d97706;
-    --danger:#dc2626;
-
-    --mono:
-        'IBM Plex Mono',
-        'SFMono-Regular',
-        Consolas,
-        monospace;
-
-    --sans:
-        Inter,
-        -apple-system,
-        BlinkMacSystemFont,
-        "Segoe UI",
-        Arial,
-        sans-serif;
+  --mono:'IBM Plex Mono','SFMono-Regular',Consolas,monospace;
+  --sans:'Inter',-apple-system,'Segoe UI',Arial,sans-serif;
 }
-
 
 *{
-    box-sizing:border-box;
+  box-sizing:border-box;
 }
-
 
 html{
-    scroll-behavior:auto;
+  scroll-behavior:smooth;
 }
-
 
 body{
-
-    margin:0;
-
-    min-height:100vh;
-
-    background:var(--bg);
-
-    color:var(--text);
-
-    font-family:var(--sans);
+  margin:0;
+  min-height:100vh;
+  background:var(--bg);
+  color:var(--text);
+  font-family:var(--sans);
 }
 
-
 a{
-
-    text-decoration:none;
-
-    color:inherit;
-
+  text-decoration:none;
+  color:inherit;
 }
 
 
 /* =========================================================
-   HEADER
+   UNIVERSELE CLIPPARTY HEADER
 ========================================================= */
 
 .site-header{
+  height:68px;
+  width:100%;
 
-    height:68px;
+  background:#fff;
+  border-bottom:1px solid var(--line);
 
-    width:100%;
+  display:grid;
+  grid-template-columns:1fr auto 1fr;
+  align-items:center;
 
-    background:#fff;
+  padding:0 5%;
 
-    border-bottom:1px solid var(--line);
-
-    display:grid;
-
-    grid-template-columns:1fr auto 1fr;
-
-    align-items:center;
-
-    padding:0 5%;
-
-    position:sticky;
-
-    top:0;
-
-    z-index:1000;
-
+  position:sticky;
+  top:0;
+  z-index:1000;
 }
 
+
+/* HOME LINKS */
 
 .header-left{
-
-    justify-self:start;
-
+  justify-self:start;
 }
-
 
 .home-link{
-
-    color:var(--text);
-
-    font-size:14px;
-
-    font-weight:600;
-
+  color:var(--text);
+  font-size:14px;
+  font-weight:600;
+  transition:.15s ease;
 }
-
 
 .home-link:hover{
-
-    color:var(--blue);
-
+  color:var(--blue);
 }
 
+
+/* LOGO — ALTIJD IN HET MIDDEN */
 
 .site-logo{
+  justify-self:center;
 
-    justify-self:center;
+  color:#111827;
 
-    color:#111827;
+  font-size:20px;
+  font-weight:800;
+  letter-spacing:-.4px;
 
-    font-size:20px;
-
-    font-weight:800;
-
-    letter-spacing:-.4px;
-
-    white-space:nowrap;
-
+  white-space:nowrap;
 }
-
 
 .site-logo span{
-
-    color:var(--blue);
-
+  color:var(--blue);
 }
 
+
+/* RECHTERKANT */
 
 .header-right{
+  justify-self:end;
 
-    justify-self:end;
-
-    display:flex;
-
-    align-items:center;
-
-    gap:20px;
-
+  display:flex;
+  align-items:center;
+  gap:20px;
 }
-
 
 .clip-link{
-
-    color:var(--text);
-
-    font-size:14px;
-
-    font-weight:600;
-
+  color:var(--text);
+  font-size:14px;
+  font-weight:600;
+  transition:.15s ease;
 }
-
 
 .clip-link:hover{
-
-    color:var(--blue);
-
+  color:var(--blue);
 }
 
 
-/* =========================================================
-   ACCOUNT
-========================================================= */
+/* ACCOUNT */
 
-.account{
+.account-link{
+  display:flex;
+  align-items:center;
+  gap:7px;
 
-    position:relative;
+  color:var(--text);
 
+  font-size:14px;
+  font-weight:600;
+
+  transition:.15s ease;
 }
 
-
-.account-button{
-
-    border:0;
-
-    background:transparent;
-
-    cursor:pointer;
-
-    display:flex;
-
-    align-items:center;
-
-    gap:8px;
-
-    font:inherit;
-
-    color:inherit;
-
-    padding:6px 8px;
-
+.account-link:hover{
+  color:var(--blue);
 }
 
+.account-icon{
+  width:30px;
+  height:30px;
 
-.account-avatar{
+  border:1px solid #dbeafe;
+  border-radius:50%;
 
-    width:38px;
+  background:var(--blue-soft);
+  color:var(--blue);
 
-    height:38px;
+  display:flex;
+  align-items:center;
+  justify-content:center;
 
-    border-radius:50%;
-
-    display:flex;
-
-    align-items:center;
-
-    justify-content:center;
-
-    background:#f1f6ff;
-
-    border:1px solid #dbe7ff;
-
-    color:#2563eb;
-
-    font-weight:700;
-
-}
-
-
-.chevron{
-
-    font-size:10px;
-
-    margin-left:2px;
-
-}
-
-
-.account-menu{
-
-    position:absolute;
-
-    top:51px;
-
-    right:0;
-
-    width:255px;
-
-    background:#fff;
-
-    border:1px solid #e5e7eb;
-
-    border-radius:14px;
-
-    box-shadow:
-        0 18px 45px
-        rgba(15,23,42,.14);
-
-    padding:8px;
-
-    display:none;
-
-    z-index:9999;
-
-}
-
-
-.account-menu.open{
-
-    display:block !important;
-
-}
-
-
-.menu-user{
-
-    padding:12px;
-
-    border-bottom:1px solid #edf1f5;
-
-    margin-bottom:6px;
-
-}
-
-
-.menu-user strong{
-
-    display:block;
-
-    font-size:13px;
-
-}
-
-
-.menu-user > span{
-
-    display:block;
-
-    margin-top:3px;
-
-    color:#64748b;
-
-    font-size:12px;
-
-    overflow:hidden;
-
-    text-overflow:ellipsis;
-
-    white-space:nowrap;
-
-}
-
-
-.menu-token{
-
-    margin-top:9px;
-
-    padding:8px 10px;
-
-    border-radius:9px;
-
-    background:#eff6ff;
-
-    color:#1d4ed8;
-
-    font-family:monospace;
-
-    font-size:11px;
-
-    font-weight:700;
-
-}
-
-
-.menu-link{
-
-    display:flex;
-
-    align-items:center;
-
-    gap:10px;
-
-    padding:10px 11px;
-
-    border-radius:9px;
-
-    font-size:13px;
-
-    font-weight:600;
-
-    text-decoration:none;
-
-    color:inherit;
-
-}
-
-
-.menu-link:hover{
-
-    background:#f8fafc;
-
-}
-
-
-.menu-icon{
-
-    width:20px;
-
-    text-align:center;
-
-    color:#2563eb;
-
-    font-size:16px;
-
-}
-
-
-.menu-divider{
-
-    height:1px;
-
-    background:#edf1f5;
-
-    margin:6px 0;
-
-}
-
-
-.menu-logout{
-
-    color:#dc2626;
-
+  font-size:9px;
 }
 
 
@@ -428,73 +172,48 @@ a{
 ========================================================= */
 
 main{
+  max-width:1180px;
+  margin:0 auto;
 
-    max-width:1180px;
+  padding:24px 24px 52px;
 
-    margin:0 auto;
-
-    padding:20px 24px 52px;
-
-    display:grid;
-
-    gap:14px;
-
-    grid-template-columns:1fr 1fr;
-
+  display:grid;
+  grid-template-columns:1fr 1fr;
+  gap:14px;
 }
-
 
 .panel{
+  background:var(--panel);
 
-    background:var(--panel);
+  border:1px solid var(--line);
+  border-radius:12px;
 
-    border:1px solid var(--line);
+  padding:18px;
 
-    border-radius:12px;
-
-    padding:16px;
-
-    box-shadow:
-        0 3px 14px
-        rgba(30,64,175,.045);
-
+  box-shadow:0 3px 14px rgba(30,64,175,.045);
 }
-
 
 .panel.full{
-
-    grid-column:1/-1;
-
+  grid-column:1/-1;
 }
-
 
 .panel h2{
+  font-family:var(--mono);
+  font-size:11px;
+  letter-spacing:.1em;
+  text-transform:uppercase;
 
-    font-family:var(--mono);
+  color:var(--blue);
 
-    font-size:11px;
+  margin:0 0 11px;
 
-    letter-spacing:.1em;
-
-    text-transform:uppercase;
-
-    color:var(--blue);
-
-    margin:0 0 11px;
-
-    display:flex;
-
-    align-items:center;
-
-    gap:7px;
-
+  display:flex;
+  align-items:center;
+  gap:7px;
 }
 
-
 .panel h2 .n{
-
-    color:var(--dim);
-
+  color:var(--dim);
 }
 
 
@@ -503,100 +222,82 @@ main{
 ========================================================= */
 
 .dropzone{
+  border:1.5px dashed #c9d6e6;
+  border-radius:9px;
 
-    border:1.5px dashed #c9d6e6;
+  padding:24px 14px;
 
-    border-radius:9px;
+  text-align:center;
 
-    padding:20px 14px;
+  color:var(--dim);
 
-    text-align:center;
+  font-size:13px;
 
-    color:var(--dim);
+  cursor:pointer;
 
-    font-size:13px;
-
-    cursor:pointer;
-
-    transition:.15s;
-
+  transition:.15s;
 }
-
 
 .dropzone:hover,
 .dropzone.drag{
-
-    border-color:var(--blue);
-
-    background:var(--blue-soft);
-
-    color:var(--text);
-
+  border-color:var(--blue);
+  background:var(--blue-soft);
+  color:var(--text);
 }
-
 
 .dropzone input{
-
-    display:none;
-
+  display:none;
 }
 
+
+/* =========================================================
+   FILE LISTS
+========================================================= */
 
 .filelist{
+  margin-top:9px;
 
-    margin-top:9px;
-
-    display:flex;
-
-    flex-direction:column;
-
-    gap:5px;
-
+  display:flex;
+  flex-direction:column;
+  gap:5px;
 }
-
 
 .fileitem{
+  display:flex;
+  justify-content:space-between;
+  align-items:center;
 
-    display:flex;
+  background:var(--panel-2);
 
-    justify-content:space-between;
+  border:1px solid var(--line);
+  border-radius:7px;
 
-    align-items:center;
+  padding:8px 10px;
 
-    background:var(--panel-2);
-
-    border:1px solid var(--line);
-
-    border-radius:7px;
-
-    padding:7px 10px;
-
-    font-size:12px;
-
-    font-family:var(--mono);
-
+  font-size:12px;
+  font-family:var(--mono);
 }
 
+.fileitem span{
+  overflow:hidden;
+  text-overflow:ellipsis;
+  white-space:nowrap;
+  padding-right:10px;
+}
 
 .fileitem button{
+  background:none;
+  border:none;
 
-    background:none;
+  color:var(--dim);
 
-    border:0;
+  cursor:pointer;
 
-    color:var(--dim);
-
-    cursor:pointer;
-
-    font-size:14px;
-
+  font-size:14px;
 }
 
-
 .fileitem button:hover{
-
-    color:var(--danger);
-
+  color:var(--danger);
 }
 
 
@@ -605,49 +306,30 @@ main{
 ========================================================= */
 
 .yt-row{
-
-    display:flex;
-
-    gap:7px;
-
+  display:grid;
+  grid-template-columns:1fr auto;
+  gap:8px;
 }
 
+.yt-row input{
+  width:100%;
+  height:40px;
 
-input[type=text],
-input[type=url],
-input[type=number],
-select{
+  border:1px solid var(--line);
+  border-radius:8px;
 
-    width:100%;
+  padding:0 11px;
 
-    height:40px;
+  color:var(--text);
+  background:#fff;
 
-    border:1px solid #cfd9e6;
-
-    border-radius:8px;
-
-    background:#fff;
-
-    color:var(--text);
-
-    padding:0 10px;
-
-    font:inherit;
-
-    font-size:13px;
-
+  font:inherit;
 }
 
-
-input:focus,
-select:focus{
-
-    outline:2px solid #bfdbfe;
-
-    outline-offset:1px;
-
-    border-color:var(--blue);
-
+.yt-row input:focus{
+  outline:none;
+  border-color:var(--blue);
+  box-shadow:0 0 0 3px var(--blue-soft);
 }
 
 
@@ -656,134 +338,131 @@ select:focus{
 ========================================================= */
 
 .settings-grid{
+  display:grid;
 
-    display:grid;
+  grid-template-columns:
+    repeat(4,1fr);
 
-    grid-template-columns:1fr 1fr;
-
-    gap:11px 14px;
-
+  gap:12px;
 }
 
+.field{
+  min-width:0;
+}
 
 .field label{
+  display:block;
 
-    display:block;
+  margin-bottom:6px;
 
-    font-size:10.5px;
+  color:var(--dim);
 
-    color:var(--dim);
-
-    margin-bottom:5px;
-
-    font-family:var(--mono);
-
-    text-transform:uppercase;
-
-    letter-spacing:.05em;
-
+  font-size:11px;
+  font-weight:700;
 }
 
+.field input,
+.field select{
+  width:100%;
+
+  height:40px;
+
+  border:1px solid var(--line);
+  border-radius:8px;
+
+  background:#fff;
+
+  color:var(--text);
+
+  padding:0 10px;
+
+  font:inherit;
+  font-size:13px;
+}
+
+.field input:focus,
+.field select:focus{
+  outline:none;
+
+  border-color:var(--blue);
+
+  box-shadow:
+    0 0 0 3px var(--blue-soft);
+}
 
 .duration-row{
-
-    display:flex;
-
-    gap:8px;
-
+  display:flex;
+  gap:8px;
 }
-
 
 .duration-row input{
-
-    min-width:0;
-
-}
-
-
-.checks{
-
-    margin-top:17px;
-
-    display:grid;
-
-    grid-template-columns:1fr 1fr;
-
-    gap:9px 18px;
-
-}
-
-
-.check{
-
-    display:flex;
-
-    align-items:center;
-
-    gap:7px;
-
-    font-size:12px;
-
-    cursor:pointer;
-
-}
-
-
-.check input{
-
-    width:15px;
-
-    height:15px;
-
-    accent-color:var(--blue);
-
+  min-width:0;
 }
 
 
 /* =========================================================
-   BUTTON
+   CHECKBOXES
+========================================================= */
+
+.checks{
+  display:flex;
+  flex-wrap:wrap;
+
+  gap:9px 18px;
+
+  margin-top:17px;
+}
+
+.check{
+  display:flex;
+  align-items:center;
+  gap:7px;
+
+  color:var(--dim);
+
+  font-size:12px;
+
+  cursor:pointer;
+}
+
+.check input{
+  accent-color:var(--blue);
+}
+
+
+/* =========================================================
+   START BUTTON
 ========================================================= */
 
 .start-btn{
+  width:100%;
 
-    width:100%;
+  margin-top:18px;
 
-    margin-top:18px;
+  min-height:46px;
 
-    min-height:46px;
+  border:0;
+  border-radius:9px;
 
-    border:0;
+  background:var(--blue);
 
-    border-radius:9px;
+  color:#fff;
 
-    background:var(--blue);
+  font-size:14px;
+  font-weight:800;
 
-    color:#fff;
+  cursor:pointer;
 
-    font-size:14px;
-
-    font-weight:800;
-
-    cursor:pointer;
-
-    transition:.15s ease;
-
+  transition:.15s ease;
 }
-
 
 .start-btn:hover{
-
-    background:var(--blue-dark);
-
+  background:var(--blue-dark);
 }
 
-
 .start-btn:disabled{
-
-    opacity:.55;
-
-    cursor:not-allowed;
-
+  opacity:.55;
+  cursor:not-allowed;
 }
 
 
@@ -792,78 +471,66 @@ select:focus{
 ========================================================= */
 
 .status-line{
+  margin-top:10px;
 
-    margin-top:10px;
+  color:var(--dim);
 
-    color:var(--dim);
+  font-family:var(--mono);
 
-    font-family:var(--mono);
-
-    font-size:11px;
-
-    min-height:16px;
-
+  font-size:11px;
 }
 
+#apiStatus{
+  min-height:16px;
+}
+
+
+/* =========================================================
+   PROGRESS
+========================================================= */
 
 .progress-wrap{
-
-    margin-top:18px;
-
+  margin-top:18px;
 }
-
 
 .progress-track{
+  width:100%;
+  height:9px;
 
-    width:100%;
+  background:#e9eef5;
 
-    height:9px;
+  border-radius:999px;
 
-    background:#e9eef5;
-
-    border-radius:999px;
-
-    overflow:hidden;
-
+  overflow:hidden;
 }
-
 
 .progress-fill{
+  width:0%;
+  height:100%;
 
-    width:0%;
+  background:var(--blue);
 
-    height:100%;
+  border-radius:999px;
 
-    background:var(--blue);
-
-    border-radius:999px;
-
-    transition:width .25s ease;
-
+  transition:width .25s ease;
 }
-
 
 .stage-label{
+  display:flex;
 
-    display:flex;
+  justify-content:space-between;
 
-    justify-content:space-between;
+  margin-top:8px;
 
-    margin-top:8px;
+  color:var(--dim);
 
-    color:var(--dim);
+  font-family:var(--mono);
 
-    font-family:var(--mono);
-
-    font-size:11px;
-
+  font-size:11px;
 }
 
-
 .stage-label .pct{
-
-    color:var(--text);
-
+  color:var(--text);
 }
 
 
@@ -872,234 +539,188 @@ select:focus{
 ========================================================= */
 
 .results-header{
+  display:flex;
+  align-items:center;
 
-    display:flex;
+  gap:7px;
 
-    align-items:baseline;
-
-    gap:8px;
-
-    margin-bottom:14px;
-
+  margin-bottom:14px;
 }
-
 
 .results-header .count{
+  font-size:26px;
+  font-weight:800;
 
-    font-size:26px;
-
-    font-weight:800;
-
-    color:var(--text);
-
+  color:var(--text);
 }
-
 
 .provider-badge{
+  margin-left:auto;
 
-    margin-left:auto;
+  color:var(--dim);
 
-    color:var(--dim);
+  font-family:var(--mono);
 
-    font-family:var(--mono);
+  font-size:11px;
 
-    font-size:11px;
+  background:var(--panel-2);
 
-    background:var(--panel-2);
+  padding:5px 9px;
 
-    padding:5px 9px;
-
-    border-radius:6px;
-
+  border-radius:6px;
 }
-
 
 .clips-grid{
+  display:grid;
 
-    content-visibility:auto;
-    contain-intrinsic-size:500px;
+  grid-template-columns:
+    repeat(auto-fill,minmax(230px,1fr));
 
-    display:grid;
-
-    grid-template-columns:
-        repeat(auto-fill,minmax(230px,1fr));
-
-    gap:14px;
-
+  gap:14px;
 }
-
 
 .clip-card{
+  overflow:hidden;
 
-    overflow:hidden;
+  background:#fff;
 
-    background:#fff;
+  border:1px solid var(--line);
 
-    border:1px solid var(--line);
-
-    border-radius:10px;
-
-    box-shadow:
-        0 3px 12px
-        rgba(15,23,42,.05);
-
+  border-radius:11px;
 }
-
 
 .clip-card video{
+  width:100%;
 
-    width:100%;
+  aspect-ratio:9/16;
 
-    aspect-ratio:9/16;
+  display:block;
 
-    object-fit:cover;
-
-    background:#111;
-
-    display:block;
-
+  background:#111;
 }
-
 
 .clip-body{
-
-    padding:12px;
-
+  padding:12px;
 }
-
 
 .clip-title{
+  display:flex;
 
-    display:flex;
+  justify-content:space-between;
+  align-items:flex-start;
 
-    justify-content:space-between;
+  gap:8px;
 
-    gap:8px;
+  font-size:11px;
 
-    font-size:11px;
-
-    font-family:var(--mono);
-
+  font-family:var(--mono);
 }
 
+.clip-title > span:first-child{
+  color:var(--text);
+}
 
 .badge{
+  flex-shrink:0;
 
-    padding:3px 7px;
+  padding:3px 7px;
 
-    border-radius:6px;
+  border-radius:5px;
 
-    font-size:10px;
-
+  font-size:10px;
+  font-weight:800;
 }
-
 
 .badge.pass{
-
-    background:#dcfce7;
-
-    color:#166534;
-
+  background:#ecfdf5;
+  color:#047857;
 }
-
 
 .badge.fail{
-
-    background:#fee2e2;
-
-    color:#991b1b;
-
+  background:#fef2f2;
+  color:#b91c1c;
 }
-
 
 .clip-topic{
+  margin-top:10px;
 
-    margin-top:9px;
-
-    font-size:13px;
-
+  font-size:13px;
 }
-
 
 .clip-caption{
+  margin-top:7px;
 
-    margin-top:6px;
+  color:var(--dim);
 
-    color:var(--dim);
-
-    font-size:12px;
-
-    line-height:1.45;
-
+  font-size:12px;
+  line-height:1.5;
 }
-
 
 .clip-tags{
+  display:flex;
+  flex-wrap:wrap;
 
-    display:flex;
+  gap:5px;
 
-    flex-wrap:wrap;
-
-    gap:5px;
-
-    margin-top:8px;
-
+  margin-top:9px;
 }
-
 
 .tag{
+  background:var(--blue-soft);
 
-    background:var(--blue-soft);
+  color:var(--blue);
 
-    color:var(--blue-dark);
+  border-radius:5px;
 
-    padding:3px 6px;
+  padding:3px 6px;
 
-    border-radius:5px;
-
-    font-size:10px;
-
+  font-size:10px;
 }
-
 
 .clip-actions{
+  display:flex;
 
-    display:flex;
+  gap:6px;
 
-    gap:6px;
-
-    margin-top:10px;
-
+  margin-top:11px;
 }
-
 
 .clip-actions button{
+  border:1px solid var(--line);
 
-    flex:1;
+  background:#fff;
 
-    border:1px solid var(--line);
+  color:var(--text);
 
-    background:#fff;
+  border-radius:7px;
 
-    color:var(--text);
+  padding:7px 9px;
 
-    border-radius:7px;
+  font-size:11px;
 
-    padding:7px;
+  cursor:pointer;
+}
 
-    cursor:pointer;
+.clip-actions button:hover{
+  border-color:#bfdbfe;
 
-    font-size:11px;
+  background:var(--blue-soft);
 
+  color:var(--blue);
 }
 
 
-.clip-actions button:hover{
+/* =========================================================
+   LIMITS
+========================================================= */
 
-    background:var(--blue-soft);
+.limits{
+  margin:12px 0 0;
+  padding-left:18px;
 
-    border-color:#bfdbfe;
+  color:var(--dim);
 
+  font-size:12px;
 }
 
 
@@ -1108,134 +729,249 @@ select:focus{
 ========================================================= */
 
 .toast{
+  position:fixed;
 
-    position:fixed;
+  left:50%;
+  bottom:24px;
 
-    right:20px;
+  transform:translateX(-50%);
 
-    bottom:20px;
+  max-width:min(90vw,650px);
 
-    max-width:380px;
+  display:none;
 
-    background:#172033;
+  padding:11px 15px;
 
-    color:#fff;
+  border-radius:9px;
 
-    padding:12px 15px;
+  background:#172033;
+  color:#fff;
 
-    border-radius:9px;
+  font-size:12px;
 
-    font-size:13px;
+  box-shadow:0 10px 30px rgba(15,23,42,.2);
 
-    display:none;
-
-    z-index:99999;
-
+  z-index:2000;
 }
 
 
 /* =========================================================
-   MOBILE
+   FOOTER
+========================================================= */
+
+.site-footer{
+  margin-top:24px;
+
+  padding:17px 24px;
+
+  border-top:1px solid var(--line);
+
+  background:#fff;
+
+  color:var(--dim);
+
+  font-size:12px;
+}
+
+.site-footer-inner{
+  max-width:1180px;
+
+  margin:auto;
+
+  display:flex;
+
+  justify-content:space-between;
+
+  align-items:center;
+
+  gap:15px;
+}
+
+
+/* =========================================================
+   RESPONSIVE
 ========================================================= */
 
 @media(max-width:900px){
 
-    main{
+  main{
+    grid-template-columns:1fr;
 
-        grid-template-columns:1fr;
+    padding:18px 16px 40px;
+  }
 
-        padding:16px;
+  .panel.full{
+    grid-column:auto;
+  }
 
-    }
+  .settings-grid{
+    grid-template-columns:
+      repeat(2,1fr);
+  }
 
 }
-
 
 @media(max-width:650px){
 
-    .site-header{
+  .site-header{
+    height:60px;
 
-        padding:0 14px;
+    padding:0 14px;
+  }
 
-    }
+  .site-logo{
+    font-size:17px;
+  }
 
-    .site-logo{
+  .header-right{
+    gap:10px;
+  }
 
-        font-size:17px;
+  .clip-link{
+    display:none;
+  }
 
-    }
+  .account-link span:last-child{
+    display:none;
+  }
 
-    .header-right{
+  .home-link{
+    font-size:13px;
+  }
 
-        gap:7px;
+  .account-icon{
+    width:29px;
+    height:29px;
+  }
 
-    }
+  .settings-grid{
+    grid-template-columns:1fr;
+  }
 
-    .clip-link{
+  .yt-row{
+    grid-template-columns:1fr;
+  }
 
-        display:none;
-
-    }
-
-    .account-button{
-
-        padding:4px;
-
-    }
-
-    .account-button #navName{
-
-        display:none;
-
-    }
-
-    .settings-grid{
-
-        grid-template-columns:1fr;
-
-    }
-
-    .checks{
-
-        grid-template-columns:1fr;
-
-    }
+  .site-footer-inner{
+    flex-direction:column;
+    align-items:flex-start;
+  }
 
 }
+/* ACCOUNT DROPDOWN */
 
-</style>
-
-<style id="CLIPPARTY_ACCOUNT_FIX_CSS">
-.account {
-    position: relative !important;
+.account{
+    position:relative;
 }
 
-.account-menu.open {
-    display: block !important;
-    visibility: visible !important;
-    opacity: 1 !important;
-    pointer-events: auto !important;
-}
-</style>
-<style id="CLIPPARTY-DROPDOWN-FINAL">
-.account {
-    position: relative !important;
-    z-index: 99999 !important;
-}
-
-.account-button {
-    cursor: pointer !important;
-    position: relative !important;
-    z-index: 100000 !important;
+.account-button{
+    border:0;
+    background:transparent;
+    cursor:pointer;
+    display:flex;
+    align-items:center;
+    gap:8px;
+    font:inherit;
+    color:inherit;
+    padding:6px 8px;
 }
 
-.account-menu.open {
-    display: block !important;
-    visibility: visible !important;
-    opacity: 1 !important;
-    pointer-events: auto !important;
-    position: absolute !important;
-    z-index: 999999 !important;
+.account-avatar{
+    width:38px;
+    height:38px;
+    border-radius:50%;
+    display:flex;
+    align-items:center;
+    justify-content:center;
+    background:#f1f6ff;
+    border:1px solid #dbe7ff;
+    color:#2563eb;
+    font-weight:700;
+}
+
+.chevron{
+    font-size:10px;
+    margin-left:2px;
+}
+
+.account-menu{
+    position:absolute;
+    top:51px;
+    right:0;
+    width:255px;
+    background:#fff;
+    border:1px solid #e5e7eb;
+    border-radius:14px;
+    box-shadow:0 18px 45px rgba(15,23,42,.14);
+    padding:8px;
+    display:none;
+    z-index:9999;
+}
+
+.account-menu.open{
+    display:block;
+}
+
+.menu-user{
+    padding:12px;
+    border-bottom:1px solid #edf1f5;
+    margin-bottom:6px;
+}
+
+.menu-user strong{
+    display:block;
+    font-size:13px;
+}
+
+.menu-user > span{
+    display:block;
+    margin-top:3px;
+    color:#64748b;
+    font-size:12px;
+    overflow:hidden;
+    text-overflow:ellipsis;
+}
+
+.menu-token{
+    margin-top:9px;
+    padding:8px 10px;
+    border-radius:9px;
+    background:#eff6ff;
+    color:#1d4ed8;
+    font-family:monospace;
+    font-size:11px;
+    font-weight:700;
+}
+
+.menu-link{
+    display:flex;
+    align-items:center;
+    gap:10px;
+    padding:10px 11px;
+    border-radius:9px;
+    font-size:13px;
+    font-weight:600;
+    text-decoration:none;
+    color:inherit;
+}
+
+.menu-link:hover{
+    background:#f8fafc;
+}
+
+.menu-icon{
+    width:20px;
+    text-align:center;
+}
+
+.menu-divider{
+    height:1px;
+    background:#edf1f5;
+    margin:6px 0;
+}
+
+.menu-logout{
+    color:#dc2626;
 }
 </style>
 </head>
@@ -1245,204 +981,96 @@ select:focus{
 
 
 <!-- =======================================================
-     HEADER
+     UNIVERSELE HEADER
 ======================================================= -->
 
 <header class="site-header">
 
+  <div class="header-left">
 
-    <div class="header-left">
-
-        <a
-            href="/ui/"
-            class="home-link"
-        >
-            Home
-        </a>
-
-    </div>
-
-
-    <a
-        href="/ui/"
-        class="site-logo"
-    >
-        Clip<span>Party</span>.nl
+    <a href="/ui/" class="home-link">
+      Home
     </a>
 
-
-    <div class="header-right">
-
-
-        <a
-            href="/ui/clip.html"
-            class="clip-link"
-        >
-            Clip maken
-        </a>
+  </div>
 
 
-        <div class="account" id="accountContainer">
+  <a href="/ui/" class="site-logo">
+    Clip<span>Party</span>.nl
+  </a>
 
 
-            <button
-                class="account-button"
-                id="accountButton"
-                type="button"
-            >
+  <div class="header-right">
 
-                <span
-                    class="account-avatar"
-                    id="navAvatar"
-                >C</span>
+    <a href="/ui/clip.html" class="clip-link">
+      Clip maken
+    </a>
 
-                <span id="navName">
-                    Account
-                </span>
+    <div class="account">
 
-                <span class="chevron">
-                    &#9660;
-                </span>
+    <button
+        class="account-button"
+        id="accountButton"
+        type="button"
+    >
+        <span class="account-avatar" id="navAvatar">C</span>
+        <span id="navName">Account</span>
+        <span class="chevron">▼</span>
+    </button>
 
-            </button>
+    <div class="account-menu" id="accountMenu">
 
+        <div class="menu-user">
+            <strong id="menuName">Account</strong>
+            <span id="menuEmail"></span>
 
-            <div
-                class="account-menu"
-                id="accountMenu"
-            >
-
-
-                <div class="menu-user">
-
-                    <strong id="menuName">
-                        Account
-                    </strong>
-
-                    <span id="menuEmail"></span>
-
-
-                    <div class="menu-token">
-
-                        &#9673;
-
-                        <span id="menuTokens">
-                            50
-                        </span>
-
-                        tokens beschikbaar
-
-                    </div>
-
-                </div>
-
-
-                <a
-                    class="menu-link"
-                    href="/ui/account.html"
-                >
-
-                    <span class="menu-icon">
-                        &#128100;
-                    </span>
-
-                    <span>
-                        Mijn account
-                    </span>
-
-                </a>
-
-
-                <a
-                    class="menu-link"
-                    href="/ui/clips.html"
-                >
-
-                    <span class="menu-icon">
-                        &#127916;
-                    </span>
-
-                    <span>
-                        Mijn clips
-                    </span>
-
-                </a>
-
-
-                <a
-                    class="menu-link"
-                    href="/ui/account.html#gegevens"
-                >
-
-                    <span class="menu-icon">
-                        &#128203;
-                    </span>
-
-                    <span>
-                        Accountgegevens
-                    </span>
-
-                </a>
-
-
-                <a
-                    class="menu-link"
-                    href="/ui/account.html#instellingen"
-                >
-
-                    <span class="menu-icon">
-                        &#9881;
-                    </span>
-
-                    <span>
-                        Instellingen
-                    </span>
-
-                </a>
-
-
-                <a
-                    class="menu-link"
-                    href="/ui/account.html#tokens"
-                >
-
-                    <span class="menu-icon">
-                        &#128179;
-                    </span>
-
-                    <span>
-                        Abonnement &amp; tokens
-                    </span>
-
-                </a>
-
-
-                <div class="menu-divider"></div>
-
-
-                <a
-                    class="menu-link menu-logout"
-                    href="#"
-                    onclick="logout();return false;"
-                >
-
-                    <span class="menu-icon">
-                        &#128682;
-                    </span>
-
-                    <span>
-                        Uitloggen
-                    </span>
-
-                </a>
-
-
+            <div class="menu-token">
+                ◉ <span id="menuTokens">50</span>
+                tokens beschikbaar
             </div>
-
         </div>
 
+        <a class="menu-link" href="/ui/account.html">
+            <span class="menu-icon">👤</span>
+            Mijn account
+        </a>
+
+        <a class="menu-link" href="/ui/clips.html">
+            <span class="menu-icon">🎬</span>
+            Mijn clips
+        </a>
+
+        <a class="menu-link" href="/ui/account.html#gegevens">
+            <span class="menu-icon">📋</span>
+            Accountgegevens
+        </a>
+
+        <a class="menu-link" href="/ui/account.html#instellingen">
+            <span class="menu-icon">⚙️</span>
+            Instellingen
+        </a>
+
+        <a class="menu-link" href="/ui/account.html#tokens">
+            <span class="menu-icon">💳</span>
+            Abonnement & tokens
+        </a>
+
+        <div class="menu-divider"></div>
+
+        <a
+            class="menu-link menu-logout"
+            href="#"
+            onclick="logout();return false;"
+        >
+            <span class="menu-icon">🚪</span>
+            Uitloggen
+        </a>
 
     </div>
+
+</div>
+
+  </div>
 
 </header>
 
@@ -1454,549 +1082,491 @@ select:focus{
 <main>
 
 
-    <!-- =====================================================
-         01 BRIEFING
-    ====================================================== -->
+  <!-- 01 CAMPAGNEBRIEFING -->
 
-    <section class="panel">
+  <section class="panel">
+
+    <h2>
+      <span class="n">01</span>
+      Campagnebriefing
+    </h2>
+
+    <div class="dropzone" id="briefDrop">
+
+      Sleep hier je briefing
+      (PDF / DOCX / TXT)
+      of klik om te kiezen
+
+      <input
+        type="file"
+        id="briefInput"
+        accept=".pdf,.docx,.txt"
+      >
+
+    </div>
+
+    <div
+      class="filelist"
+      id="briefList">
+    </div>
+
+  </section>
 
 
-        <h2>
+  <!-- 02 BRONVIDEO'S -->
 
-            <span class="n">
-                01
-            </span>
+  <section class="panel">
 
-            Campagnebriefing
+    <h2>
+      <span class="n">02</span>
+      Bronvideo's
+    </h2>
 
-        </h2>
+    <div class="dropzone" id="videoDrop">
+
+      Sleep hier één of meerdere video's
+      (MP4 / MOV / MKV / WEBM)
+
+      <br>
+
+      <small style="color:var(--dim)">
+        Maximaal 5 video's · Maximale videoduur: 60 minuten.
+      </small>
+
+      <input
+        type="file"
+        id="videoInput"
+        accept=".mp4,.mov,.mkv,.webm"
+        multiple
+      >
+
+    </div>
+
+    <div
+      class="filelist"
+      id="videoList">
+    </div>
 
 
-        <div
-            class="dropzone"
-            id="briefDrop"
+    <h2 style="margin-top:18px">
+
+      <span class="n">03</span>
+      YouTube-URL
+
+    </h2>
+
+
+    <div class="yt-row">
+
+      <input
+        type="url"
+        id="ytUrl"
+        placeholder="https://www.youtube.com/watch?v=…"
+      >
+
+      <button
+        type="button"
+        class="clip-actions button"
+        onclick="addYoutube()"
+        style="
+          background:var(--panel-2);
+          border:1px solid var(--line);
+          color:var(--text);
+          border-radius:8px;
+          padding:0 16px;
+          cursor:pointer;
+          font-family:var(--mono);
+        "
+      >
+        Toevoegen
+      </button>
+
+    </div>
+
+
+    <div
+      class="filelist"
+      id="ytList">
+    </div>
+
+  </section>
+
+
+  <!-- 04 INSTELLINGEN -->
+
+  <section class="panel full">
+
+    <h2>
+      <span class="n">04</span>
+      Instellingen
+    </h2>
+
+
+    <div class="settings-grid">
+
+
+      <div class="field">
+
+        <label>
+          Doel aantal clips
+        </label>
+
+        <input
+          type="number"
+          id="minClips"
+          value="1"
+          min="1"
+          max="50"
         >
 
-            Sleep hier je briefing
-            (PDF / DOCX / TXT)
-            of klik om te kiezen
+      </div>
 
 
-            <input
-                type="file"
-                id="briefInput"
-                accept=".pdf,.docx,.txt"
-            >
+      <div class="field">
 
-        </div>
+        <label>
+          Maximum clips
+        </label>
 
-
-        <div
-            class="filelist"
-            id="briefList"
-        ></div>
-
-
-    </section>
-
-
-
-    <!-- =====================================================
-         02 VIDEO'S
-    ====================================================== -->
-
-    <section class="panel">
-
-
-        <h2>
-
-            <span class="n">
-                02
-            </span>
-
-            Bronvideo's
-
-        </h2>
-
-
-        <div
-            class="dropzone"
-            id="videoDrop"
+        <input
+          type="number"
+          id="maxClips"
+          value="50"
+          min="1"
+          max="50"
         >
 
-            Sleep hier één of meerdere video's
-            (MP4 / MOV / MKV / WEBM)
-
-            <br>
-
-            <small>
-                Maximaal 5 video's ·
-                Maximale videoduur: 60 minuten.
-            </small>
+      </div>
 
 
-            <input
-                type="file"
-                id="videoInput"
-                accept=".mp4,.mov,.mkv,.webm"
-                multiple
-            >
+      <div class="field">
 
-        </div>
+        <label>
+          Maximum duur (sec)
+        </label>
 
-
-        <div
-            class="filelist"
-            id="videoList"
-        ></div>
-
-
-        <h2
-            style="margin-top:18px"
+        <input
+          type="number"
+          id="maxDuration"
+          value="60"
+          min="5"
+          max="60"
         >
 
-            <span class="n">
-                03
-            </span>
-
-            YouTube-URL
-
-        </h2>
+      </div>
 
 
-        <div class="yt-row">
+      <div class="field">
 
+        <label>
+          Voorkeur duur (sec)
+        </label>
 
-            <input
-                type="url"
-                id="ytUrl"
-                placeholder="https://www.youtube.com/watch?v=..."
-            >
+        <div class="duration-row">
 
+          <input
+            type="number"
+            id="prefMin"
+            value="15"
+            min="1"
+            max="60"
+          >
 
-            <button
-                type="button"
-                onclick="addYoutube()"
-                style="
-                    background:#f8fafc;
-                    border:1px solid #dfe7f1;
-                    color:#172033;
-                    border-radius:8px;
-                    padding:0 16px;
-                    cursor:pointer;
-                    font-family:var(--mono);
-                    white-space:nowrap;
-                "
-            >
-                Toevoegen
-            </button>
-
+          <input
+            type="number"
+            id="prefMax"
+            value="45"
+            min="1"
+            max="60"
+          >
 
         </div>
 
+      </div>
 
-        <div
-            class="filelist"
-            id="ytList"
-        ></div>
 
+      <div class="field">
 
-    </section>
+        <label>
+          Aspect ratio
+        </label>
 
+        <select id="aspectRatio">
 
+          <option value="9:16">
+            9:16 — TikTok / Reels / Shorts
+          </option>
 
-    <!-- =====================================================
-         04 INSTELLINGEN
-    ====================================================== -->
+          <option value="1:1">
+            1:1
+          </option>
 
-    <section class="panel full">
+          <option value="16:9">
+            16:9
+          </option>
 
+        </select>
 
-        <h2>
+      </div>
 
-            <span class="n">
-                04
-            </span>
 
-            Instellingen
+      <div class="field">
 
-        </h2>
+        <label>
+          Resolutie
+        </label>
 
+        <select id="resolution">
 
-        <div class="settings-grid">
+          <option value="1080x1920">
+            1080 × 1920
+          </option>
 
+          <option value="720x1280">
+            720 × 1280
+          </option>
 
-            <div class="field">
+          <option value="1080x1080">
+            1080 × 1080
+          </option>
 
-                <label>
-                    Minimaal aantal clips
-                </label>
+          <option value="1920x1080">
+            1920 × 1080
+          </option>
 
-                <input
-                    type="number"
-                    id="minClips"
-                    value="0"
-                    min="0"
-                    max="50"
-                >
+        </select>
 
-            </div>
+      </div>
 
 
-            <div class="field">
+      <div class="field">
 
-                <label>
-                    Maximaal aantal clips
-                </label>
+        <label>
+          LLM provider
+        </label>
 
-                <input
-                    type="number"
-                    id="maxClips"
-                    value="50"
-                    min="1"
-                    max="50"
-                >
+        <select id="llmProvider">
 
-            </div>
+          <option value="groq" selected>
+            Groq (standaard)
+          </option>
 
+          <option value="anthropic">
+            Anthropic (optioneel)
+          </option>
 
-            <div class="field">
+        </select>
 
-                <label>
-                    Maximale clipduur
-                </label>
+      </div>
 
-                <input
-                    type="number"
-                    id="maxDuration"
-                    value="60"
-                    min="1"
-                    max="60"
-                >
+    </div>
 
-            </div>
 
+    <div class="checks">
 
-            <div class="field">
 
-                <label>
-                    Voorkeursduur
-                </label>
+      <label class="check">
 
-
-                <div class="duration-row">
-
-
-                    <input
-                        type="number"
-                        id="prefMin"
-                        value="15"
-                        min="1"
-                        max="60"
-                        placeholder="Min"
-                    >
-
-
-                    <input
-                        type="number"
-                        id="prefMax"
-                        value="35"
-                        min="1"
-                        max="60"
-                        placeholder="Max"
-                    >
-
-
-                </div>
-
-            </div>
-
-
-            <div class="field">
-
-                <label>
-                    Beeldverhouding
-                </label>
-
-                <select id="aspectRatio">
-
-                    <option value="9:16">
-                        9:16
-                    </option>
-
-                    <option value="1:1">
-                        1:1
-                    </option>
-
-                    <option value="16:9">
-                        16:9
-                    </option>
-
-                </select>
-
-            </div>
-
-
-            <div class="field">
-
-                <label>
-                    Resolutie
-                </label>
-
-                <select id="resolution">
-
-                    <option value="1080x1920">
-                        1080 × 1920
-                    </option>
-
-                    <option value="720x1280">
-                        720 × 1280
-                    </option>
-
-                </select>
-
-            </div>
-
-
-            <div class="field">
-
-                <label>
-                    LLM-provider
-                </label>
-
-                <select id="llmProvider">
-
-                    <option value="groq" selected>
-                        Groq
-                    </option>
-
-                    <option value="anthropic">
-                        Anthropic
-                    </option>
-
-                </select>
-
-            </div>
-
-
-        </div>
-
-
-        <div class="checks">
-
-
-            <label class="check">
-
-                <input
-                    type="checkbox"
-                    id="facePriority"
-                    checked
-                >
-
-                Gezicht prioriteren
-
-            </label>
-
-
-            <label class="check">
-
-                <input
-                    type="checkbox"
-                    id="avoidAudioOnly"
-                    checked
-                >
-
-                Audio-only vermijden
-
-            </label>
-
-
-            <label class="check">
-
-                <input
-                    type="checkbox"
-                    id="subtitles"
-                >
-
-                Ondertiteling
-
-            </label>
-
-
-            <label class="check">
-
-                <input
-                    type="checkbox"
-                    id="hooks"
-                    checked
-                >
-
-                Hook
-
-            </label>
-
-
-            <label class="check">
-
-                <input
-                    type="checkbox"
-                    id="highestQuality"
-                    checked
-                >
-
-                Hoogste kwaliteit
-
-            </label>
-
-
-            <label class="check">
-
-                <input
-                    type="checkbox"
-                    id="applyCampaignRules"
-                    checked
-                >
-
-                Campagneregels toepassen
-
-            </label>
-
-
-            <label class="check">
-
-                <input
-                    type="checkbox"
-                    id="verifyExport"
-                    checked
-                >
-
-                Export controleren
-
-            </label>
-
-
-        </div>
-
-
-        <button
-            class="start-btn"
-            id="startBtn"
-            onclick="startClipping()"
-        >
-            Start Clipping
-        </button>
-
-
-        <div
-            class="status-line"
-            id="apiStatus"
-        >
-            Backend controleren...
-        </div>
-
-
-        <div
-            class="progress-wrap"
-            id="progressWrap"
-            style="display:none"
+        <input
+          type="checkbox"
+          id="facePriority"
+          checked
         >
 
+        Gezicht prioriteren
 
-            <div class="progress-track">
-
-                <div
-                    class="progress-fill"
-                    id="progressFill"
-                ></div>
-
-            </div>
+      </label>
 
 
-            <div class="stage-label">
+      <label class="check">
 
-                <span id="stageLabel">
-                    In wachtrij
-                </span>
+        <input
+          type="checkbox"
+          id="avoidAudioOnly"
+          checked
+        >
 
-                <span
-                    class="pct"
-                    id="stagePct"
-                >
-                    0%
-                </span>
+        Audio-only vermijden
 
-            </div>
+      </label>
 
 
-            <div
-                class="stage-label"
-                id="jobModelLine"
-                style="display:none"
-            ></div>
+      <label class="check">
+
+        <input
+          type="checkbox"
+          id="subtitles"
+        >
+
+        Ondertiteling
+
+      </label>
 
 
-        </div>
+      <label class="check">
+
+        <input
+          type="checkbox"
+          id="hooks"
+          checked
+        >
+
+        Hook
+
+      </label>
 
 
-        <ul
-            id="limitsList"
-            style="display:none"
-        ></ul>
+      <label class="check">
+
+        <input
+          type="checkbox"
+          id="highestQuality"
+          checked
+        >
+
+        Hoogste kwaliteit
+
+      </label>
 
 
-    </section>
+      <label class="check">
+
+        <input
+          type="checkbox"
+          id="applyCampaignRules"
+          checked
+        >
+
+        Campagneregels toepassen
+
+      </label>
 
 
+      <label class="check">
 
-    <!-- =====================================================
-         RESULTATEN
-    ====================================================== -->
+        <input
+          type="checkbox"
+          id="verifyExport"
+          checked
+        >
 
-    <section
-        class="panel full"
-        id="resultsSection"
-        style="display:none"
+        Export controleren
+
+      </label>
+
+
+    </div>
+
+
+    <button
+      class="start-btn"
+      id="startBtn"
+      onclick="startClipping()"
+    >
+      Start Clipping
+    </button>
+
+
+    <div
+      class="status-line"
+      id="apiStatus"
+    >
+      Backend controleren...
+    </div>
+
+
+    <div
+      class="progress-wrap"
+      id="progressWrap"
+      style="display:none"
     >
 
-
-        <div class="results-header">
-
-
-            <span
-                class="count"
-                id="resultCount"
-            >
-                0
-            </span>
-
-
-            <span
-                style="
-                    color:var(--dim);
-                    font-family:var(--mono);
-                    font-size:13px;
-                "
-            >
-                clips created
-            </span>
-
-
-            <span
-                class="provider-badge"
-                id="providerBadge"
-            ></span>
-
-
-        </div>
-
+      <div class="progress-track">
 
         <div
-            class="clips-grid"
-            id="clipsGrid"
+          class="progress-fill"
+          id="progressFill"
         ></div>
 
+      </div>
 
-    </section>
+
+      <div class="stage-label">
+
+        <span id="stageLabel">
+          In wachtrij
+        </span>
+
+        <span
+          class="pct"
+          id="stagePct"
+        >
+          0%
+        </span>
+
+      </div>
+
+
+      <div
+        class="stage-label"
+        id="jobModelLine"
+        style="display:none;margin-top:4px;"
+      ></div>
+
+    </div>
+
+
+    <ul
+      class="limits"
+      id="limitsList"
+      style="display:none"
+    ></ul>
+
+  </section>
+
+
+  <!-- RESULTATEN -->
+
+  <section
+    class="panel full"
+    id="resultsSection"
+    style="display:none"
+  >
+
+    <div class="results-header">
+
+      <span
+        class="count"
+        id="resultCount"
+      >
+        0
+      </span>
+
+      <span
+        style="
+          color:var(--dim);
+          font-family:var(--mono);
+          font-size:13px;
+        "
+      >
+        clips created
+      </span>
+
+
+      <span
+        class="provider-badge"
+        id="providerBadge"
+      ></span>
+
+    </div>
+
+
+    <div
+      class="clips-grid"
+      id="clipsGrid"
+    ></div>
+
+  </section>
 
 
 </main>
@@ -2006,45 +1576,28 @@ select:focus{
      FOOTER
 ======================================================= -->
 
-<footer
-    style="
-        border-top:1px solid var(--line);
-        background:#fff;
-        color:var(--dim);
-        padding:18px 24px;
-        font-size:12px;
-    "
->
+<footer class="site-footer">
 
-    <div
-        style="
-            max-width:1180px;
-            margin:auto;
-            display:flex;
-            justify-content:space-between;
-            gap:15px;
-        "
-    >
+  <div class="site-footer-inner">
 
-        <span>
-            <strong>ClipParty</strong>
-            · AI clipping voor creators &amp; clippers
-        </span>
+    <span>
+      <strong>ClipParty</strong>
+      · AI clipping voor creators & clippers
+    </span>
 
-        <span>
-            © 2026 ClipParty
-        </span>
+    <span>
+      © 2026 ClipParty
+    </span>
 
-    </div>
+  </div>
 
 </footer>
 
 
 <div
-    class="toast"
-    id="toast"
+  class="toast"
+  id="toast"
 ></div>
-
 
 
 <script>
@@ -2054,13 +1607,7 @@ select:focus{
    CONFIG
 ========================================================= */
 
-/*
-   BELANGRIJK:
-   Lege API = dezelfde server waarop ClipParty draait.
-   Hierdoor werkt de site lokaal én op Render.
-*/
-
-const API = "";
+const API = "https://clipparty.onrender.com";
 
 
 /* =========================================================
@@ -2079,303 +1626,63 @@ let pollTimer = null;
 
 
 /* =========================================================
-   HELPERS
+   PLATFORM CAMPAIGN
 ========================================================= */
 
-function escapeHtml(value){
-
-    return String(value ?? "")
-
-        .replace(/&/g,"&amp;")
-
-        .replace(/</g,"&lt;")
-
-        .replace(/>/g,"&gt;")
-
-        .replace(/"/g,"&quot;")
-
-        .replace(/'/g,"&#039;");
-
-}
+const selectedPlatformCampaign =
+  JSON.parse(
+    localStorage.getItem(
+      "selectedPlatformCampaign"
+    ) || "null"
+  );
 
 
-function toast(message){
+if(selectedPlatformCampaign){
 
-    const element =
-        document.getElementById("toast");
+  setTimeout(()=>{
 
-    element.textContent =
-        message;
+    const el =
+      document.querySelector(
+        "input[name=campaignName],#campaignName"
+      );
 
-    element.style.display =
-        "block";
+    if(
+      el &&
+      !el.value
+    ){
 
-    clearTimeout(
-        element._timer
-    );
+      el.value =
+        selectedPlatformCampaign.name;
 
-    element._timer =
-        setTimeout(
-            ()=>{
-                element.style.display =
-                    "none";
-            },
-            5000
-        );
+    }
+
+  },300);
 
 }
 
 
 /* =========================================================
-   ACCOUNT DROPDOWN
+   TOAST
 ========================================================= */
 
-const accountButton =
-    document.getElementById(
-        "accountButton"
+function toast(msg){
+
+  const t =
+    document.getElementById("toast");
+
+  t.textContent = msg;
+
+  t.style.display = "block";
+
+  clearTimeout(t._hideTimer);
+
+  t._hideTimer =
+    setTimeout(
+      ()=>{
+        t.style.display = "none";
+      },
+      5000
     );
-
-const accountMenu =
-    document.getElementById(
-        "accountMenu"
-    );
-
-
-if(
-    accountButton &&
-    accountMenu
-){
-
-    accountButton.addEventListener(
-        "click",
-        function(event){
-
-            event.stopPropagation();
-
-            accountMenu.classList.toggle(
-                "open"
-            );
-
-        }
-    );
-
-
-    document.addEventListener(
-        "click",
-        function(event){
-
-            if(
-                !event.target.closest(
-                    ".account"
-                )
-            ){
-
-                accountMenu.classList.remove(
-                    "open"
-                );
-
-            }
-
-        }
-    );
-
-}
-
-
-/* =========================================================
-   ACCOUNT INFO
-========================================================= */
-
-async function loadAccountInfo(){
-
-    try{
-
-        const response =
-            await fetch(
-                API + "/api/auth/me",
-                {
-                    credentials:"include"
-                }
-            );
-
-
-        if(!response.ok){
-
-            /*
-               Niet ingelogd:
-               accountmenu blijft wel zichtbaar,
-               maar de knop leidt naar login.
-            */
-
-            accountButton.onclick =
-                function(){
-
-                    window.location.href =
-                        "/ui/login.html";
-
-                };
-
-            return;
-
-        }
-
-
-        const data =
-            await response.json();
-
-
-        const user =
-            data.user || data;
-
-
-        const name =
-            user.name ||
-            user.email ||
-            "Account";
-
-
-        const email =
-            user.email ||
-            "";
-
-
-        const navName =
-            document.getElementById(
-                "navName"
-            );
-
-
-        const navAvatar =
-            document.getElementById(
-                "navAvatar"
-            );
-
-
-        const menuName =
-            document.getElementById(
-                "menuName"
-            );
-
-
-        const menuEmail =
-            document.getElementById(
-                "menuEmail"
-            );
-
-
-        if(navName){
-
-            navName.textContent =
-                name;
-
-        }
-
-
-        if(navAvatar){
-
-            navAvatar.textContent =
-                name
-                    .trim()
-                    .charAt(0)
-                    .toUpperCase();
-
-        }
-
-
-        if(menuName){
-
-            menuName.textContent =
-                name;
-
-        }
-
-
-        if(menuEmail){
-
-            menuEmail.textContent =
-                email;
-
-        }
-
-
-        /*
-           Tokenwaarde indien backend die
-           terugstuurt.
-        */
-
-        const tokenBalance =
-            user.tokens ??
-            user.token_balance;
-
-
-        if(
-            tokenBalance !== undefined
-        ){
-
-            const tokenElement =
-                document.getElementById(
-                    "menuTokens"
-                );
-
-            if(tokenElement){
-
-                tokenElement.textContent =
-                    tokenBalance;
-
-            }
-
-        }
-
-    }
-    catch(error){
-
-        console.error(
-            "Account laden mislukt:",
-            error
-        );
-
-    }
-
-}
-
-
-// Laat de eerste paint volledig vrij. Accountdata wordt pas daarna opgehaald.
-if ("requestIdleCallback" in window) {
-    requestIdleCallback(() => loadAccountInfo(), { timeout: 1500 });
-} else {
-    setTimeout(loadAccountInfo, 400);
-}
-
-
-/* =========================================================
-   LOGOUT
-========================================================= */
-
-async function logout(){
-
-    try{
-
-        await fetch(
-            API + "/api/auth/logout",
-            {
-                method:"POST",
-                credentials:"include"
-            }
-        );
-
-    }
-    catch(error){
-
-        console.error(
-            "Logout mislukt:",
-            error
-        );
-
-    }
-
-
-    window.location.href =
-        "/ui/login.html";
 
 }
 
@@ -2386,85 +1693,90 @@ async function logout(){
 
 async function checkHealth(){
 
-    const element =
-        document.getElementById(
-            "apiStatus"
-        );
+  const el =
+    document.getElementById("apiStatus");
 
+  try{
 
-    try{
+    const r =
+      await fetch(
+        API + "/api/health"
+      );
 
-        const response =
-            await fetch(
-                API + "/api/health"
-            );
+    if(!r.ok){
 
-
-        if(!response.ok){
-
-            throw new Error(
-                "HTTP " +
-                response.status
-            );
-
-        }
-
-
-        const data =
-            await response.json();
-
-
-        const modelInfo =
-            data.available
-
-                ? "LLM: " +
-                  data.llm_provider +
-                  " (" +
-                  data.llm_model +
-                  ")"
-
-                : "LLM-configuratie controleren";
-
-
-        if(
-            !data.available
-        ){
-
-            element.textContent =
-                "Backend online — " +
-                modelInfo;
-
-            element.style.color =
-                "var(--warn)";
-
-        }
-        else{
-
-            element.textContent =
-                "Backend online — " +
-                modelInfo;
-
-            element.style.color =
-                "var(--green)";
-
-        }
+      throw new Error(
+        "HTTP " + r.status
+      );
 
     }
-    catch(error){
 
-        element.textContent =
-            "Backend niet bereikbaar.";
+    const data =
+      await r.json();
 
-        element.style.color =
-            "var(--danger)";
+
+    const modelInfo =
+      data.available
+
+        ? `LLM: ${data.llm_provider} (${data.llm_model})`
+
+        : `LLM: geen geschikt Groq-model beschikbaar -- ${data.llm_detail || ""}`;
+
+
+    if(!data.available){
+
+      el.textContent =
+        "Backend online — LET OP: " +
+        modelInfo;
+
+      el.style.color =
+        "var(--warn)";
 
     }
+
+    else if(
+      data.warnings &&
+      data.warnings.length
+    ){
+
+      el.textContent =
+        "Backend online — " +
+        modelInfo +
+        " — " +
+        data.warnings.join(" / ");
+
+      el.style.color =
+        "var(--warn)";
+
+    }
+
+    else{
+
+      el.textContent =
+        "Backend online — " +
+        modelInfo;
+
+      el.style.color =
+        "var(--green)";
+
+    }
+
+  }
+  catch(e){
+
+    el.textContent =
+      "Backend niet bereikbaar op " +
+      API;
+
+    el.style.color =
+      "var(--danger)";
+
+  }
 
 }
 
 
-// Health-check blokkeert de interface niet.
-setTimeout(checkHealth, 1200);
+checkHealth();
 
 
 /* =========================================================
@@ -2473,64 +1785,54 @@ setTimeout(checkHealth, 1200);
 
 async function uploadFile(file){
 
-    const formData =
-        new FormData();
+  const fd =
+    new FormData();
+
+  fd.append(
+    "file",
+    file
+  );
 
 
-    formData.append(
-        "file",
-        file
+  const r =
+    await fetch(
+      API + "/api/upload",
+      {
+        method:"POST",
+        body:fd
+      }
     );
 
 
-    const response =
-        await fetch(
-            API + "/api/upload",
-            {
-                method:"POST",
-                body:formData
-            }
-        );
+  if(!r.ok){
 
+    let detail =
+      "upload mislukt: " +
+      file.name;
 
-    if(!response.ok){
+    try{
 
-        let detail =
-            "Upload mislukt: " +
-            file.name;
+      const d =
+        await r.json();
 
+      if(d.detail){
 
-        try{
+        detail =
+          typeof d.detail === "string"
+            ? d.detail
+            : JSON.stringify(d.detail);
 
-            const data =
-                await response.json();
-
-
-            if(data.detail){
-
-                detail =
-                    typeof data.detail === "string"
-
-                        ? data.detail
-
-                        : JSON.stringify(
-                            data.detail
-                        );
-
-            }
-
-        }
-        catch(error){}
-
-
-        throw new Error(
-            detail
-        );
+      }
 
     }
+    catch(e){}
+
+    throw new Error(detail);
+
+  }
 
 
-    return await response.json();
+  return await r.json();
 
 }
 
@@ -2540,93 +1842,82 @@ async function uploadFile(file){
 ========================================================= */
 
 function setupDropzone(
-    zoneId,
-    inputId,
-    onFiles
+  zoneId,
+  inputId,
+  onFiles
 ){
 
-    const zone =
-        document.getElementById(
-            zoneId
-        );
+  const zone =
+    document.getElementById(zoneId);
+
+  const input =
+    document.getElementById(inputId);
 
 
-    const input =
-        document.getElementById(
-            inputId
-        );
+  zone.addEventListener(
+    "click",
+    ()=>{
+      input.click();
+    }
+  );
 
 
-    zone.addEventListener(
-        "click",
-        ()=>{
-            input.click();
-        }
-    );
+  input.addEventListener(
+    "change",
+    ()=>{
+      onFiles(
+        Array.from(
+          input.files
+        )
+      );
+
+      input.value = "";
+    }
+  );
 
 
-    input.addEventListener(
-        "change",
-        ()=>{
+  zone.addEventListener(
+    "dragover",
+    e=>{
 
-            onFiles(
-                Array.from(
-                    input.files
-                )
-            );
+      e.preventDefault();
 
-            input.value =
-                "";
+      zone.classList.add(
+        "drag"
+      );
 
-        }
-    );
+    }
+  );
 
 
-    zone.addEventListener(
-        "dragover",
-        event=>{
-
-            event.preventDefault();
-
-            zone.classList.add(
-                "drag"
-            );
-
-        }
-    );
+  zone.addEventListener(
+    "dragleave",
+    ()=>{
+      zone.classList.remove(
+        "drag"
+      );
+    }
+  );
 
 
-    zone.addEventListener(
-        "dragleave",
-        ()=>{
+  zone.addEventListener(
+    "drop",
+    e=>{
 
-            zone.classList.remove(
-                "drag"
-            );
+      e.preventDefault();
 
-        }
-    );
+      zone.classList.remove(
+        "drag"
+      );
 
+      onFiles(
+        Array.from(
+          e.dataTransfer.files
+        )
+      );
 
-    zone.addEventListener(
-        "drop",
-        event=>{
-
-            event.preventDefault();
-
-            zone.classList.remove(
-                "drag"
-            );
-
-
-            onFiles(
-                Array.from(
-                    event.dataTransfer.files
-                )
-            );
-
-        }
-    );
+    }
+  );
 
 }
 
@@ -2636,74 +1927,58 @@ function setupDropzone(
 ========================================================= */
 
 setupDropzone(
-    "briefDrop",
-    "briefInput",
+  "briefDrop",
+  "briefInput",
 
-    async files=>{
+  async(files)=>{
 
-        if(!files.length){
-
-            return;
-
-        }
+    if(!files.length){
+      return;
+    }
 
 
-        try{
+    try{
 
-            const result =
-                await uploadFile(
-                    files[0]
-                );
-
-
-            briefPath =
-                result.path;
+      const res =
+        await uploadFile(
+          files[0]
+        );
 
 
-            document.getElementById(
-                "briefList"
-            ).innerHTML =
+      briefPath =
+        res.path;
 
-                `<div class="fileitem">
 
-                    <span>
-                        ${escapeHtml(
-                            result.filename
-                        )}
-                    </span>
+      document.getElementById(
+        "briefList"
+      ).innerHTML =
 
-                    <button
-                        onclick="clearBrief()"
-                    >
-                        ✕
-                    </button>
-
-                </div>`;
-
-        }
-        catch(error){
-
-            toast(
-                error.message
-            );
-
-        }
+        `<div class="fileitem">
+          <span>${escapeHtml(res.filename)}</span>
+          <button onclick="clearBrief()">✕</button>
+        </div>`;
 
     }
+    catch(e){
+
+      toast(
+        e.message
+      );
+
+    }
+
+  }
 
 );
 
 
 function clearBrief(){
 
-    briefPath =
-        null;
+  briefPath = null;
 
-
-    document.getElementById(
-        "briefList"
-    ).innerHTML =
-        "";
+  document.getElementById(
+    "briefList"
+  ).innerHTML = "";
 
 }
 
@@ -2713,107 +1988,105 @@ function clearBrief(){
 ========================================================= */
 
 setupDropzone(
-    "videoDrop",
-    "videoInput",
+  "videoDrop",
+  "videoInput",
 
-    async files=>{
+  async(files)=>{
 
-        const remaining =
-            Math.max(
-                0,
-                5 - videoPaths.length
-            );
-
-
-        for(
-            const file of
-            files.slice(
-                0,
-                remaining
-            )
-        ){
-
-            try{
-
-                const result =
-                    await uploadFile(
-                        file
-                    );
+    const remaining =
+      Math.max(
+        0,
+        5 - videoPaths.length
+      );
 
 
-                videoPaths.push({
+    for(
+      const f of files.slice(
+        0,
+        remaining
+      )
+    ){
 
-                    label:
-                        result.filename,
+      if(
+        videoPaths.length >= 5
+      ){
 
-                    path:
-                        result.path
+        break;
 
-                });
-
-            }
-            catch(error){
-
-                toast(
-                    error.message
-                );
-
-            }
-
-        }
+      }
 
 
-        renderVideoList();
+      try{
+
+        const res =
+          await uploadFile(f);
+
+
+        videoPaths.push({
+
+          label:
+            res.filename,
+
+          path:
+            res.path
+
+        });
+
+      }
+      catch(e){
+
+        toast(
+          e.message
+        );
+
+      }
 
     }
+
+
+    renderVideoList();
+
+  }
 
 );
 
 
 function renderVideoList(){
 
-    const element =
-        document.getElementById(
-            "videoList"
-        );
+  document.getElementById(
+    "videoList"
+  ).innerHTML =
 
+    videoPaths.map(
+      (v,i)=>
 
-    element.innerHTML =
+        `<div class="fileitem">
 
-        videoPaths.map(
-            (video,index)=>`
+          <span>
+            ${escapeHtml(v.label)}
+          </span>
 
-                <div class="fileitem">
+          <button
+            onclick="removeVideo(${i})"
+          >
+            ✕
+          </button>
 
-                    <span>
-                        ${escapeHtml(
-                            video.label
-                        )}
-                    </span>
+        </div>`
 
-                    <button
-                        onclick="removeVideo(${index})"
-                    >
-                        ✕
-                    </button>
-
-                </div>
-
-            `
-        ).join("");
+    ).join("");
 
 }
 
 
-function removeVideo(index){
+function removeVideo(i){
 
-    videoPaths.splice(
-        index,
-        1
-    );
+  videoPaths.splice(
+    i,
+    1
+  );
 
-
-    renderVideoList();
+  renderVideoList();
 
 }
 
@@ -2824,150 +2097,156 @@ function removeVideo(index){
 
 async function addYoutube(){
 
-    const input =
-        document.getElementById(
-            "ytUrl"
-        );
-
-
-    const url =
-        input.value.trim();
-
-
-    if(!url){
-
-        return;
-
-    }
-
-
-    youtubeUrls.push(
-        url
+  const input =
+    document.getElementById(
+      "ytUrl"
     );
 
 
-    input.value =
-        "";
+  const url =
+    input.value.trim();
 
 
-    renderYtList();
+  if(!url){
+    return;
+  }
 
 
-    try{
+  if(
+    youtubeUrls.includes(url)
+  ){
 
-        const response =
-            await fetch(
-                API + "/api/youtube/resolve",
-                {
-                    method:"POST",
+    toast(
+      "Deze YouTube-URL is al toegevoegd."
+    );
 
-                    headers:{
-                        "Content-Type":
-                            "application/json"
-                    },
+    return;
 
-                    body:
-                        JSON.stringify({
-                            url:url
-                        })
-
-                }
-            );
+  }
 
 
-        if(response.ok){
+  youtubeUrls.push(
+    url
+  );
 
-            const metadata =
-                await response.json();
+
+  input.value = "";
+
+  renderYtList();
 
 
-            if(metadata.title){
+  try{
 
-                renderYtList(
-                    `${url} — "${metadata.title}"`,
-                    url
-                );
+    const r =
+      await fetch(
+        API + "/api/youtube/resolve",
+        {
+          method:"POST",
 
-            }
+          headers:{
+            "Content-Type":
+              "application/json"
+          },
 
+          body:
+            JSON.stringify({
+              url
+            })
         }
+      );
+
+
+    if(r.ok){
+
+      const meta =
+        await r.json();
+
+
+      renderYtList(
+
+        meta.title
+          ? `${url} — "${meta.title}"`
+          : null,
+
+        url
+
+      );
 
     }
-    catch(error){
 
-        /*
-           Resolve is optioneel.
-           De URL kan nog steeds
-           bij het starten worden gebruikt.
-        */
+  }
+  catch(e){
 
-    }
+    /*
+      Resolve is optioneel.
+      De download gebeurt bij het
+      starten van de clipping-job.
+    */
+
+  }
 
 }
 
 
 function renderYtList(
-    overrideLabel,
-    overrideUrl
+  overrideLabel,
+  overrideUrl
 ){
 
-    const element =
-        document.getElementById(
-            "ytList"
-        );
+  const el =
+    document.getElementById(
+      "ytList"
+    );
 
 
-    element.innerHTML =
+  el.innerHTML =
 
-        youtubeUrls.map(
-            (url,index)=>{
+    youtubeUrls.map(
+      (u,i)=>{
 
-                const label =
-                    (
-                        overrideUrl === url &&
-                        overrideLabel
-                    )
+        const label =
+          (
+            overrideUrl === u &&
+            overrideLabel
+          )
 
-                        ? overrideLabel
+            ? overrideLabel
+            : u;
 
-                        : url;
 
+        return `
 
-                return `
+          <div class="fileitem">
 
-                    <div class="fileitem">
+            <span>
+              ${escapeHtml(label)}
+            </span>
 
-                        <span>
-                            ${escapeHtml(
-                                label
-                            )}
-                        </span>
+            <button
+              onclick="removeYt(${i})"
+            >
+              ✕
+            </button>
 
-                        <button
-                            onclick="removeYt(${index})"
-                        >
-                            ✕
-                        </button>
+          </div>
 
-                    </div>
+        `;
 
-                `;
+      }
 
-            }
-        ).join("");
+    ).join("");
 
 }
 
 
-function removeYt(index){
+function removeYt(i){
 
-    youtubeUrls.splice(
-        index,
-        1
-    );
+  youtubeUrls.splice(
+    i,
+    1
+  );
 
-
-    renderYtList();
+  renderYtList();
 
 }
 
@@ -2978,94 +2257,82 @@ function removeYt(index){
 
 function collectSettings(){
 
-    return {
+  return {
 
-        min_clips:
-            parseInt(
-                document.getElementById(
-                    "minClips"
-                ).value
-            ),
+    min_clips:
+      parseInt(
+        document.getElementById(
+          "minClips"
+        ).value
+      ),
 
+    max_clips:
+      parseInt(
+        document.getElementById(
+          "maxClips"
+        ).value
+      ),
 
-        max_clips:
-            parseInt(
-                document.getElementById(
-                    "maxClips"
-                ).value
-            ),
+    max_duration:
+      parseInt(
+        document.getElementById(
+          "maxDuration"
+        ).value
+      ),
 
+    preferred_min_duration:
+      parseInt(
+        document.getElementById(
+          "prefMin"
+        ).value
+      ),
 
-        max_duration:
-            parseInt(
-                document.getElementById(
-                    "maxDuration"
-                ).value
-            ),
+    preferred_max_duration:
+      parseInt(
+        document.getElementById(
+          "prefMax"
+        ).value
+      ),
 
+    aspect_ratio:
+      document.getElementById(
+        "aspectRatio"
+      ).value,
 
-        preferred_min_duration:
-            parseInt(
-                document.getElementById(
-                    "prefMin"
-                ).value
-            ),
+    resolution:
+      document.getElementById(
+        "resolution"
+      ).value,
 
+    subtitles:
+      document.getElementById(
+        "subtitles"
+      ).checked,
 
-        preferred_max_duration:
-            parseInt(
-                document.getElementById(
-                    "prefMax"
-                ).value
-            ),
+    hooks:
+      document.getElementById(
+        "hooks"
+      ).checked,
 
+    face_priority:
+      document.getElementById(
+        "facePriority"
+      ).checked,
 
-        aspect_ratio:
-            document.getElementById(
-                "aspectRatio"
-            ).value,
+    quality:
+      document.getElementById(
+        "highestQuality"
+      ).checked
 
+        ? "highest"
+        : "standard",
 
-        resolution:
-            document.getElementById(
-                "resolution"
-            ).value,
+    llm_provider:
+      document.getElementById(
+        "llmProvider"
+      ).value
 
-
-        subtitles:
-            document.getElementById(
-                "subtitles"
-            ).checked,
-
-
-        hooks:
-            document.getElementById(
-                "hooks"
-            ).checked,
-
-
-        face_priority:
-            document.getElementById(
-                "facePriority"
-            ).checked,
-
-
-        quality:
-            document.getElementById(
-                "highestQuality"
-            ).checked
-
-                ? "highest"
-
-                : "standard",
-
-
-        llm_provider:
-            document.getElementById(
-                "llmProvider"
-            ).value
-
-    };
+  };
 
 }
 
@@ -3076,683 +2343,662 @@ function collectSettings(){
 
 async function startClipping(){
 
-    if(!briefPath){
+  if(!briefPath){
 
-        toast(
-            "Upload eerst een campagnebriefing."
-        );
+    toast(
+      "Upload eerst een campagnebriefing."
+    );
 
-        return;
+    return;
+
+  }
+
+
+  if(
+    !videoPaths.length &&
+    !youtubeUrls.length
+  ){
+
+    toast(
+      "Voeg minstens één bronvideo of YouTube-URL toe."
+    );
+
+    return;
+
+  }
+
+
+  const btn =
+    document.getElementById(
+      "startBtn"
+    );
+
+
+  btn.disabled = true;
+
+
+  document.getElementById(
+    "progressWrap"
+  ).style.display = "block";
+
+
+  document.getElementById(
+    "resultsSection"
+  ).style.display = "none";
+
+
+  document.getElementById(
+    "limitsList"
+  ).style.display = "none";
+
+
+  document.getElementById(
+    "jobModelLine"
+  ).style.display = "none";
+
+
+  const videos = [
+
+    ...videoPaths.map(
+      v=>v.path
+    ),
+
+    ...youtubeUrls
+
+  ];
+
+
+  try{
+
+    const r =
+      await fetch(
+        API + "/api/campaign/start",
+        {
+
+          method:"POST",
+
+          headers:{
+            "Content-Type":
+              "application/json"
+          },
+
+          body:
+            JSON.stringify({
+
+              campaign_file:
+                briefPath,
+
+              videos:
+
+                videos,
+
+              settings:
+                collectSettings()
+
+            })
+
+        }
+      );
+
+
+    if(!r.ok){
+
+      const err =
+        await r.json();
+
+
+      throw new Error(
+
+        typeof err.detail === "string"
+
+          ? err.detail
+
+          : JSON.stringify(
+              err.detail
+            )
+
+      );
+
+    }
+
+
+    const data =
+      await r.json();
+
+
+    currentJobId =
+      data.job_id;
+
+
+    pollTimer =
+      setInterval(
+        pollJob,
+        1500
+      );
+
+
+    /*
+      Meteen één keer pollen,
+      zodat we niet 1,5 sec wachten.
+    */
+
+    pollJob();
+
+  }
+  catch(e){
+
+    toast(
+      "Kon job niet starten: " +
+      e.message
+    );
+
+
+    btn.disabled = false;
+
+  }
+
+}
+
+
+/* =========================================================
+   POLL JOB
+========================================================= */
+
+async function pollJob(){
+
+  if(!currentJobId){
+    return;
+  }
+
+
+  try{
+
+    const r =
+      await fetch(
+        API +
+        `/api/jobs/${currentJobId}`
+      );
+
+
+    if(!r.ok){
+      return;
+    }
+
+
+    const status =
+      await r.json();
+
+
+    const progress =
+      Math.max(
+        0,
+        Math.min(
+          100,
+          Number(
+            status.progress || 0
+          )
+        )
+      );
+
+
+    document.getElementById(
+      "progressFill"
+    ).style.width =
+      progress + "%";
+
+
+    document.getElementById(
+      "stageLabel"
+    ).textContent =
+      status.stage_label ||
+      "Bezig...";
+
+
+    document.getElementById(
+      "stagePct"
+    ).textContent =
+      progress + "%";
+
+
+    const modelLine =
+      document.getElementById(
+        "jobModelLine"
+      );
+
+
+    if(
+      status.llm_model_used
+    ){
+
+      modelLine.style.display =
+        "block";
+
+
+      const providerLabel =
+        status.llm_provider_used ===
+        "anthropic"
+
+          ? "Anthropic"
+
+          : "Groq";
+
+
+      modelLine.textContent =
+        `LLM: ${providerLabel} (${status.llm_model_used})`;
 
     }
 
 
     if(
-        !videoPaths.length &&
-        !youtubeUrls.length
+      status.status ===
+      "completed"
     ){
 
-        toast(
-            "Voeg minstens één bronvideo of YouTube-URL toe."
-        );
+      clearInterval(
+        pollTimer
+      );
 
-        return;
+
+      document.getElementById(
+        "startBtn"
+      ).disabled = false;
+
+
+      await loadResults();
+
+    }
+
+
+    if(
+      status.status ===
+      "failed"
+    ){
+
+      clearInterval(
+        pollTimer
+      );
+
+
+      document.getElementById(
+        "startBtn"
+      ).disabled = false;
+
+
+      toast(
+        "Job mislukt: " +
+        (
+          status.error ||
+          "onbekende fout"
+        )
+      );
 
     }
 
+  }
+  catch(e){
 
-    const button =
-        document.getElementById(
-            "startBtn"
-        );
+    /*
+      Tijdelijke netwerkfouten
+      negeren we tijdens het pollen.
+    */
 
-
-    button.disabled =
-        true;
-
-
-    document.getElementById(
-        "progressWrap"
-    ).style.display =
-        "block";
-
-
-    document.getElementById(
-        "resultsSection"
-    ).style.display =
-        "none";
-
-
-    document.getElementById(
-        "jobModelLine"
-    ).style.display =
-        "none";
-
-
-    const videos = [
-
-        ...videoPaths.map(
-            video =>
-                video.path
-        ),
-
-        ...youtubeUrls
-
-    ];
-
-
-    try{
-
-        const response =
-            await fetch(
-                API + "/api/campaign/start",
-                {
-
-                    method:"POST",
-
-                    headers:{
-                        "Content-Type":
-                            "application/json"
-                    },
-
-                    credentials:"include",
-
-                    body:
-                        JSON.stringify({
-
-                            campaign_file:
-                                briefPath,
-
-                            videos:
-                                videos,
-
-                            settings:
-                                collectSettings()
-
-                        })
-
-                }
-            );
-
-
-        if(!response.ok){
-
-            const error =
-                await response.json();
-
-
-            throw new Error(
-
-                typeof error.detail === "string"
-
-                    ? error.detail
-
-                    : JSON.stringify(
-                        error.detail
-                    )
-
-            );
-
-        }
-
-
-        const data =
-            await response.json();
-
-
-        currentJobId =
-            data.job_id;
-
-
-        pollTimer =
-            setInterval(
-                pollJob,
-                1500
-            );
-
-
-        await pollJob();
-
-    }
-    catch(error){
-
-        toast(
-            "Kon job niet starten: " +
-            error.message
-        );
-
-
-        button.disabled =
-            false;
-
-    }
+  }
 
 }
 
 
 /* =========================================================
-   JOB POLLEN
-========================================================= */
-
-async function pollJob(){
-
-    if(!currentJobId){
-
-        return;
-
-    }
-
-
-    try{
-
-        const response =
-            await fetch(
-                API +
-                "/api/jobs/" +
-                encodeURIComponent(
-                    currentJobId
-                )
-            );
-
-
-        if(!response.ok){
-
-            return;
-
-        }
-
-
-        const status =
-            await response.json();
-
-
-        const progress =
-            Number(
-                status.progress || 0
-            );
-
-
-        document.getElementById(
-            "progressFill"
-        ).style.width =
-            progress + "%";
-
-
-        document.getElementById(
-            "stageLabel"
-        ).textContent =
-            status.stage_label ||
-            status.stage ||
-            "Bezig...";
-
-
-        document.getElementById(
-            "stagePct"
-        ).textContent =
-            progress + "%";
-
-
-        const modelLine =
-            document.getElementById(
-                "jobModelLine"
-            );
-
-
-        if(
-            status.llm_model_used
-        ){
-
-            modelLine.style.display =
-                "block";
-
-
-            const provider =
-                status.llm_provider_used ===
-                "anthropic"
-
-                    ? "Anthropic"
-
-                    : "Groq";
-
-
-            modelLine.textContent =
-                "LLM: " +
-                provider +
-                " (" +
-                status.llm_model_used +
-                ")";
-
-        }
-
-
-        if(
-            status.status ===
-            "completed"
-        ){
-
-            clearInterval(
-                pollTimer
-            );
-
-
-            document.getElementById(
-                "startBtn"
-            ).disabled =
-                false;
-
-
-            await loadResults();
-
-        }
-
-
-        if(
-            status.status ===
-            "failed"
-        ){
-
-            clearInterval(
-                pollTimer
-            );
-
-
-            document.getElementById(
-                "startBtn"
-            ).disabled =
-                false;
-
-
-            toast(
-                "Job mislukt: " +
-                (
-                    status.error ||
-                    "onbekende fout"
-                )
-            );
-
-        }
-
-    }
-    catch(error){
-
-        console.error(
-            "Job polling error:",
-            error
-        );
-
-    }
-
-}
-
-
-/* =========================================================
-   RESULTATEN
+   LOAD RESULTS
 ========================================================= */
 
 async function loadResults(){
 
-    const response =
-        await fetch(
-            API +
-            "/api/jobs/" +
-            encodeURIComponent(
-                currentJobId
-            ) +
-            "/report"
-        );
+  const r =
+    await fetch(
+      API +
+      `/api/jobs/${currentJobId}/report`
+    );
 
 
-    if(!response.ok){
-
-        return;
-
-    }
+  if(!r.ok){
+    return;
+  }
 
 
-    const report =
-        await response.json();
+  const report =
+    await r.json();
 
 
+  document.getElementById(
+    "resultsSection"
+  ).style.display =
+    "block";
+
+
+  document.getElementById(
+    "resultCount"
+  ).textContent =
+    report.aantal_definitief || 0;
+
+
+  const providerLabel =
+    report.llm_provider_used ===
+    "anthropic"
+
+      ? "Anthropic"
+
+      : "Groq";
+
+
+  document.getElementById(
+    "providerBadge"
+  ).textContent =
+
+    "LLM: " +
+    providerLabel +
+
+    (
+      report.llm_model_used
+        ? " (" +
+          report.llm_model_used +
+          ")"
+        : ""
+    );
+
+
+  const list =
     document.getElementById(
-        "resultsSection"
-    ).style.display =
-        "block";
+      "limitsList"
+    );
 
 
+  list.style.display =
+    "none";
+
+
+  list.innerHTML =
+    "";
+
+
+  const clipsGrid =
     document.getElementById(
-        "resultCount"
-    ).textContent =
-        report.aantal_definitief ??
-        (
-            report.clips
-                ? report.clips.length
-                : 0
-        );
+      "clipsGrid"
+    );
 
 
-    const provider =
-        report.llm_provider_used ===
-        "anthropic"
+  if(
+    !report.clips ||
+    !report.clips.length
+  ){
 
-            ? "Anthropic"
+    clipsGrid.innerHTML =
 
-            : "Groq";
+      `<div
+        style="
+          padding:18px;
+          border:1px solid #dbeafe;
+          border-radius:10px;
+          background:#eff6ff;
+          color:#1e3a8a;
+          font-family:var(--mono);
+          font-size:12px;
+        "
+      >
+        ClipParty kon in deze run geen geldige clip produceren.
+        De technische details staan niet als storende melding in de interface.
+      </div>`;
 
+    return;
 
-    document.getElementById(
-        "providerBadge"
-    ).textContent =
-
-        "LLM: " +
-        provider +
-
-        (
-            report.llm_model_used
-
-                ? " (" +
-                  report.llm_model_used +
-                  ")"
-
-                : ""
-        );
-
-
-    const clips =
-        report.clips || [];
+  }
 
 
-    if(!clips.length){
+  clipsGrid.innerHTML =
 
-        document.getElementById(
-            "clipsGrid"
-        ).innerHTML = `
+    report.clips.map(
+      c=>`
 
-            <div
-                style="
-                    padding:18px;
-                    border:1px solid #dbeafe;
-                    border-radius:10px;
-                    background:#eff6ff;
-                    color:#1e3a8a;
-                    font-size:12px;
-                "
-            >
-                ClipParty kon in deze run geen
-                geldige clip produceren.
+        <div class="clip-card">
+
+          <video
+            controls
+            preload="metadata"
+            src="${API}/api/files/${encodeURIComponent(c.file_id)}"
+          ></video>
+
+
+          <div class="clip-body">
+
+
+            <div class="clip-title">
+
+              <span>
+                ${escapeHtml(c.filename || "Clip")}
+                ·
+                ${Number(c.duration || 0).toFixed(1)}s
+                ·
+                ${escapeHtml(c.resolution || "")}
+              </span>
+
+
+              <span
+                class="badge ${
+                  c.compliance === "PASS"
+                    ? "pass"
+                    : "fail"
+                }"
+              >
+                ${escapeHtml(c.compliance || "")}
+              </span>
+
             </div>
 
-        `;
 
-        return;
+            <div class="clip-topic">
 
-    }
+              <b>
+                ${escapeHtml(
+                  c.onderwerp || "-"
+                )}
+              </b>
 
+            </div>
 
-    document.getElementById(
-        "clipsGrid"
-    ).innerHTML =
 
-        clips.map(
-            clip=>{
+            <div class="clip-caption">
 
-                const fileId =
-                    clip.file_id;
+              ${escapeHtml(
+                c.caption || ""
+              )}
 
+            </div>
 
-                const fileUrl =
-                    API +
-                    "/api/files/" +
-                    encodeURIComponent(
-                        fileId
-                    );
 
+            <div class="clip-tags">
 
-                const duration =
-                    Number(
-                        clip.duration || 0
-                    ).toFixed(1);
+              ${
+                (c.hashtags || [])
+                  .map(
+                    h=>
 
+                      `<span class="tag">
+                        #${escapeHtml(
+                          String(h)
+                            .replace(/^#/,"")
+                        )}
+                      </span>`
 
-                const resolution =
-                    clip.resolution ||
-                    "";
+                  )
+                  .join("")
+              }
 
+            </div>
 
-                const filename =
-                    clip.filename ||
-                    "Clip";
 
+            <div class="clip-actions">
 
-                const compliance =
-                    clip.compliance ||
-                    "";
 
+              <button
+                onclick="openClip('${safeJs(c.file_id)}')"
+              >
+                Preview
+              </button>
 
-                const topic =
-                    clip.onderwerp ||
-                    "";
 
+              <button
+                onclick="copyClipPath('${safeJs(c.path || "")}')"
+              >
+                Copy Path
+              </button>
 
-                const caption =
-                    clip.caption ||
-                    "";
 
+              <button
+                onclick="downloadClip('${safeJs(c.file_id)}')"
+              >
+                Download
+              </button>
 
-                const hashtags =
-                    clip.hashtags ||
-                    [];
 
+            </div>
 
-                return `
 
-                    <div class="clip-card">
+          </div>
 
+        </div>
 
-                        <video
-                            controls
-                            preload="metadata"
-                            src="${fileUrl}"
-                        ></video>
+      `
 
-
-                        <div class="clip-body">
-
-
-                            <div class="clip-title">
-
-                                <span>
-                                    ${escapeHtml(
-                                        filename
-                                    )}
-                                    ·
-                                    ${duration}s
-                                    ${resolution
-                                        ? " · " +
-                                          escapeHtml(
-                                              resolution
-                                          )
-                                        : ""}
-                                </span>
-
-
-                                <span
-                                    class="
-                                        badge
-                                        ${
-                                            compliance ===
-                                            "PASS"
-
-                                                ? "pass"
-
-                                                : "fail"
-                                        }
-                                    "
-                                >
-                                    ${escapeHtml(
-                                        compliance
-                                    )}
-                                </span>
-
-                            </div>
-
-
-                            ${
-                                topic
-
-                                    ? `
-                                        <div class="clip-topic">
-                                            <b>
-                                                ${escapeHtml(
-                                                    topic
-                                                )}
-                                            </b>
-                                        </div>
-                                      `
-
-                                    : ""
-                            }
-
-
-                            ${
-                                caption
-
-                                    ? `
-                                        <div class="clip-caption">
-                                            ${escapeHtml(
-                                                caption
-                                            )}
-                                        </div>
-                                      `
-
-                                    : ""
-                            }
-
-
-                            <div class="clip-tags">
-
-                                ${
-
-                                    hashtags.map(
-                                        hashtag => `
-
-                                            <span class="tag">
-                                                #
-                                                ${escapeHtml(
-                                                    String(
-                                                        hashtag
-                                                    ).replace(
-                                                        /^#/,
-                                                        ""
-                                                    )
-                                                )}
-                                            </span>
-
-                                        `
-                                    ).join("")
-
-                                }
-
-                            </div>
-
-
-                            <div class="clip-actions">
-
-
-                                <button
-                                    type="button"
-                                    onclick="
-                                        window.open(
-                                            '${fileUrl}',
-                                            '_blank'
-                                        )
-                                    "
-                                >
-                                    Preview
-                                </button>
-
-
-                                <button
-                                    type="button"
-                                    onclick="
-                                        downloadClip(
-                                            '${fileUrl}',
-                                            '${escapeHtml(
-                                                filename
-                                            )}'
-                                        )
-                                    "
-                                >
-                                    Download
-                                </button>
-
-
-                            </div>
-
-
-                        </div>
-
-                    </div>
-
-                `;
-
-            }
-        ).join("");
+    ).join("");
 
 }
 
 
 /* =========================================================
-   DOWNLOAD
+   RESULT ACTIONS
 ========================================================= */
 
-function downloadClip(
-    url,
-    filename
-){
+function openClip(fileId){
 
-    const link =
-        document.createElement(
-            "a"
-        );
-
-
-    link.href =
-        url;
-
-
-    link.download =
-        filename || "clip.mp4";
-
-
-    link.target =
-        "_blank";
-
-
-    document.body.appendChild(
-        link
-    );
-
-
-    link.click();
-
-
-    link.remove();
+  window.open(
+    API +
+    "/api/files/" +
+    encodeURIComponent(
+      fileId
+    ),
+    "_blank"
+  );
 
 }
+
+
+function downloadClip(fileId){
+
+  const a =
+    document.createElement(
+      "a"
+    );
+
+  a.href =
+    API +
+    "/api/files/" +
+    encodeURIComponent(
+      fileId
+    );
+
+  a.download = "";
+
+  document.body.appendChild(
+    a
+  );
+
+  a.click();
+
+  a.remove();
+
+}
+
+
+async function copyClipPath(path){
+
+  try{
+
+    await navigator.clipboard.writeText(
+      path
+    );
+
+    toast(
+      "Pad gekopieerd"
+    );
+
+  }
+  catch(e){
+
+    toast(
+      "Pad kon niet worden gekopieerd."
+    );
+
+  }
+
+}
+
+
+/* =========================================================
+   SECURITY / HTML HELPERS
+========================================================= */
+
+function escapeHtml(value){
+
+  return String(
+    value ?? ""
+  )
+
+    .replace(
+      /&/g,
+      "&amp;"
+    )
+
+    .replace(
+      /</g,
+      "&lt;"
+    )
+
+    .replace(
+      />/g,
+      "&gt;"
+    )
+
+    .replace(
+      /"/g,
+      "&quot;"
+    )
+
+    .replace(
+      /'/g,
+      "&#039;"
+    );
+
+}
+
+
+function safeJs(value){
+
+  return String(
+    value ?? ""
+  )
+    .replace(
+      /\\/g,
+      "\\\\"
+    )
+    .replace(
+      /'/g,
+      "\\'"
+    );
+
+}
+
 
 </script>
 
 
-
-
-
-
-
 </body>
-
 </html>
-
-
-
-
-
