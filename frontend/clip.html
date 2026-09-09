@@ -7,7 +7,7 @@
 
 <meta
     name="viewport"
-    content="width=device-width,initial-scale=1"
+    content="width=device-width, initial-scale=1"
 >
 
 <title>Clip Studio — ClipParty.nl</title>
@@ -60,7 +60,7 @@
 
 
 html{
-    scroll-behavior:smooth;
+    scroll-behavior:auto;
 }
 
 
@@ -916,6 +916,9 @@ select:focus{
 
 .clips-grid{
 
+    content-visibility:auto;
+    contain-intrinsic-size:500px;
+
     display:grid;
 
     grid-template-columns:
@@ -1145,7 +1148,6 @@ select:focus{
 
     }
 
-
 }
 
 
@@ -1157,13 +1159,11 @@ select:focus{
 
     }
 
-
     .site-logo{
 
         font-size:17px;
 
     }
-
 
     .header-right{
 
@@ -1171,13 +1171,11 @@ select:focus{
 
     }
 
-
     .clip-link{
 
         display:none;
 
     }
-
 
     .account-button{
 
@@ -1185,20 +1183,17 @@ select:focus{
 
     }
 
-
     .account-button #navName{
 
         display:none;
 
     }
 
-
     .settings-grid{
 
         grid-template-columns:1fr;
 
     }
-
 
     .checks{
 
@@ -1210,9 +1205,7 @@ select:focus{
 
 </style>
 
-
 <style id="CLIPPARTY_ACCOUNT_FIX_CSS">
-
 .account {
     position: relative !important;
 }
@@ -1223,12 +1216,8 @@ select:focus{
     opacity: 1 !important;
     pointer-events: auto !important;
 }
-
 </style>
-
-
 <style id="CLIPPARTY-DROPDOWN-FINAL">
-
 .account {
     position: relative !important;
     z-index: 99999 !important;
@@ -1248,9 +1237,7 @@ select:focus{
     position: absolute !important;
     z-index: 999999 !important;
 }
-
 </style>
-
 </head>
 
 
@@ -1295,10 +1282,7 @@ select:focus{
         </a>
 
 
-        <div
-            class="account"
-            id="accountContainer"
-        >
+        <div class="account" id="accountContainer">
 
 
             <button
@@ -1310,15 +1294,11 @@ select:focus{
                 <span
                     class="account-avatar"
                     id="navAvatar"
-                >
-                    C
-                </span>
-
+                >C</span>
 
                 <span id="navName">
                     Account
                 </span>
-
 
                 <span class="chevron">
                     &#9660;
@@ -1970,7 +1950,7 @@ select:focus{
 
     <!-- =====================================================
          RESULTATEN
-====================================================== -->
+    ====================================================== -->
 
     <section
         class="panel full"
@@ -2075,6 +2055,7 @@ select:focus{
 ========================================================= */
 
 /*
+   BELANGRIJK:
    Lege API = dezelfde server waarop ClipParty draait.
    Hierdoor werkt de site lokaal én op Render.
 */
@@ -2121,9 +2102,7 @@ function escapeHtml(value){
 function toast(message){
 
     const element =
-        document.getElementById(
-            "toast"
-        );
+        document.getElementById("toast");
 
     element.textContent =
         message;
@@ -2224,10 +2203,17 @@ async function loadAccountInfo(){
 
             /*
                Niet ingelogd:
-               accountmenu blijft verborgen.
-               De gebruiker kan alsnog gewoon
-               Clip Studio gebruiken.
+               accountmenu blijft wel zichtbaar,
+               maar de knop leidt naar login.
             */
+
+            accountButton.onclick =
+                function(){
+
+                    window.location.href =
+                        "/ui/login.html";
+
+                };
 
             return;
 
@@ -2312,6 +2298,11 @@ async function loadAccountInfo(){
         }
 
 
+        /*
+           Tokenwaarde indien backend die
+           terugstuurt.
+        */
+
         const tokenBalance =
             user.tokens ??
             user.token_balance;
@@ -2348,7 +2339,12 @@ async function loadAccountInfo(){
 }
 
 
-loadAccountInfo();
+// Laat de eerste paint volledig vrij. Accountdata wordt pas daarna opgehaald.
+if ("requestIdleCallback" in window) {
+    requestIdleCallback(() => loadAccountInfo(), { timeout: 1500 });
+} else {
+    setTimeout(loadAccountInfo, 400);
+}
 
 
 /* =========================================================
@@ -2467,7 +2463,8 @@ async function checkHealth(){
 }
 
 
-checkHealth();
+// Health-check blokkeert de interface niet.
+setTimeout(checkHealth, 1200);
 
 
 /* =========================================================
@@ -3079,14 +3076,6 @@ function collectSettings(){
 
 async function startClipping(){
 
-    /*
-       BELANGRIJK:
-       Hier staat bewust GEEN login/account-check.
-
-       Iedereen kan ClipParty gebruiken zonder account.
-    */
-
-
     if(!briefPath){
 
         toast(
@@ -3165,12 +3154,6 @@ async function startClipping(){
                         "Content-Type":
                             "application/json"
                     },
-
-                    /*
-                       Geen account vereist.
-                       Credentials mogen wel meegaan
-                       wanneer iemand toevallig is ingelogd.
-                    */
 
                     credentials:"include",
 
@@ -3722,13 +3705,6 @@ async function loadResults(){
    DOWNLOAD
 ========================================================= */
 
-/*
-   Directe download van iedere gemaakte clip.
-
-   Geen account nodig.
-   Geen login nodig.
-*/
-
 function downloadClip(
     url,
     filename
@@ -3748,6 +3724,10 @@ function downloadClip(
         filename || "clip.mp4";
 
 
+    link.target =
+        "_blank";
+
+
     document.body.appendChild(
         link
     );
@@ -3760,306 +3740,19 @@ function downloadClip(
 
 }
 
-
-/* =========================================================
-   ACCOUNT CLEANUP
-========================================================= */
-
-/*
-   Account is optioneel.
-
-   Niet ingelogd:
-   - accountknop wordt verborgen
-   - Clip Studio blijft volledig bruikbaar
-
-   Wel ingelogd:
-   - accountknop verschijnt
-   - accountmenu werkt normaal
-*/
-
-(function(){
-
-    function init(){
-
-        const container =
-            document.getElementById(
-                "accountContainer"
-            );
-
-
-        const menu =
-            document.getElementById(
-                "accountMenu"
-            );
-
-
-        if(
-            !container ||
-            !menu
-        ){
-
-            return;
-
-        }
-
-
-        let session = null;
-
-
-        try{
-
-            const raw =
-                localStorage.getItem(
-                    "clipparty_session"
-                ) ||
-                localStorage.getItem(
-                    "clipparty_user"
-                );
-
-
-            if(raw){
-
-                session =
-                    JSON.parse(raw);
-
-            }
-
-        }
-        catch(error){
-
-            session =
-                null;
-
-        }
-
-
-        if(
-            !session ||
-            !session.email
-        ){
-
-            /*
-               Geen account:
-               verberg alleen het accountmenu.
-               De rest van Clip Studio blijft werken.
-            */
-
-            container.style.display =
-                "none";
-
-            return;
-
-        }
-
-
-        container.style.display =
-            "block";
-
-
-        const name =
-            session.name ||
-            session.full_name ||
-            session.username ||
-            session.email.split("@")[0] ||
-            "Account";
-
-
-        const email =
-            session.email;
-
-
-        const avatar =
-            document.getElementById(
-                "navAvatar"
-            );
-
-
-        const navName =
-            document.getElementById(
-                "navName"
-            );
-
-
-        const menuName =
-            document.getElementById(
-                "menuName"
-            );
-
-
-        const menuEmail =
-            document.getElementById(
-                "menuEmail"
-            );
-
-
-        const menuTokens =
-            document.getElementById(
-                "menuTokens"
-            );
-
-
-        if(avatar){
-
-            avatar.textContent =
-                name
-                    .charAt(0)
-                    .toUpperCase();
-
-        }
-
-
-        if(navName){
-
-            navName.textContent =
-                name;
-
-        }
-
-
-        if(menuName){
-
-            menuName.textContent =
-                name;
-
-        }
-
-
-        if(menuEmail){
-
-            menuEmail.textContent =
-                email;
-
-        }
-
-
-        if(
-            menuTokens &&
-            typeof session.tokens ===
-                "number"
-        ){
-
-            menuTokens.textContent =
-                session.tokens;
-
-        }
-
-
-        menu.classList.remove(
-            "open"
-        );
-
-
-        menu.style.display =
-            "none";
-
-
-        document.addEventListener(
-            "click",
-            function(event){
-
-                const button =
-                    event.target.closest(
-                        "#accountButton"
-                    );
-
-
-                if(button){
-
-                    event.preventDefault();
-
-                    event.stopImmediatePropagation();
-
-
-                    const open =
-                        menu.classList.contains(
-                            "open"
-                        );
-
-
-                    if(open){
-
-                        menu.classList.remove(
-                            "open"
-                        );
-
-                        menu.style.display =
-                            "none";
-
-                    }
-                    else{
-
-                        menu.classList.add(
-                            "open"
-                        );
-
-                        menu.style.display =
-                            "block";
-
-                    }
-
-
-                    return;
-
-                }
-
-
-                if(
-                    event.target.closest(
-                        "#accountMenu"
-                    )
-                ){
-
-                    event.stopPropagation();
-
-                    return;
-
-                }
-
-
-                if(
-                    !event.target.closest(
-                        "#accountContainer"
-                    )
-                ){
-
-                    menu.classList.remove(
-                        "open"
-                    );
-
-                    menu.style.display =
-                        "none";
-
-                }
-
-            },
-            true
-        );
-
-    }
-
-
-    if(
-        document.readyState ===
-        "loading"
-    ){
-
-        document.addEventListener(
-            "DOMContentLoaded",
-            init
-        );
-
-    }
-    else{
-
-        init();
-
-    }
-
-})();
-
 </script>
+
+
+
+
+
 
 
 </body>
 
 </html>
+
+
+
+
+
