@@ -1,9 +1,20 @@
 """
-Beheert jobs: aanmaken, status/voortgang bijhouden, en de volledige pipeline
-per campagne uitvoeren (briefing -> analyse -> selectie -> productie -> QC -> rapport).
+ClipParty job manager.
 
-Elke campagne/job is volledig zelfstandig: er wordt nooit staat van een eerdere
-job hergebruikt voor briefingregels of compliance.
+Beheert:
+- jobs
+- voortgang
+- briefing extraction
+- video ingest
+- video analyse
+- clip selectie
+- compliance
+- face analyse
+- rendering
+- quality control
+- rapportage
+- dashboard
+- accountgegevens
 """
 
 import json
@@ -11,6 +22,7 @@ import shutil
 import threading
 import traceback
 import uuid
+
 from concurrent.futures import ThreadPoolExecutor, as_completed
 from datetime import datetime, timezone
 from pathlib import Path
@@ -29,7 +41,6 @@ from app.models import (
     CampaignStartRequest,
     JobStatus,
     JobReport,
-    ClipCandidate,
     ProducedClip,
 )
 
@@ -42,6 +53,23 @@ from app.pipeline import (
     youtube,
     report_html,
 )
+
+
+# ============================================================================
+# CONFIGURATIE
+# ============================================================================
+
+# Analyse-workers.
+#
+# Bij 1 video wordt uiteraard maar 1 worker gebruikt.
+# Bij meerdere video's kunnen deze parallel worden geanalyseerd.
+#
+# Houd dit bewust laag op een kleine Render instance zodat RAM/CPU niet
+# onnodig wordt uitgeput.
+VIDEO_ANALYSIS_WORKERS = 2
+
+# Rendering gebruikt de bestaande configuratie uit config.py.
+# ============================================================================
 
 
 STAGES = {
@@ -57,226 +85,168 @@ STAGES = {
 }
 
 
-# ---------------------------------------------------------------------------
+# ============================================================================
 # FILE REGISTRY
-# ---------------------------------------------------------------------------
-#
-# job_id -> {
-#     file_id: absolute_path
-# }
-#
-# Wordt gebruikt door:
-# GET /api/files/{file_id}
-#
-# BELANGRIJK:
-# De registry bestaat normaal alleen in RAM.
-# Daarom wordt hij hieronder ook opnieuw opgebouwd vanuit _jobs nadat
-# persisted jobs geladen zijn.
-# ---------------------------------------------------------------------------
+# ============================================================================
 
 _file_registry: Dict[str, Dict[str, str]] = {}
 
 
-def register_file(job_id: str, file_id: str, path: str):
-    """Registreer een gegenereerd bestand voor download via de API."""
-    _file_registry.setdefault(job_id, {})[file_id] = str(path)
+def register_file(
+    job_id: str,
+    file_id: str,
+    path: str,
+):
+    """
+    Registreer een gegenereerd bestand voor download via de API.
+    """
+    _file_registry.setdefault(
+        job_id,
+        {},
+    )[file_id] = str(path)
 
 
-def resolve_file(file_id: str) -> Optional[str]:
+def resolve_file(
+    file_id: str,
+) -> Optional[str]:
     """
     Zoek een bestand op basis van file_id.
 
-    Eerst wordt de RAM registry gebruikt.
-    Daarna wordt ook de persisted job-data gecontroleerd.
+    Eerst RAM registry.
+    Daarna persisted job-data.
 
-    Hierdoor blijven bestaande clips werken nadat de server opnieuw
-    is gestart.
+    Hierdoor blijven bestaande clips werken na een serverrestart.
     """
 
-    # 1. Normale snelle lookup in RAM
+    # ------------------------------------------------------------
+    # 1. RAM
+    # ------------------------------------------------------------
+
     for files in _file_registry.values():
-        if file_id in files:
-            path = files[file_id]
 
-            if path and Path(path).exists():
-                return path
+        if file_id not in files:
+            continue
 
-    # 2. Fallback: zoek in persisted jobs
-    #    Dit is belangrijk na een serverrestart.
+        path = files[file_id]
+
+        if path and Path(path).exists():
+            return path
+
+    # ------------------------------------------------------------
+    # 2. PERSISTED JOBS
+    # ------------------------------------------------------------
+
     for job_id, job in _jobs.items():
+
         clips = job.get("clips") or []
 
         for clip in clips:
-            if clip.get("file_id") == file_id:
-                path = clip.get("path")
 
-                if path and Path(path).exists():
-                    # Meteen opnieuw registreren voor volgende requests.
-                    register_file(job_id, file_id, path)
-                    return path
+            if clip.get("file_id") != file_id:
+                continue
+
+            path = clip.get("path")
+
+            if path and Path(path).exists():
+
+                register_file(
+                    job_id,
+                    file_id,
+                    path,
+                )
+
+                return path
 
     return None
 
 
-# ---------------------------------------------------------------------------
+# ============================================================================
 # INPUT FILE RESOLUTION
-# ---------------------------------------------------------------------------
-#
-# Uploads komen via /api/upload in de map <project>/uploads.
-# De browser krijgt daarvan een absoluut pad terug. Op Render willen we
-# tijdens een job niet blind vertrouwen op dat pad. Daarom zoeken we bij
-# lokale bestanden eerst het opgegeven pad en daarna de uploads-map.
-#
-# Vervolgens kopiëren we de bestanden naar de eigen job-workspace. De
-# pipeline werkt vanaf die kopie.
-# ---------------------------------------------------------------------------
+# ============================================================================
 
 PROJECT_ROOT = Path(__file__).resolve().parent.parent
+
 UPLOADS_DIR = PROJECT_ROOT / "uploads"
 
 
-def _resolve_local_input(value: str) -> Optional[Path]:
+def _resolve_local_input(
+    value: str,
+) -> Optional[Path]:
     """
-    Zoek een lokaal uploadbestand zo robuust mogelijk.
+    Resolve een lokaal inputbestand.
 
-    We accepteren:
-    - het volledige absolute pad;
-    - de unieke uploadnaam;
-    - de oorspronkelijke bestandsnaam.
-
-    Dat laatste is belangrijk omdat de frontend niet altijd exact
-    dezelfde bestandsnaam terugstuurt die op de server is opgeslagen.
+    1. Gebruik het opgegeven pad als het bestaat.
+    2. Zoek anders in uploads/.
+    3. Ondersteun geneste uploadmappen.
     """
 
-    value = str(value or "").strip()
+    value = str(
+        value or ""
+    ).strip()
 
     if not value:
         return None
 
-    if value.startswith(("http://", "https://")):
-        return None
-
-    path = Path(value)
-
-    # 1. Het opgegeven pad bestaat exact.
-    if path.exists() and path.is_file():
-        return path
-
-    if not UPLOADS_DIR.exists():
-        return None
-
-    requested_name = path.name
-
-    if not requested_name:
-        return None
-
-    # 2. Exacte bestandsnaam in uploads/.
-    direct = UPLOADS_DIR / requested_name
-
-    if direct.exists() and direct.is_file():
-        return direct
-
-    # 3. Zoek exact dezelfde naam in eventuele submappen.
-    try:
-        exact_matches = [
-            p
-            for p in UPLOADS_DIR.rglob(requested_name)
-            if p.is_file()
-        ]
-
-        if exact_matches:
-            exact_matches.sort(
-                key=lambda p: p.stat().st_mtime,
-                reverse=True,
-            )
-            return exact_matches[0]
-
-    except Exception:
-        pass
-
-    # 4. Zoek op oorspronkelijke bestandsnaam.
-    #
-    # /uploads/8a12bc34_video.mp4
-    # moet bijvoorbeeld ook gevonden worden wanneer de frontend
-    # alleen "video.mp4" heeft meegestuurd.
-    requested_stem = Path(requested_name).stem.lower()
-    requested_suffix = Path(requested_name).suffix.lower()
-
-    def normalize(value: str) -> str:
-        return "".join(
-            ch
-            for ch in value.lower()
-            if ch.isalnum()
+    # URL's zijn geen lokale bestanden.
+    if value.startswith(
+        (
+            "http://",
+            "https://",
         )
-
-    normalized_requested = normalize(requested_stem)
-
-    try:
-        candidates = []
-
-        for p in UPLOADS_DIR.rglob("*"):
-            if not p.is_file():
-                continue
-
-            if requested_suffix and p.suffix.lower() != requested_suffix:
-                continue
-
-            stem = p.stem.lower()
-            normalized_stem = normalize(stem)
-
-            # Directe match.
-            if normalized_stem == normalized_requested:
-                candidates.append(p)
-                continue
-
-            # Uploads krijgen vaak een 8-karakter prefix:
-            # abc12345_video
-            if "_" in stem:
-                original_part = stem.split("_", 1)[1]
-                normalized_original = normalize(original_part)
-
-                if normalized_original == normalized_requested:
-                    candidates.append(p)
-
-        if candidates:
-            candidates.sort(
-                key=lambda p: p.stat().st_mtime,
-                reverse=True,
-            )
-            return candidates[0]
-
-    except Exception:
-        pass
-
-    return None
+    ):
+        return None
 
     path = Path(value)
 
-    if path.exists() and path.is_file():
+    # ------------------------------------------------------------
+    # Direct pad
+    # ------------------------------------------------------------
+
+    if (
+        path.exists()
+        and path.is_file()
+    ):
         return path
+
+    # ------------------------------------------------------------
+    # uploads/
+    # ------------------------------------------------------------
 
     if UPLOADS_DIR.exists():
+
         basename = path.name
 
         if basename:
-            direct = UPLOADS_DIR / basename
 
-            if direct.exists() and direct.is_file():
+            direct = (
+                UPLOADS_DIR
+                / basename
+            )
+
+            if (
+                direct.exists()
+                and direct.is_file()
+            ):
                 return direct
 
-            # Fallback voor eventueel geneste uploadmappen.
+            # Geneste uploadmap.
             try:
+
                 matches = [
                     p
-                    for p in UPLOADS_DIR.rglob(basename)
+                    for p in UPLOADS_DIR.rglob(
+                        basename
+                    )
                     if p.is_file()
                 ]
 
                 if matches:
+
                     matches.sort(
                         key=lambda p: p.stat().st_mtime,
                         reverse=True,
                     )
+
                     return matches[0]
 
             except Exception:
@@ -291,11 +261,14 @@ def _prepare_local_input(
     label: str,
 ) -> Optional[str]:
     """
-    Resolve en kopieer één lokaal inputbestand naar de job-workspace.
+    Resolve en kopieer één lokaal bestand naar de job-workspace.
 
-    Returnt het nieuwe lokale pad, of None als het bestand niet gevonden is.
+    De pipeline werkt vervolgens met de job-kopie.
     """
-    source = _resolve_local_input(value)
+
+    source = _resolve_local_input(
+        value
+    )
 
     if source is None:
         return None
@@ -305,11 +278,12 @@ def _prepare_local_input(
         exist_ok=True,
     )
 
-    # Gebruik een veilige, unieke naam zodat twee uploads met dezelfde
-    # oorspronkelijke bestandsnaam elkaar nooit overschrijven.
     destination = (
         destination_dir
-        / f"{uuid.uuid4().hex[:8]}_{source.name}"
+        / (
+            f"{uuid.uuid4().hex[:8]}"
+            f"_{source.name}"
+        )
     )
 
     shutil.copy2(
@@ -320,20 +294,21 @@ def _prepare_local_input(
     return str(destination)
 
 
-# ---------------------------------------------------------------------------
+# ============================================================================
 # GLOBAL STATE
-# ---------------------------------------------------------------------------
+# ============================================================================
 
 _lock = threading.Lock()
 
 _jobs: Dict[str, dict] = {}
 
 
-# ---------------------------------------------------------------------------
+# ============================================================================
 # ACCOUNT
-# ---------------------------------------------------------------------------
+# ============================================================================
 
 def _account_default() -> dict:
+
     return {
         "connections": {
             "cliparmy": {
@@ -349,7 +324,9 @@ def _account_default() -> dict:
                 "label": "Whop",
             },
         },
+
         "earnings": [],
+
         "profile": {
             "name": "ClipParty gebruiker",
             "email": "",
@@ -359,29 +336,55 @@ def _account_default() -> dict:
 
 
 def _load_account() -> dict:
+
     data = _account_default()
 
     if ACCOUNT_DB_PATH.exists():
+
         try:
+
             raw = json.loads(
-                ACCOUNT_DB_PATH.read_text(encoding="utf-8")
+                ACCOUNT_DB_PATH.read_text(
+                    encoding="utf-8"
+                )
             )
 
-            if isinstance(raw, dict):
+            if isinstance(
+                raw,
+                dict,
+            ):
+
                 data.update(raw)
 
                 data["connections"] = {
-                    **_account_default()["connections"],
-                    **(raw.get("connections") or {}),
+                    **_account_default()[
+                        "connections"
+                    ],
+                    **(
+                        raw.get(
+                            "connections"
+                        )
+                        or {}
+                    ),
                 }
 
                 data["earnings"] = list(
-                    raw.get("earnings") or []
+                    raw.get(
+                        "earnings"
+                    )
+                    or []
                 )
 
                 data["profile"] = {
-                    **_account_default()["profile"],
-                    **(raw.get("profile") or {}),
+                    **_account_default()[
+                        "profile"
+                    ],
+                    **(
+                        raw.get(
+                            "profile"
+                        )
+                        or {}
+                    ),
                 }
 
         except Exception:
@@ -394,6 +397,7 @@ _account = _load_account()
 
 
 def _persist_account():
+
     ACCOUNT_DB_PATH.parent.mkdir(
         parents=True,
         exist_ok=True,
@@ -410,30 +414,53 @@ def _persist_account():
 
 
 def get_account_data() -> dict:
+
     with _lock:
+
         return json.loads(
-            json.dumps(_account)
+            json.dumps(
+                _account
+            )
         )
 
 
-def update_profile(profile: dict):
+def update_profile(
+    profile: dict,
+):
+
     with _lock:
-        current = _account.setdefault(
-            "profile",
-            {},
+
+        current = (
+            _account.setdefault(
+                "profile",
+                {},
+            )
         )
 
         current.update(
             {
                 "name": (
-                    str(profile.get("name", "")).strip()
+                    str(
+                        profile.get(
+                            "name",
+                            "",
+                        )
+                    ).strip()
                     or "ClipParty gebruiker"
                 ),
+
                 "email": str(
-                    profile.get("email", "")
+                    profile.get(
+                        "email",
+                        "",
+                    )
                 ).strip(),
+
                 "avatar_url": str(
-                    profile.get("avatar_url", "")
+                    profile.get(
+                        "avatar_url",
+                        "",
+                    )
                 ),
             }
         )
@@ -446,11 +473,19 @@ def set_connection(
     status: str = "connected",
     account_name: str = "",
 ):
+
     with _lock:
+
         item = (
             _account
-            .setdefault("connections", {})
-            .setdefault(platform, {})
+            .setdefault(
+                "connections",
+                {},
+            )
+            .setdefault(
+                platform,
+                {},
+            )
         )
 
         item["status"] = status
@@ -470,7 +505,9 @@ def add_earning(
     source: str = "manual",
     reference: str = "",
 ):
+
     with _lock:
+
         _account.setdefault(
             "earnings",
             [],
@@ -478,7 +515,10 @@ def add_earning(
             {
                 "id": uuid.uuid4().hex[:10],
                 "platform": platform,
-                "amount": round(float(amount), 2),
+                "amount": round(
+                    float(amount),
+                    2,
+                ),
                 "status": status,
                 "source": source,
                 "reference": reference,
@@ -489,22 +529,18 @@ def add_earning(
     _persist_account()
 
 
-# ---------------------------------------------------------------------------
+# ============================================================================
 # JOB PERSISTENCE
-# ---------------------------------------------------------------------------
+# ============================================================================
 
 def _now() -> str:
+
     return datetime.now(
         timezone.utc
     ).isoformat()
 
 
 def _persist():
-    """
-    Sla alle jobs op.
-
-    Zorgt ook dat de parent directory bestaat.
-    """
 
     JOBS_DB_PATH.parent.mkdir(
         parents=True,
@@ -512,6 +548,7 @@ def _persist():
     )
 
     with _lock:
+
         data = json.dumps(
             _jobs,
             default=str,
@@ -526,29 +563,31 @@ def _persist():
 
 
 def _rebuild_file_registry():
-    """
-    Herbouw de file registry vanuit persisted jobs.
-
-    Dit zorgt ervoor dat:
-        GET /api/files/{file_id}
-
-    ook na een serverrestart blijft werken.
-    """
 
     _file_registry.clear()
 
     for job_id, job in _jobs.items():
-        clips = job.get("clips") or []
+
+        clips = (
+            job.get("clips")
+            or []
+        )
 
         for clip in clips:
-            file_id = clip.get("file_id")
-            path = clip.get("path")
+
+            file_id = clip.get(
+                "file_id"
+            )
+
+            path = clip.get(
+                "path"
+            )
 
             if not file_id or not path:
                 continue
 
-            # Alleen registreren als het bestand werkelijk bestaat.
             if Path(path).exists():
+
                 register_file(
                     job_id,
                     file_id,
@@ -557,30 +596,27 @@ def _rebuild_file_registry():
 
 
 def _load_persisted():
-    """
-    Laad bestaande jobs uit jobs.json.
-
-    Daarna wordt de file registry opnieuw opgebouwd.
-    """
 
     if not JOBS_DB_PATH.exists():
         return
 
     try:
+
         data = json.loads(
             JOBS_DB_PATH.read_text(
                 encoding="utf-8"
             )
         )
 
-        if not isinstance(data, dict):
+        if not isinstance(
+            data,
+            dict,
+        ):
             return
 
         with _lock:
             _jobs.update(data)
 
-        # Belangrijk:
-        # file registry herstellen na restart.
         _rebuild_file_registry()
 
     except Exception:
@@ -590,9 +626,9 @@ def _load_persisted():
 _load_persisted()
 
 
-# ---------------------------------------------------------------------------
+# ============================================================================
 # JOB STATUS
-# ---------------------------------------------------------------------------
+# ============================================================================
 
 def _set_stage(
     job_id: str,
@@ -600,17 +636,23 @@ def _set_stage(
     extra_progress: int = 0,
     error: Optional[str] = None,
 ):
-    label, base_progress = STAGES[stage]
+
+    label, base_progress = STAGES[
+        stage
+    ]
 
     with _lock:
+
         job = _jobs[job_id]
 
         job["status"] = stage
+
         job["stage_label"] = label
 
         job["progress"] = min(
             100,
-            base_progress + extra_progress,
+            base_progress
+            + extra_progress,
         )
 
         job["updated_at"] = _now()
@@ -621,39 +663,64 @@ def _set_stage(
     _persist()
 
 
-# ---------------------------------------------------------------------------
+# ============================================================================
 # CREATE JOB
-# ---------------------------------------------------------------------------
+# ============================================================================
 
-def create_job(req: CampaignStartRequest) -> str:
+def create_job(
+    req: CampaignStartRequest,
+) -> str:
+
     job_id = uuid.uuid4().hex[:12]
 
     campaign_name = (
         req.campaign_name
-        or Path(req.campaign_file).stem
+        or Path(
+            req.campaign_file
+        ).stem
     )
 
     output_dir = str(
-        Path(DEFAULT_OUTPUT_DIR)
+        Path(
+            DEFAULT_OUTPUT_DIR
+        )
         / campaign_name
     )
 
     with _lock:
+
         _jobs[job_id] = {
+
             "job_id": job_id,
+
             "status": "queued",
-            "stage_label": STAGES["queued"][0],
+
+            "stage_label": (
+                STAGES["queued"][0]
+            ),
+
             "progress": 0,
+
             "error": None,
+
             "created_at": _now(),
+
             "updated_at": _now(),
+
             "campaign_name": campaign_name,
+
             "customer_id": req.customer_id,
+
             "output_dir": output_dir,
+
             "request": req.model_dump(),
+
             "clips": [],
+
             "report": None,
+
             "llm_provider_used": None,
+
             "llm_model_used": None,
         }
 
@@ -670,54 +737,84 @@ def create_job(req: CampaignStartRequest) -> str:
     return job_id
 
 
-# ---------------------------------------------------------------------------
+# ============================================================================
 # LLM INFO
-# ---------------------------------------------------------------------------
+# ============================================================================
 
 def set_job_llm_info(
     job_id: str,
     provider: str,
     model: Optional[str],
 ):
-    """
-    Zet zodra bekend welk LLM/provider daadwerkelijk gebruikt wordt.
-    """
 
     with _lock:
+
         if job_id in _jobs:
-            _jobs[job_id]["llm_provider_used"] = provider
-            _jobs[job_id]["llm_model_used"] = model
+
+            _jobs[job_id][
+                "llm_provider_used"
+            ] = provider
+
+            _jobs[job_id][
+                "llm_model_used"
+            ] = model
 
     _persist()
 
 
-# ---------------------------------------------------------------------------
+# ============================================================================
 # GETTERS
-# ---------------------------------------------------------------------------
+# ============================================================================
 
 def get_job_status(
     job_id: str,
 ) -> Optional[JobStatus]:
 
     with _lock:
-        job = _jobs.get(job_id)
+
+        job = _jobs.get(
+            job_id
+        )
 
         if not job:
             return None
 
         return JobStatus(
+
             job_id=job["job_id"],
+
             status=job["status"],
+
             progress=job["progress"],
-            stage_label=job["stage_label"],
-            error=job.get("error"),
-            created_at=job["created_at"],
-            updated_at=job["updated_at"],
-            campaign_name=job.get("campaign_name"),
-            output_dir=job.get("output_dir"),
+
+            stage_label=job[
+                "stage_label"
+            ],
+
+            error=job.get(
+                "error"
+            ),
+
+            created_at=job[
+                "created_at"
+            ],
+
+            updated_at=job[
+                "updated_at"
+            ],
+
+            campaign_name=job.get(
+                "campaign_name"
+            ),
+
+            output_dir=job.get(
+                "output_dir"
+            ),
+
             llm_provider_used=job.get(
                 "llm_provider_used"
             ),
+
             llm_model_used=job.get(
                 "llm_model_used"
             ),
@@ -729,7 +826,10 @@ def get_job_clips(
 ) -> Optional[list]:
 
     with _lock:
-        job = _jobs.get(job_id)
+
+        job = _jobs.get(
+            job_id
+        )
 
         return (
             job["clips"]
@@ -743,7 +843,10 @@ def get_job_report(
 ) -> Optional[dict]:
 
     with _lock:
-        job = _jobs.get(job_id)
+
+        job = _jobs.get(
+            job_id
+        )
 
         return (
             job.get("report")
@@ -752,79 +855,131 @@ def get_job_report(
         )
 
 
-# ---------------------------------------------------------------------------
-# MAIN JOB PIPELINE
-# ---------------------------------------------------------------------------
+# ============================================================================
+# VIDEO ANALYSIS WORKER
+# ============================================================================
 
-def _run_job(job_id: str):
+def _analyze_single_video(
+    video_path: str,
+    analysis_dir: Path,
+):
+    """
+    Analyseer één video.
+
+    Deze functie staat los van de job-loop zodat meerdere video's
+    parallel kunnen worden verwerkt.
+    """
+
+    return video_analysis.analyze_video(
+        video_path,
+        analysis_dir,
+    )
+
+
+# ============================================================================
+# MAIN JOB PIPELINE
+# ============================================================================
+
+def _run_job(
+    job_id: str,
+):
 
     with _lock:
+
         req = CampaignStartRequest(
-            **_jobs[job_id]["request"]
+            **_jobs[job_id][
+                "request"
+            ]
         )
 
         output_dir = Path(
-            _jobs[job_id]["output_dir"]
+            _jobs[job_id][
+                "output_dir"
+            ]
         )
 
-        campaign_name = _jobs[job_id][
-            "campaign_name"
-        ]
+        campaign_name = (
+            _jobs[job_id][
+                "campaign_name"
+            ]
+        )
 
-    job_work_dir = WORK_DIR / job_id
+    job_work_dir = (
+        WORK_DIR
+        / job_id
+    )
 
     technische_beperkingen = []
 
     try:
 
-        # ================================================================
-        # 0. INPUTBESTANDEN VEILIG NAAR JOB-WORKSPACE KOPIËREN
-        # ================================================================
-        #
-        # Dit maakt anonieme clipping op Render robuust:
-        # de pipeline gebruikt niet langer rechtstreeks een pad dat
-        # vanuit de browser is aangeleverd.
-        # ================================================================
+        # ====================================================================
+        # 0. INPUTBESTANDEN
+        # ====================================================================
 
-        input_dir = job_work_dir / "inputs"
+        input_dir = (
+            job_work_dir
+            / "inputs"
+        )
 
-        campaign_file_local = _prepare_local_input(
-            req.campaign_file,
-            input_dir,
-            "briefing",
+        campaign_file_local = (
+            _prepare_local_input(
+                req.campaign_file,
+                input_dir,
+                "briefing",
+            )
         )
 
         if not campaign_file_local:
+
             raise RuntimeError(
-                "Campagnebriefing is niet meer beschikbaar op de server."
+                "Campagnebriefing is niet meer "
+                "beschikbaar op de server."
             )
 
         prepared_videos = []
 
         for video in req.videos:
-            video_value = str(video).strip()
 
-            if youtube.is_youtube_url(video_value):
-                prepared_videos.append(video_value)
+            video_value = str(
+                video
+            ).strip()
+
+            if youtube.is_youtube_url(
+                video_value
+            ):
+
+                prepared_videos.append(
+                    video_value
+                )
+
                 continue
 
-            local_video = _prepare_local_input(
-                video_value,
-                input_dir,
-                "bronvideo",
+            local_video = (
+                _prepare_local_input(
+                    video_value,
+                    input_dir,
+                    "bronvideo",
+                )
             )
 
             if local_video:
-                prepared_videos.append(local_video)
+
+                prepared_videos.append(
+                    local_video
+                )
+
             else:
+
                 technische_beperkingen.append(
-                    "Bronvideo ontbreekt lokaal en is overgeslagen: "
+                    "Bronvideo ontbreekt lokaal "
+                    "en is overgeslagen: "
                     f"{video_value}"
                 )
 
-        # ================================================================
-        # 1. BRIEFING LEZEN
-        # ================================================================
+        # ====================================================================
+        # 1. BRIEFING
+        # ====================================================================
 
         _set_stage(
             job_id,
@@ -836,12 +991,15 @@ def _run_job(job_id: str):
             provider_used,
             fallback_reason,
             model_used,
-        ) = brief_parser.extract_campaign_profile(
-            campaign_file_local,
-            provider=req.settings.llm_provider,
+        ) = (
+            brief_parser.extract_campaign_profile(
+                campaign_file_local,
+                provider=req.settings.llm_provider,
+            )
         )
 
         if fallback_reason:
+
             technische_beperkingen.append(
                 fallback_reason
             )
@@ -852,25 +1010,33 @@ def _run_job(job_id: str):
             model_used,
         )
 
-        # ================================================================
-        # 2. BRONVIDEO'S BEPALEN
-        # ================================================================
+        # ====================================================================
+        # 2. TOEGESTANE BRONVIDEO'S
+        # ====================================================================
 
-        candidate_videos = list(prepared_videos)
+        candidate_videos = list(
+            prepared_videos
+        )
 
         if profile.toegestane_bronvideos:
 
-            def _norm_name(value: str) -> str:
+            def _norm_name(
+                value: str,
+            ) -> str:
+
                 s = Path(
                     str(value)
                 ).stem.lower()
 
-                # Uploads krijgen een unieke prefix zoals:
-                # 8a12bc34_original-video.mp4
-                # Vergelijk daarom ook het deel na de eerste underscore.
                 if "_" in s:
-                    tail = s.split("_", 1)[1]
+
+                    tail = s.split(
+                        "_",
+                        1,
+                    )[1]
+
                 else:
+
                     tail = s
 
                 return "".join(
@@ -881,22 +1047,27 @@ def _run_job(job_id: str):
 
             requested = {
                 _norm_name(v)
-                for v in profile.toegestane_bronvideos
+                for v in (
+                    profile
+                    .toegestane_bronvideos
+                )
                 if str(v).strip()
             }
 
             matches = [
                 v
                 for v in candidate_videos
-                if _norm_name(v) in requested
+                if _norm_name(v)
+                in requested
             ]
 
             if matches:
+
                 candidate_videos = matches
 
-        # ================================================================
+        # ====================================================================
         # 2B. YOUTUBE DOWNLOADS
-        # ================================================================
+        # ====================================================================
 
         _set_stage(
             job_id,
@@ -904,20 +1075,27 @@ def _run_job(job_id: str):
         )
 
         campaign_workspace = (
-            DOWNLOADS_DIR / job_id
+            DOWNLOADS_DIR
+            / job_id
         )
 
         allowed_videos = []
 
-        for i, v in enumerate(candidate_videos):
+        for i, v in enumerate(
+            candidate_videos
+        ):
 
-            if youtube.is_youtube_url(v):
+            if youtube.is_youtube_url(
+                v
+            ):
 
                 try:
 
-                    local_path = youtube.download_source(
-                        v,
-                        campaign_workspace,
+                    local_path = (
+                        youtube.download_source(
+                            v,
+                            campaign_workspace,
+                        )
                     )
 
                     allowed_videos.append(
@@ -927,11 +1105,15 @@ def _run_job(job_id: str):
                 except youtube.YtDlpError as e:
 
                     technische_beperkingen.append(
-                        f"YouTube-download mislukt voor {v}: {e}"
+                        "YouTube-download "
+                        f"mislukt voor {v}: {e}"
                     )
 
             else:
-                allowed_videos.append(v)
+
+                allowed_videos.append(
+                    v
+                )
 
             _set_stage(
                 job_id,
@@ -941,95 +1123,217 @@ def _run_job(job_id: str):
                     * (i + 1)
                     / max(
                         1,
-                        len(candidate_videos),
+                        len(
+                            candidate_videos
+                        ),
                     )
                 ),
             )
 
-        # ================================================================
-        # CONTROLEER LOKALE VIDEO'S
-        # ================================================================
+        # ====================================================================
+        # LOKALE VIDEO'S CONTROLEREN
+        # ====================================================================
 
         missing = [
+
             v
+
             for v in allowed_videos
+
             if not v.startswith(
                 (
                     "http://",
                     "https://",
                 )
             )
+
             and not Path(v).exists()
         ]
 
         for m in missing:
 
             technische_beperkingen.append(
-                "Bronvideo ontbreekt lokaal en "
-                f"is overgeslagen: {m}"
+                "Bronvideo ontbreekt lokaal "
+                "en is overgeslagen: "
+                f"{m}"
             )
 
         allowed_videos = [
+
             v
+
             for v in allowed_videos
+
             if v not in missing
         ]
 
         if not allowed_videos:
+
             raise RuntimeError(
-                "Geen enkele toegestane bronvideo "
-                "is lokaal beschikbaar."
+                "Geen enkele toegestane "
+                "bronvideo is lokaal "
+                "beschikbaar."
             )
 
-        # ================================================================
+        # ====================================================================
         # 3. VIDEO ANALYSE
-        # ================================================================
+        # ====================================================================
+        #
+        # BELANGRIJKSTE OPTIMALISATIE:
+        #
+        # Oude situatie:
+        #
+        #   video 1 -> wachten
+        #   video 2 -> wachten
+        #   video 3 -> wachten
+        #
+        # Nieuwe situatie:
+        #
+        #   video 1 ─┐
+        #   video 2 ─┼─ parallel
+        #   video 3 ─┘
+        #
+        # Dit is vooral nuttig wanneer de gebruiker meerdere bronvideo's
+        # uploadt.
+        # ====================================================================
 
         _set_stage(
             job_id,
             "analyzing",
         )
 
-        analyses = []
+        analysis_dir = (
+            job_work_dir
+            / "analysis"
+        )
 
+        analysis_dir.mkdir(
+            parents=True,
+            exist_ok=True,
+        )
+
+        analyses = [
+            None
+        ] * len(
+            allowed_videos
+        )
+
+        # Face data pas na selectie.
         face_samples_by_video = {}
 
         transcript_by_video = {}
 
-        for i, v in enumerate(
-            allowed_videos
-        ):
-
-            analysis, _ = (
-                video_analysis.analyze_video(
-                    v,
-                    job_work_dir / "analysis",
-                )
-            )
-
-            analyses.append(analysis)
-
-            # Face analysis wordt pas uitgevoerd
-            # voor clips die daadwerkelijk geselecteerd zijn.
-            face_samples_by_video[v] = []
-
-            transcript_by_video[v] = (
-                analysis.transcript
-            )
-
-            _set_stage(
-                job_id,
-                "analyzing",
-                extra_progress=int(
-                    20
-                    * (i + 1)
-                    / len(allowed_videos)
+        analysis_workers = min(
+            VIDEO_ANALYSIS_WORKERS,
+            max(
+                1,
+                len(
+                    allowed_videos
                 ),
+            ),
+        )
+
+        with ThreadPoolExecutor(
+            max_workers=analysis_workers
+        ) as pool:
+
+            futures = {
+
+                pool.submit(
+                    _analyze_single_video,
+                    video_path,
+                    analysis_dir,
+                ): index
+
+                for index, video_path
+                in enumerate(
+                    allowed_videos
+                )
+            }
+
+            completed = 0
+
+            for future in as_completed(
+                futures
+            ):
+
+                index = futures[
+                    future
+                ]
+
+                try:
+
+                    analysis, _ = (
+                        future.result()
+                    )
+
+                    analyses[
+                        index
+                    ] = analysis
+
+                    video_path = (
+                        allowed_videos[
+                            index
+                        ]
+                    )
+
+                    face_samples_by_video[
+                        video_path
+                    ] = []
+
+                    transcript_by_video[
+                        video_path
+                    ] = (
+                        analysis.transcript
+                    )
+
+                    completed += 1
+
+                    _set_stage(
+                        job_id,
+                        "analyzing",
+                        extra_progress=int(
+                            20
+                            * completed
+                            / max(
+                                1,
+                                len(
+                                    allowed_videos
+                                ),
+                            )
+                        ),
+                    )
+
+                except Exception as e:
+
+                    video_path = (
+                        allowed_videos[
+                            index
+                        ]
+                    )
+
+                    raise RuntimeError(
+                        "Video-analyse mislukt "
+                        f"voor {video_path}: {e}"
+                    ) from e
+
+        # Veiligheidscontrole.
+        analyses = [
+            a
+            for a in analyses
+            if a is not None
+        ]
+
+        if not analyses:
+
+            raise RuntimeError(
+                "Geen enkele video kon "
+                "worden geanalyseerd."
             )
 
-        # ================================================================
+        # ====================================================================
         # 4. CLIP SELECTIE
-        # ================================================================
+        # ====================================================================
 
         _set_stage(
             job_id,
@@ -1059,7 +1363,6 @@ def _run_job(job_id: str):
             provider=req.settings.llm_provider,
         )
 
-        # Laatst gebruikte model wint.
         if sel_model:
             model_used = sel_model
 
@@ -1072,9 +1375,9 @@ def _run_job(job_id: str):
             model_used,
         )
 
-        # ================================================================
+        # ====================================================================
         # FALLBACK MELDINGEN
-        # ================================================================
+        # ====================================================================
 
         for fb in (
             sel_fallback,
@@ -1085,6 +1388,7 @@ def _run_job(job_id: str):
                 fb
                 and fb not in technische_beperkingen
             ):
+
                 technische_beperkingen.append(
                     fb
                 )
@@ -1096,7 +1400,8 @@ def _run_job(job_id: str):
         rejected = [
             c
             for c in candidates
-            if c.compliance_status != "PASS"
+            if c.compliance_status
+            != "PASS"
         ]
 
         selected = (
@@ -1106,9 +1411,9 @@ def _run_job(job_id: str):
             )
         )
 
-        # ================================================================
+        # ====================================================================
         # EMERGENCY FALLBACK
-        # ================================================================
+        # ====================================================================
 
         if not selected and analyses:
 
@@ -1151,33 +1456,45 @@ def _run_job(job_id: str):
                 rejected = [
                     c
                     for c in candidates
-                    if c.compliance_status != "PASS"
+                    if c.compliance_status
+                    != "PASS"
                 ]
 
                 if selected:
 
                     technische_beperkingen.append(
-                        "Lokale fallback-selectie gebruikt "
-                        "omdat de normale selectie geen "
-                        "geldige clips overliet."
+                        "Lokale fallback-selectie "
+                        "gebruikt omdat de normale "
+                        "selectie geen geldige "
+                        "clips overliet."
                     )
 
-        # ================================================================
+        # ====================================================================
         # FACE ANALYSIS
-        # ================================================================
+        # ====================================================================
 
         from app.pipeline.frame_analysis import (
             sample_face_positions,
-            median_center_x_ratio,
         )
+
+        # Alleen geselecteerde clips analyseren.
+        #
+        # Dus NIET:
+        # hele bronvideo opnieuw scannen.
+        #
+        # Alleen:
+        # geselecteerde fragmenten.
+        # ====================================================================
 
         for c in selected:
 
-            samples = sample_face_positions(
-                c.source_video,
-                interval_sec=2.0,
-                start_sec=c.start,
-                end_sec=c.end,
+            samples = (
+                sample_face_positions(
+                    c.source_video,
+                    interval_sec=2.0,
+                    start_sec=c.start,
+                    end_sec=c.end,
+                )
             )
 
             face_samples_by_video.setdefault(
@@ -1187,14 +1504,18 @@ def _run_job(job_id: str):
 
             face_samples_by_video[
                 c.source_video
-            ].extend(samples)
+            ].extend(
+                samples
+            )
 
             relevant = [
                 s
                 for s in samples
-                if c.start
-                <= s["time"]
-                <= c.end
+                if (
+                    c.start
+                    <= s["time"]
+                    <= c.end
+                )
             ]
 
             if relevant:
@@ -1208,9 +1529,9 @@ def _run_job(job_id: str):
                     / len(relevant)
                 )
 
-        # ================================================================
+        # ====================================================================
         # 5. PRODUCTIE
-        # ================================================================
+        # ====================================================================
 
         _set_stage(
             job_id,
@@ -1218,11 +1539,13 @@ def _run_job(job_id: str):
         )
 
         clips_dir = (
-            output_dir / "clips"
+            output_dir
+            / "clips"
         )
 
         captions_dir = (
-            output_dir / "captions"
+            output_dir
+            / "captions"
         )
 
         clips_dir.mkdir(
@@ -1237,13 +1560,17 @@ def _run_job(job_id: str):
 
         produced: list[
             ProducedClip
-        ] = [None] * len(selected)
+        ] = [None] * len(
+            selected
+        )
 
         render_workers = min(
             CLIP_RENDER_WORKERS,
             max(
                 1,
-                len(selected),
+                len(
+                    selected
+                ),
             ),
         )
 
@@ -1252,17 +1579,21 @@ def _run_job(job_id: str):
         ) as pool:
 
             futures = {
+
                 pool.submit(
                     producer.produce_clip,
                     cand,
                     idx,
                     req.settings,
                     clips_dir,
-                    job_work_dir / "render",
+                    job_work_dir
+                    / "render",
                     face_samples_by_video,
                     transcript_by_video,
                 ): idx
-                for idx, cand in enumerate(
+
+                for idx, cand
+                in enumerate(
                     selected,
                     start=1,
                 )
@@ -1274,23 +1605,32 @@ def _run_job(job_id: str):
                 futures
             ):
 
-                idx = futures[future]
+                idx = futures[
+                    future
+                ]
 
                 clip = future.result()
 
-                produced[idx - 1] = clip
+                produced[
+                    idx - 1
+                ] = clip
 
                 caption_text = (
-                    clip.caption or ""
+                    clip.caption
+                    or ""
                 )
 
-                caption_text += (
-                    "\n\n"
-                    + " ".join(
-                        f"#{h.lstrip('#')}"
-                        for h in clip.hashtags
-                    )
+                hashtags = " ".join(
+                    f"#{h.lstrip('#')}"
+                    for h in clip.hashtags
                 )
+
+                if hashtags:
+
+                    caption_text += (
+                        "\n\n"
+                        + hashtags
+                    )
 
                 (
                     captions_dir
@@ -1310,14 +1650,16 @@ def _run_job(job_id: str):
                         * done
                         / max(
                             1,
-                            len(selected),
+                            len(
+                                selected
+                            ),
                         )
                     ),
                 )
 
-        # ================================================================
+        # ====================================================================
         # 6. KWALITEITSCONTROLE
-        # ================================================================
+        # ====================================================================
 
         _set_stage(
             job_id,
@@ -1343,9 +1685,9 @@ def _run_job(job_id: str):
                     f"({checked.quality_check_notes})"
                 )
 
-            # ============================================================
+            # ------------------------------------------------------------
             # FILE ID
-            # ============================================================
+            # ------------------------------------------------------------
 
             checked.file_id = (
                 f"{job_id}_"
@@ -1362,43 +1704,67 @@ def _run_job(job_id: str):
                 checked
             )
 
-        # ================================================================
+        # ====================================================================
         # 7. RAPPORT
-        # ================================================================
+        # ====================================================================
 
         report = JobReport(
+
             campaign_name=campaign_name,
+
             llm_provider_used=provider_used,
+
             llm_model_used=model_used,
-            aantal_kandidaten=aantal_kandidaten,
-            aantal_afgewezen=len(rejected),
-            aantal_definitief=len(final_clips),
+
+            aantal_kandidaten=(
+                aantal_kandidaten
+            ),
+
+            aantal_afgewezen=len(
+                rejected
+            ),
+
+            aantal_definitief=len(
+                final_clips
+            ),
+
             bronvideos=allowed_videos,
-            output_map=str(output_dir),
-            technische_beperkingen=technische_beperkingen,
+
+            output_map=str(
+                output_dir
+            ),
+
+            technische_beperkingen=(
+                technische_beperkingen
+            ),
+
             clips=final_clips,
         )
 
-        # ================================================================
+        # ====================================================================
         # OPSLAAN IN JOB DATABASE
-        # ================================================================
+        # ====================================================================
 
         with _lock:
 
-            _jobs[job_id]["clips"] = [
+            _jobs[job_id][
+                "clips"
+            ] = [
+
                 c.model_dump()
+
                 for c in final_clips
             ]
 
-            _jobs[job_id]["report"] = (
-                report.model_dump()
-            )
+            _jobs[job_id][
+                "report"
+            ] = report.model_dump()
 
         _persist()
 
-        # ================================================================
+        # ====================================================================
         # OPSLAAN OP DISK
-        # ================================================================
+        # ====================================================================
 
         output_dir.mkdir(
             parents=True,
@@ -1406,28 +1772,34 @@ def _run_job(job_id: str):
         )
 
         (
-            output_dir / "report.json"
+            output_dir
+            / "report.json"
         ).write_text(
+
             json.dumps(
                 report.model_dump(),
                 ensure_ascii=False,
                 indent=2,
             ),
+
             encoding="utf-8",
         )
 
         (
-            output_dir / "report.html"
+            output_dir
+            / "report.html"
         ).write_text(
+
             report_html.render_html(
                 report
             ),
+
             encoding="utf-8",
         )
 
-        # ================================================================
+        # ====================================================================
         # COMPLETED
-        # ================================================================
+        # ====================================================================
 
         _set_stage(
             job_id,
@@ -1448,6 +1820,7 @@ def _run_job(job_id: str):
         )
 
         with _lock:
+
             _jobs[job_id][
                 "full_error"
             ] = err
@@ -1455,23 +1828,25 @@ def _run_job(job_id: str):
         _persist()
 
 
-# ---------------------------------------------------------------------------
+# ============================================================================
 # DASHBOARD
-# ---------------------------------------------------------------------------
+# ============================================================================
 
 def get_dashboard(
     customer_id: str = "local-customer",
 ) -> dict:
     """
-    Return the personal clipper dashboard:
-    jobs, clips, connections and earnings.
+    Return het persoonlijke ClipParty dashboard.
     """
 
     with _lock:
 
         jobs = [
+
             dict(j)
+
             for j in _jobs.values()
+
             if j.get(
                 "customer_id",
                 "local-customer",
@@ -1480,7 +1855,9 @@ def get_dashboard(
         ]
 
         account = json.loads(
-            json.dumps(_account)
+            json.dumps(
+                _account
+            )
         )
 
     jobs.sort(
@@ -1513,15 +1890,19 @@ def get_dashboard(
                 "job_id": j.get(
                     "job_id"
                 ),
+
                 "name": j.get(
                     "campaign_name"
                 ),
+
                 "status": j.get(
                     "status"
                 ),
+
                 "created_at": j.get(
                     "created_at"
                 ),
+
                 "clip_count": len(
                     job_clips
                 ),
@@ -1540,19 +1921,25 @@ def get_dashboard(
                 "campaign_name"
             )
 
-            clips.append(item)
+            clips.append(
+                item
+            )
 
-    # ================================================================
+    # ========================================================================
     # EARNINGS
-    # ================================================================
+    # ========================================================================
 
     earnings = (
-        account.get("earnings")
+        account.get(
+            "earnings"
+        )
         or []
     )
 
     total_earned = round(
+
         sum(
+
             float(
                 e.get(
                     "amount",
@@ -1560,15 +1947,22 @@ def get_dashboard(
                 )
                 or 0
             )
+
             for e in earnings
-            if e.get("status")
+
+            if e.get(
+                "status"
+            )
             == "paid"
         ),
+
         2,
     )
 
     pending_earned = round(
+
         sum(
+
             float(
                 e.get(
                     "amount",
@@ -1576,10 +1970,15 @@ def get_dashboard(
                 )
                 or 0
             )
+
             for e in earnings
-            if e.get("status")
+
+            if e.get(
+                "status"
+            )
             == "pending"
         ),
+
         2,
     )
 
@@ -1588,15 +1987,19 @@ def get_dashboard(
     for e in earnings:
 
         p = str(
-            e.get("platform")
+            e.get(
+                "platform"
+            )
             or "other"
         ).lower()
 
         by_platform[p] = round(
+
             by_platform.get(
                 p,
                 0,
             )
+
             + float(
                 e.get(
                     "amount",
@@ -1604,10 +2007,12 @@ def get_dashboard(
                 )
                 or 0
             ),
+
             2,
         )
 
     return {
+
         "customer_id": customer_id,
 
         "campaign_count": len(
