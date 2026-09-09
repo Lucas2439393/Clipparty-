@@ -5,8 +5,7 @@ per campagne uitvoeren (briefing -> analyse -> selectie -> productie -> QC -> ra
 Elke campagne/job is volledig zelfstandig: er wordt nooit staat van een eerdere
 job hergebruikt voor briefingregels of compliance.
 """
-from urllib.parse import urlparse
-from urllib.request import Request, urlopen
+
 import json
 import shutil
 import threading
@@ -34,7 +33,7 @@ from app.models import (
     ProducedClip,
 )
 
-from app.pipeline import (
+# FAST ONLINE MODE: parallel analysis + no face scan\n\nfrom app.pipeline import (
     brief_parser,
     video_analysis,
     clip_selector,
@@ -138,110 +137,56 @@ UPLOADS_DIR = PROJECT_ROOT / "uploads"
 
 def _resolve_local_input(value: str) -> Optional[Path]:
     """
-    Resolve een inputbestand robuust.
+    Resolve een lokaal inputbestand robuust.
 
-    Ondersteunt:
-    - een lokaal absoluut/relatief bestandspad;
-    - een bestand dat al in uploads/ staat;
-    - een HTTP(S)-URL, die lokaal wordt gedownload naar uploads/.
+    1. Gebruik het opgegeven pad als het bestaat.
+    2. Als dat niet bestaat, zoek hetzelfde bestand in uploads/.
+    3. Als ook dat niet lukt, return None.
 
-    Returnt het lokale Path, of None als het bestand niet gevonden
-    of gedownload kan worden.
+    HTTP(S)-URL's worden niet als lokaal bestand behandeld.
     """
     value = str(value or "").strip()
 
     if not value:
         return None
 
-    # ---------------------------------------------------------
-    # 1. HTTP(S)-URL -> download naar uploads/
-    # ---------------------------------------------------------
     if value.startswith(("http://", "https://")):
-        try:
-            parsed = urlparse(value)
-
-            # Gebruik de bestandsnaam uit de URL.
-            basename = Path(parsed.path).name
-
-            if not basename:
-                basename = f"input_{uuid.uuid4().hex}.bin"
-
-            # Maak een veilige unieke lokale naam.
-            destination = (
-                UPLOADS_DIR
-                / f"{uuid.uuid4().hex[:8]}_{basename}"
-            )
-
-            UPLOADS_DIR.mkdir(
-                parents=True,
-                exist_ok=True,
-            )
-
-            request = Request(
-                value,
-                headers={
-                    "User-Agent": "ClipParty/1.0",
-                },
-            )
-
-            with urlopen(request, timeout=120) as response:
-                with open(destination, "wb") as output:
-                    shutil.copyfileobj(response, output)
-
-            if destination.exists() and destination.is_file():
-                return destination
-
-        except Exception:
-            return None
-
         return None
 
-    # ---------------------------------------------------------
-    # 2. Lokaal opgegeven pad
-    # ---------------------------------------------------------
     path = Path(value)
 
     if path.exists() and path.is_file():
         return path
 
-    # ---------------------------------------------------------
-    # 3. Zoek bestand in uploads/
-    # ---------------------------------------------------------
-    if not UPLOADS_DIR.exists():
-        return None
+    if UPLOADS_DIR.exists():
+        basename = path.name
 
-    basename = path.name
+        if basename:
+            direct = UPLOADS_DIR / basename
 
-    if not basename:
-        return None
+            if direct.exists() and direct.is_file():
+                return direct
 
-    # Exact bestand in uploads/
-    direct = UPLOADS_DIR / basename
+            # Fallback voor eventueel geneste uploadmappen.
+            try:
+                matches = [
+                    p
+                    for p in UPLOADS_DIR.rglob(basename)
+                    if p.is_file()
+                ]
 
-    if direct.exists() and direct.is_file():
-        return direct
+                if matches:
+                    matches.sort(
+                        key=lambda p: p.stat().st_mtime,
+                        reverse=True,
+                    )
+                    return matches[0]
 
-    # ---------------------------------------------------------
-    # 4. Fallback: zoek ook in geneste uploadmappen
-    # ---------------------------------------------------------
-    try:
-        matches = [
-            p
-            for p in UPLOADS_DIR.rglob(basename)
-            if p.is_file()
-        ]
-
-        if matches:
-            matches.sort(
-                key=lambda p: p.stat().st_mtime,
-                reverse=True,
-            )
-            return matches[0]
-
-    except Exception:
-        pass
+            except Exception:
+                pass
 
     return None
+
 
 def _prepare_local_input(
     value: str,
@@ -948,42 +893,72 @@ def _run_job(job_id: str):
             "analyzing",
         )
 
+        # SNELLE ANALYSE:
+        # Analyseer meerdere bronvideo's tegelijk. Dit voorkomt dat
+        # video 2 pas start nadat video 1 volledig klaar is.
         analyses = []
 
         face_samples_by_video = {}
 
         transcript_by_video = {}
 
-        for i, v in enumerate(
-            allowed_videos
-        ):
+        def _analyze_one(video_path: str):
+            return video_path, video_analysis.analyze_video(
+                video_path,
+                job_work_dir / "analysis",
+            )[0]
 
-            analysis, _ = (
-                video_analysis.analyze_video(
-                    v,
-                    job_work_dir / "analysis",
+        analysis_workers = min(
+            4,
+            max(1, len(allowed_videos)),
+        )
+
+        with ThreadPoolExecutor(
+            max_workers=analysis_workers
+        ) as pool:
+
+            futures = [
+                pool.submit(_analyze_one, v)
+                for v in allowed_videos
+            ]
+
+            for i, future in enumerate(
+                as_completed(futures),
+                start=1,
+            ):
+                video_path, analysis = future.result()
+
+                analyses.append(analysis)
+
+                # GEEN face-scan tijdens de job.
+                # Dit scheelt veel tijd en is niet nodig om een clip
+                # te kunnen produceren.
+                face_samples_by_video[video_path] = []
+
+                transcript_by_video[video_path] = analysis.transcript
+
+                _set_stage(
+                    job_id,
+                    "analyzing",
+                    extra_progress=int(
+                        20
+                        * i
+                        / max(1, len(allowed_videos))
+                    ),
                 )
+
+        # Houd de originele bronvolgorde aan voor consistente LLM-input.
+        order = {
+            str(v): i
+            for i, v in enumerate(allowed_videos)
+        }
+
+        analyses.sort(
+            key=lambda a: order.get(
+                str(a.source_path),
+                999999,
             )
-
-            analyses.append(analysis)
-
-            # Face analysis wordt pas uitgevoerd
-            # voor clips die daadwerkelijk geselecteerd zijn.
-            face_samples_by_video[v] = []
-
-            transcript_by_video[v] = (
-                analysis.transcript
-            )
-
-            _set_stage(
-                job_id,
-                "analyzing",
-                extra_progress=int(
-                    20
-                    * (i + 1)
-                    / len(allowed_videos)
-                ),
-            )
+        )
 
         # ================================================================
         # 4. CLIP SELECTIE
@@ -1121,50 +1096,11 @@ def _run_job(job_id: str):
                     )
 
         # ================================================================
-        # FACE ANALYSIS
+        # FACE ANALYSIS UITGESCHAKELD VOOR SNELHEID
         # ================================================================
-
-        from app.pipeline.frame_analysis import (
-            sample_face_positions,
-            median_center_x_ratio,
-        )
-
-        for c in selected:
-
-            samples = sample_face_positions(
-                c.source_video,
-                interval_sec=2.0,
-                start_sec=c.start,
-                end_sec=c.end,
-            )
-
-            face_samples_by_video.setdefault(
-                c.source_video,
-                [],
-            )
-
-            face_samples_by_video[
-                c.source_video
-            ].extend(samples)
-
-            relevant = [
-                s
-                for s in samples
-                if c.start
-                <= s["time"]
-                <= c.end
-            ]
-
-            if relevant:
-
-                c.face_visible_estimate = (
-                    sum(
-                        1
-                        for s in relevant
-                        if s["face_found"]
-                    )
-                    / len(relevant)
-                )
+        # De producer krijgt lege face-samples. De clips worden hierdoor
+        # nog steeds normaal geproduceerd, maar zonder extra frame-scan.
+        # Dit is bewust onderdeel van de snelle online versie.
 
         # ================================================================
         # 5. PRODUCTIE
@@ -1198,7 +1134,7 @@ def _run_job(job_id: str):
         ] = [None] * len(selected)
 
         render_workers = min(
-            CLIP_RENDER_WORKERS,
+            max(2, CLIP_RENDER_WORKERS),
             max(
                 1,
                 len(selected),
