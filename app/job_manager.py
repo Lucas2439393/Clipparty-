@@ -33,7 +33,9 @@ from app.models import (
     ProducedClip,
 )
 
-# FAST ONLINE MODE: parallel analysis + no face scan\n\nfrom app.pipeline import (
+# FAST ONLINE MODE: parallel analysis + no face scan
+
+from app.pipeline import (
     brief_parser,
     video_analysis,
     clip_selector,
@@ -42,7 +44,6 @@ from app.models import (
     youtube,
     report_html,
 )
-
 
 STAGES = {
     "queued": ("In wachtrij", 0),
