@@ -1,21 +1,7 @@
-"""
-Lokale HTTP API voor ClipParty.
-
-Endpoints:
-  POST /api/campaign/start
-  GET  /api/jobs/{job_id}
-  GET  /api/jobs/{job_id}/clips
-  GET  /api/jobs/{job_id}/report
-
-Auth:
-  POST /api/auth/register
-  POST /api/auth/login
-  GET  /api/auth/me
-  POST /api/auth/logout
-"""
+from __future__ import annotations
 
 from pathlib import Path
-
+from typing import Optional
 import shutil
 import uuid
 
@@ -31,265 +17,234 @@ from app.config import (
     API_PORT,
     MAX_VIDEO_DURATION_SECONDS,
 )
-
 from app.models import CampaignStartRequest, JobStatus
 from app import job_manager
 from app.pipeline import youtube, llm_provider
 
-from app.auth import (
-    create_user,
-    authenticate,
-    create_session,
-    get_user_from_token,
-    delete_session,
-)
 
+# ============================================================
+# CLIPPARTY API
+# ============================================================
 
 app = FastAPI(
-    title="Clip Studio",
+    title="ClipParty",
     version="1.0.0",
 )
 
 
-# ---------------------------------------------------------------------------
-# CORS
-# ---------------------------------------------------------------------------
-
-app.add_middleware(
-    CORSMiddleware,
-    allow_origins=["*"],
-    allow_methods=["*"],
-    allow_headers=["*"],
-)
-
-
-# ---------------------------------------------------------------------------
+# ============================================================
 # FRONTEND
-# ---------------------------------------------------------------------------
+# ============================================================
 
-_frontend_dir = (
-    Path(__file__).resolve().parent.parent / "frontend"
-)
+PROJECT_ROOT = Path(__file__).resolve().parent.parent
+FRONTEND_DIR = PROJECT_ROOT / "frontend"
 
-if _frontend_dir.exists():
+if FRONTEND_DIR.exists():
     app.mount(
         "/ui",
         StaticFiles(
-            directory=str(_frontend_dir),
+            directory=str(FRONTEND_DIR),
             html=True,
         ),
         name="ui",
     )
 
 
-# ---------------------------------------------------------------------------
-# ROOT
-# ---------------------------------------------------------------------------
+# ============================================================
+# CORS
+# ============================================================
 
-@app.get("/")
-def root():
-    return RedirectResponse(url="/ui/")
-
-
-# ---------------------------------------------------------------------------
-# AUTHENTICATION
-# ---------------------------------------------------------------------------
-
-class RegisterRequest(BaseModel):
-    name: str
-    email: str
-    password: str
-
-
-class LoginRequest(BaseModel):
-    email: str
-    password: str
-
-
-class LogoutRequest(BaseModel):
-    token: str = ""
-
-
-@app.post("/api/auth/register")
-def register(data: RegisterRequest):
-    try:
-        user = create_user(
-            data.name,
-            data.email,
-            data.password,
-        )
-
-        token = create_session(user["id"])
-
-        return {
-            "ok": True,
-            "user": user,
-            "token": token,
-        }
-
-    except ValueError as e:
-        raise HTTPException(
-            status_code=400,
-            detail=str(e),
-        )
-
-
-@app.post("/api/auth/login")
-def login(data: LoginRequest):
-    user = authenticate(
-        data.email,
-        data.password,
-    )
-
-    if not user:
-        raise HTTPException(
-            status_code=401,
-            detail="E-mailadres of wachtwoord is onjuist.",
-        )
-
-    token = create_session(user["id"])
-
-    return {
-        "ok": True,
-        "user": user,
-        "token": token,
-    }
-
-
-@app.get("/api/auth/me")
-def auth_me(token: str = ""):
-    user = get_user_from_token(token)
-
-    if not user:
-        raise HTTPException(
-            status_code=401,
-            detail="Niet ingelogd.",
-        )
-
-    return {
-        "ok": True,
-        "user": user,
-    }
-
-
-@app.post("/api/auth/logout")
-def logout(data: LogoutRequest):
-    delete_session(data.token)
-
-    return {
-        "ok": True,
-    }
-
-
-# ---------------------------------------------------------------------------
-# HEALTH
-# ---------------------------------------------------------------------------
-
-@app.get("/api/health")
-def health():
-    """
-    Controleert de backend en het daadwerkelijk gebruikte LLM-model.
-    """
-
-    groq_info = llm_provider.groq_health()
-
-    return {
-        "status": "ok",
-        "warnings": check_config(),
-        "llm_provider": groq_info["llm_provider"],
-        "llm_model": groq_info["llm_model"],
-        "available": groq_info["available"],
-        "llm_detail": groq_info["detail"],
-        "clip_party_version": "2026-08-28-selection-fix-v1",
-        "project_root": str(
-            Path(__file__).resolve().parent.parent
-        ),
-    }
-
-
-# ---------------------------------------------------------------------------
-# UPLOADS
-# ---------------------------------------------------------------------------
-
-UPLOADS_DIR = (
-    Path(__file__).resolve().parent.parent / "uploads"
+app.add_middleware(
+    CORSMiddleware,
+    allow_origins=["*"],
+    allow_credentials=True,
+    allow_methods=["*"],
+    allow_headers=["*"],
 )
 
+
+# ============================================================
+# UPLOADS
+# ============================================================
+
+UPLOADS_DIR = PROJECT_ROOT / "uploads"
 UPLOADS_DIR.mkdir(
     parents=True,
     exist_ok=True,
 )
 
 
-@app.post("/api/upload")
-def upload_file(file: UploadFile = File(...)):
+# ============================================================
+# HOME
+# ============================================================
+
+@app.get("/")
+def root():
     """
-    Ontvangt een bestand vanuit de drag & drop UI.
+    Open de ClipParty-website wanneer iemand de API-root bezoekt.
     """
 
-    safe_name = (
-        f"{uuid.uuid4().hex[:8]}_"
-        f"{Path(file.filename).name}"
-    )
+    index_file = FRONTEND_DIR / "index.html"
 
-    dest = UPLOADS_DIR / safe_name
-
-    with dest.open("wb") as out:
-        shutil.copyfileobj(
-            file.file,
-            out,
+    if index_file.exists():
+        return FileResponse(
+            str(index_file),
+            media_type="text/html",
         )
 
-    suffix = Path(
-        file.filename
-    ).suffix.lower()
+    return RedirectResponse(
+        url="/ui/"
+    )
 
-    if suffix in {
+
+# ============================================================
+# HEALTH
+# ============================================================
+
+@app.get("/api/health")
+def health():
+    """
+    Controleert of de ClipParty API actief is.
+    """
+
+    try:
+        groq_info = llm_provider.groq_health()
+    except Exception as exc:
+        groq_info = {
+            "llm_provider": "groq",
+            "llm_model": None,
+            "available": False,
+            "detail": str(exc),
+        }
+
+    return {
+        "status": "ok",
+        "warnings": check_config(),
+        "llm_provider": groq_info.get(
+            "llm_provider",
+            "groq",
+        ),
+        "llm_model": groq_info.get(
+            "llm_model"
+        ),
+        "available": groq_info.get(
+            "available",
+            False,
+        ),
+        "llm_detail": groq_info.get(
+            "detail"
+        ),
+        "clip_party_version": "2026-simple-mvp-v1",
+        "project_root": str(PROJECT_ROOT),
+    }
+
+
+# ============================================================
+# FILE UPLOAD
+# ============================================================
+
+@app.post("/api/upload")
+def upload_file(
+    file: UploadFile = File(...)
+):
+    """
+    Upload een briefing of bronvideo.
+
+    Ondersteunde videobestanden:
+    mp4, mov, mkv, webm, m4v, avi
+    """
+
+    if not file.filename:
+        raise HTTPException(
+            status_code=400,
+            detail="Geen bestand ontvangen.",
+        )
+
+    original_name = Path(file.filename).name
+
+    if not original_name:
+        raise HTTPException(
+            status_code=400,
+            detail="Ongeldige bestandsnaam.",
+        )
+
+    safe_name = (
+        f"{uuid.uuid4().hex[:12]}_"
+        f"{original_name}"
+    )
+
+    destination = UPLOADS_DIR / safe_name
+
+    try:
+        with destination.open("wb") as output:
+            shutil.copyfileobj(
+                file.file,
+                output,
+            )
+    except Exception as exc:
+        destination.unlink(
+            missing_ok=True
+        )
+
+        raise HTTPException(
+            status_code=500,
+            detail=f"Bestand kon niet worden opgeslagen: {exc}",
+        )
+
+    # --------------------------------------------------------
+    # VIDEO VALIDATIE
+    # --------------------------------------------------------
+
+    video_extensions = {
         ".mp4",
         ".mov",
         ".mkv",
         ".webm",
         ".m4v",
         ".avi",
-    }:
+    }
 
+    suffix = Path(original_name).suffix.lower()
+
+    if suffix in video_extensions:
         try:
-            from app.pipeline.ffmpeg_utils import (
-                video_summary
-            )
+            from app.pipeline.ffmpeg_utils import video_summary
 
             summary = video_summary(
-                str(dest)
+                str(destination)
+            )
+
+            duration = float(
+                summary.get(
+                    "duration",
+                    0,
+                )
             )
 
             if (
-                summary["duration"]
+                duration
                 > MAX_VIDEO_DURATION_SECONDS + 0.01
             ):
-
-                dest.unlink(
+                destination.unlink(
                     missing_ok=True
                 )
 
-                minutes = (
-                    summary["duration"] / 60
-                )
+                minutes = duration / 60
 
                 raise HTTPException(
                     status_code=400,
                     detail=(
-                        "Video is te lang: "
-                        "maximaal 60 minuten toegestaan "
-                        f"(aangeleverd: {minutes:.1f} minuten)."
+                        "Video is te lang. "
+                        "Maximaal 60 minuten toegestaan. "
+                        f"Aangeleverd: {minutes:.1f} minuten."
                     ),
                 )
 
         except HTTPException:
             raise
 
-        except Exception as e:
-
-            dest.unlink(
+        except Exception as exc:
+            destination.unlink(
                 missing_ok=True
             )
 
@@ -297,23 +252,29 @@ def upload_file(file: UploadFile = File(...)):
                 status_code=400,
                 detail=(
                     "Video kon niet worden gecontroleerd: "
-                    f"{e}"
+                    f"{exc}"
                 ),
             )
 
     return {
-        "path": str(dest),
-        "filename": file.filename,
-        "size": dest.stat().st_size,
+        "success": True,
+        "path": str(destination),
+        "filename": original_name,
+        "size": destination.stat().st_size,
     }
 
 
-# ---------------------------------------------------------------------------
-# CAMPAIGN
-# ---------------------------------------------------------------------------
+# ============================================================
+# START CLIPPING JOB
+# ============================================================
 
 @app.post("/api/campaign/start")
-def start_campaign(req: CampaignStartRequest):
+def start_campaign(
+    req: CampaignStartRequest
+):
+    """
+    Start een nieuwe ClipParty clipping-job.
+    """
 
     errors = blocking_config_errors()
 
@@ -326,22 +287,43 @@ def start_campaign(req: CampaignStartRequest):
             },
         )
 
-    job_id = job_manager.create_job(req)
+    if not req.videos:
+        raise HTTPException(
+            status_code=400,
+            detail="Upload minimaal één bronvideo.",
+        )
+
+    try:
+        job_id = job_manager.create_job(
+            req
+        )
+
+    except Exception as exc:
+        raise HTTPException(
+            status_code=500,
+            detail=f"Clip-job kon niet worden gestart: {exc}",
+        )
 
     return {
+        "success": True,
         "job_id": job_id,
     }
 
 
-# ---------------------------------------------------------------------------
+# ============================================================
 # JOB STATUS
-# ---------------------------------------------------------------------------
+# ============================================================
 
 @app.get(
     "/api/jobs/{job_id}",
     response_model=JobStatus,
 )
-def get_job(job_id: str):
+def get_job(
+    job_id: str
+):
+    """
+    Geeft de huidige status van een clipping-job terug.
+    """
 
     status = job_manager.get_job_status(
         job_id
@@ -350,18 +332,23 @@ def get_job(job_id: str):
     if not status:
         raise HTTPException(
             status_code=404,
-            detail="Job niet gevonden",
+            detail="Job niet gevonden.",
         )
 
     return status
 
 
-# ---------------------------------------------------------------------------
+# ============================================================
 # JOB CLIPS
-# ---------------------------------------------------------------------------
+# ============================================================
 
 @app.get("/api/jobs/{job_id}/clips")
-def get_clips(job_id: str):
+def get_clips(
+    job_id: str
+):
+    """
+    Geeft alle geproduceerde clips van een job terug.
+    """
 
     clips = job_manager.get_job_clips(
         job_id
@@ -370,27 +357,31 @@ def get_clips(job_id: str):
     if clips is None:
         raise HTTPException(
             status_code=404,
-            detail="Job niet gevonden",
+            detail="Job niet gevonden.",
         )
 
     return {
-        "clips": clips,
+        "clips": clips
     }
 
 
-# ---------------------------------------------------------------------------
+# ============================================================
 # JOB REPORT
-# ---------------------------------------------------------------------------
+# ============================================================
 
 @app.get("/api/jobs/{job_id}/report")
-def get_report(job_id: str):
+def get_report(
+    job_id: str
+):
+    """
+    Geeft het eindrapport van een clipping-job terug.
+    """
 
     report = job_manager.get_job_report(
         job_id
     )
 
     if report is None:
-
         status = job_manager.get_job_status(
             job_id
         )
@@ -398,26 +389,31 @@ def get_report(job_id: str):
         if not status:
             raise HTTPException(
                 status_code=404,
-                detail="Job niet gevonden",
+                detail="Job niet gevonden.",
             )
 
         raise HTTPException(
             status_code=409,
             detail=(
-                "Rapport nog niet klaar "
-                f"(status: {status.status})"
+                "Rapport is nog niet klaar. "
+                f"Status: {status.status}"
             ),
         )
 
     return report
 
 
-# ---------------------------------------------------------------------------
-# FILES
-# ---------------------------------------------------------------------------
+# ============================================================
+# GENERATED FILES
+# ============================================================
 
 @app.get("/api/files/{file_id}")
-def get_file(file_id: str):
+def get_file(
+    file_id: str
+):
+    """
+    Geeft een geproduceerde clip terug.
+    """
 
     path = job_manager.resolve_file(
         file_id
@@ -429,7 +425,7 @@ def get_file(file_id: str):
     ):
         raise HTTPException(
             status_code=404,
-            detail="Bestand niet gevonden",
+            detail="Bestand niet gevonden.",
         )
 
     return FileResponse(
@@ -439,391 +435,9 @@ def get_file(file_id: str):
     )
 
 
-# ---------------------------------------------------------------------------
-# DASHBOARD
-# ---------------------------------------------------------------------------
-
-@app.get("/api/dashboard")
-def dashboard(
-    customer_id: str = "local-customer",
-):
-
-    return job_manager.get_dashboard(
-        customer_id
-    )
-
-
-# ---------------------------------------------------------------------------
-# ACCOUNT / PLATFORM CONNECTIONS
-# ---------------------------------------------------------------------------
-
-class ConnectionRequest(BaseModel):
-    platform: str
-    account_name: str = ""
-
-
-@app.post("/api/account/connect")
-def connect_account(
-    req: ConnectionRequest,
-):
-
-    platform = (
-        req.platform
-        .strip()
-        .lower()
-    )
-
-    if platform not in {
-        "cliparmy",
-        "clipclub",
-        "whop",
-    }:
-        raise HTTPException(
-            status_code=400,
-            detail="Onbekend platform",
-        )
-
-    job_manager.set_connection(
-        platform,
-        "connected",
-        req.account_name.strip(),
-    )
-
-    return {
-        "ok": True,
-        "platform": platform,
-        "connection": (
-            job_manager
-            .get_account_data()
-            ["connections"]
-            [platform]
-        ),
-    }
-
-
-@app.post("/api/connect/{platform}")
-def connect_platform_alias(
-    platform: str,
-    req: ConnectionRequest | None = None,
-):
-
-    payload = (
-        req
-        or ConnectionRequest(
-            platform=platform
-        )
-    )
-
-    payload.platform = platform
-
-    return connect_account(
-        payload
-    )
-
-
-# ---------------------------------------------------------------------------
-# ACCOUNT
-# ---------------------------------------------------------------------------
-
-@app.get("/api/me")
-def me():
-
-    data = job_manager.get_account_data()
-
-    return {
-        "id": "local-customer",
-        **data.get(
-            "profile",
-            {},
-        ),
-        "tokens": 50,
-    }
-
-
-class ProfileRequest(BaseModel):
-    name: str = ""
-    email: str = ""
-
-
-def _update_profile(
-    name: str,
-    email: str,
-):
-
-    data = (
-        job_manager
-        .get_account_data()
-    )
-
-    profile = data.get(
-        "profile",
-        {},
-    )
-
-    profile["name"] = (
-        name.strip()
-        or "ClipParty gebruiker"
-    )
-
-    profile["email"] = (
-        email.strip()
-    )
-
-    job_manager.update_profile(
-        profile
-    )
-
-    return (
-        job_manager
-        .get_account_data()
-        ["profile"]
-    )
-
-
-@app.put("/api/account/profile")
-def update_profile(
-    req: ProfileRequest,
-):
-
-    return {
-        "ok": True,
-        "profile": _update_profile(
-            req.name,
-            req.email,
-        ),
-    }
-
-
-# ---------------------------------------------------------------------------
-# AVATAR
-# ---------------------------------------------------------------------------
-
-ACCOUNT_MEDIA_DIR = (
-    Path(__file__).resolve().parent.parent
-    / "account_media"
-)
-
-ACCOUNT_MEDIA_DIR.mkdir(
-    parents=True,
-    exist_ok=True,
-)
-
-if ACCOUNT_MEDIA_DIR.exists():
-
-    app.mount(
-        "/account-media",
-        StaticFiles(
-            directory=str(
-                ACCOUNT_MEDIA_DIR
-            )
-        ),
-        name="account-media",
-    )
-
-
-@app.post("/api/account/avatar")
-def upload_avatar(
-    file: UploadFile = File(...),
-):
-
-    suffix = (
-        Path(
-            file.filename
-            or "avatar.jpg"
-        ).suffix.lower()
-    )
-
-    safe = (
-        f"{uuid.uuid4().hex[:8]}"
-        f"{suffix}"
-    )
-
-    dest = (
-        ACCOUNT_MEDIA_DIR
-        / safe
-    )
-
-    with dest.open("wb") as out:
-        shutil.copyfileobj(
-            file.file,
-            out,
-        )
-
-    url = (
-        f"/account-media/{safe}"
-    )
-
-    data = (
-        job_manager
-        .get_account_data()
-    )
-
-    profile = data.get(
-        "profile",
-        {},
-    )
-
-    profile["avatar_url"] = url
-
-    job_manager.update_profile(
-        profile
-    )
-
-    return {
-        "ok": True,
-        "avatar_url": url,
-    }
-
-
-# ---------------------------------------------------------------------------
-# EARNINGS
-# ---------------------------------------------------------------------------
-
-class EarningRequest(BaseModel):
-    platform: str
-    amount: float
-    status: str = "paid"
-    reference: str = ""
-
-
-@app.post("/api/account/earnings")
-def add_account_earning(
-    req: EarningRequest,
-):
-
-    if req.amount < 0:
-        raise HTTPException(
-            status_code=400,
-            detail="Bedrag kan niet negatief zijn",
-        )
-
-    platform = (
-        req.platform
-        .strip()
-        .lower()
-    )
-
-    job_manager.add_earning(
-        platform,
-        req.amount,
-        req.status.strip().lower(),
-        "manual",
-        req.reference.strip(),
-    )
-
-    return {
-        "ok": True,
-    }
-
-
-@app.get("/api/account")
-def account():
-
-    return job_manager.get_account_data()
-
-
-# ---------------------------------------------------------------------------
-# PLATFORM CAMPAIGNS
-# ---------------------------------------------------------------------------
-
-PLATFORM_META = {
-    "cliparmy": {
-        "name": "Clip Army",
-        "url": "https://cliparmy.nl/",
-    },
-    "clipclub": {
-        "name": "Clip Club",
-        "url": "https://clip-club.nl/",
-    },
-    "whop": {
-        "name": "Whop",
-        "url": "https://whop.com/",
-    },
-}
-
-
-@app.get(
-    "/api/platforms/{platform}/campaigns"
-)
-def platform_campaigns(
-    platform: str,
-):
-
-    platform = (
-        platform
-        .strip()
-        .lower()
-    )
-
-    if platform not in PLATFORM_META:
-        raise HTTPException(
-            status_code=404,
-            detail="Onbekend platform",
-        )
-
-    campaigns = {
-        "cliparmy": [],
-        "clipclub": [],
-        "whop": [],
-    }[platform]
-
-    account = (
-        job_manager
-        .get_account_data()
-    )
-
-    connected = (
-        account
-        .get("connections", {})
-        .get(platform, {})
-        .get("status")
-        == "connected"
-    )
-
-    return {
-        "platform": platform,
-        "platform_name": (
-            PLATFORM_META[platform]
-            ["name"]
-        ),
-        "connected": connected,
-        "campaigns": campaigns,
-        "source_url": (
-            PLATFORM_META[platform]
-            ["url"]
-        ),
-        "account_specific": False,
-    }
-
-
-@app.get(
-    "/api/platforms/{platform}/campaigns/{campaign_id}"
-)
-def platform_campaign_detail(
-    platform: str,
-    campaign_id: str,
-):
-
-    data = platform_campaigns(
-        platform
-    )
-
-    for campaign in data[
-        "campaigns"
-    ]:
-
-        if campaign["id"] == campaign_id:
-            return campaign
-
-    raise HTTPException(
-        status_code=404,
-        detail="Campagne niet gevonden",
-    )
-
-
-# ---------------------------------------------------------------------------
-# YOUTUBE
-# ---------------------------------------------------------------------------
+# ============================================================
+# YOUTUBE RESOLVE
+# ============================================================
 
 class YoutubeResolveRequest(BaseModel):
     url: str
@@ -831,42 +445,89 @@ class YoutubeResolveRequest(BaseModel):
 
 @app.post("/api/youtube/resolve")
 def resolve_youtube(
-    req: YoutubeResolveRequest,
+    req: YoutubeResolveRequest
 ):
+    """
+    Haalt metadata op van een YouTube-video.
+    """
 
     if not youtube.is_youtube_url(
         req.url
     ):
         raise HTTPException(
             status_code=400,
-            detail="Dit is geen YouTube-URL",
+            detail="Dit is geen geldige YouTube-URL.",
         )
 
     try:
-
         return youtube.resolve_metadata(
             req.url
         )
 
-    except youtube.YtDlpError as e:
-
+    except youtube.YtDlpError as exc:
         raise HTTPException(
             status_code=422,
-            detail=str(e),
+            detail=str(exc),
+        )
+
+    except Exception as exc:
+        raise HTTPException(
+            status_code=500,
+            detail=(
+                "YouTube-video kon niet worden opgehaald: "
+                f"{exc}"
+            ),
         )
 
 
-# ---------------------------------------------------------------------------
-# START SERVER
-# ---------------------------------------------------------------------------
+# ============================================================
+# SIMPLE FRONTEND ROUTES
+# ============================================================
+
+@app.get("/clip")
+def clip_page():
+    """
+    Open de ClipParty clippagina.
+    """
+
+    clip_file = FRONTEND_DIR / "clip.html"
+
+    if clip_file.exists():
+        return FileResponse(
+            str(clip_file),
+            media_type="text/html",
+        )
+
+    # Ondersteunt ook de bestaande structuur
+    # frontend/ui/clip.html
+    old_clip_file = (
+        FRONTEND_DIR
+        / "ui"
+        / "clip.html"
+    )
+
+    if old_clip_file.exists():
+        return FileResponse(
+            str(old_clip_file),
+            media_type="text/html",
+        )
+
+    raise HTTPException(
+        status_code=404,
+        detail="Clippagina niet gevonden.",
+    )
+
+
+# ============================================================
+# LOCAL DEVELOPMENT
+# ============================================================
 
 if __name__ == "__main__":
-
     import uvicorn
 
     uvicorn.run(
         "app.main:app",
-        host="127.0.0.1",
+        host="0.0.0.0",
         port=API_PORT,
         reload=False,
     )
