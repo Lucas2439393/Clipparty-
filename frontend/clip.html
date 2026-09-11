@@ -1,4 +1,4 @@
-﻿<!doctype html>
+<!doctype html>
 <html lang="nl">
 
 <head>
@@ -60,7 +60,7 @@
 
 
 html{
-    scroll-behavior:smooth;
+    scroll-behavior:auto;
 }
 
 
@@ -915,6 +915,9 @@ select:focus{
 
 
 .clips-grid{
+
+    content-visibility:auto;
+    contain-intrinsic-size:500px;
 
     display:grid;
 
@@ -2096,6 +2099,29 @@ function escapeHtml(value){
 }
 
 
+async function readJson(response){
+
+    const text = await response.text();
+
+    if(!text || !text.trim()){
+        throw new Error(
+            `Server gaf een lege response (HTTP ${response.status}).`
+        );
+    }
+
+    try{
+        return JSON.parse(text);
+    }
+    catch(error){
+        console.error("Ongeldige JSON van backend:", text);
+        throw new Error(
+            `Server gaf geen geldige JSON terug (HTTP ${response.status}).`
+        );
+    }
+
+}
+
+
 function toast(message){
 
     const element =
@@ -2218,7 +2244,7 @@ async function loadAccountInfo(){
 
 
         const data =
-            await response.json();
+            await readJson(response);
 
 
         const user =
@@ -2336,7 +2362,12 @@ async function loadAccountInfo(){
 }
 
 
-loadAccountInfo();
+// Laat de eerste paint volledig vrij. Accountdata wordt pas daarna opgehaald.
+if ("requestIdleCallback" in window) {
+    requestIdleCallback(() => loadAccountInfo(), { timeout: 1500 });
+} else {
+    setTimeout(loadAccountInfo, 400);
+}
 
 
 /* =========================================================
@@ -2403,7 +2434,7 @@ async function checkHealth(){
 
 
         const data =
-            await response.json();
+            await readJson(response);
 
 
         const modelInfo =
@@ -2455,7 +2486,8 @@ async function checkHealth(){
 }
 
 
-checkHealth();
+// Health-check blokkeert de interface niet.
+setTimeout(checkHealth, 1200);
 
 
 /* =========================================================
@@ -2494,7 +2526,7 @@ async function uploadFile(file){
         try{
 
             const data =
-                await response.json();
+                await readJson(response);
 
 
             if(data.detail){
@@ -2521,7 +2553,7 @@ async function uploadFile(file){
     }
 
 
-    return await response.json();
+    return await readJson(response);
 
 }
 
@@ -2869,7 +2901,7 @@ async function addYoutube(){
         if(response.ok){
 
             const metadata =
-                await response.json();
+                await readJson(response);
 
 
             if(metadata.title){
@@ -3169,7 +3201,7 @@ async function startClipping(){
         if(!response.ok){
 
             const error =
-                await response.json();
+                await readJson(response);
 
 
             throw new Error(
@@ -3188,7 +3220,7 @@ async function startClipping(){
 
 
         const data =
-            await response.json();
+            await readJson(response);
 
 
         currentJobId =
@@ -3254,7 +3286,7 @@ async function pollJob(){
 
 
         const status =
-            await response.json();
+            await readJson(response);
 
 
         const progress =
@@ -3401,7 +3433,7 @@ async function loadResults(){
 
 
     const report =
-        await response.json();
+        await readJson(response);
 
 
     document.getElementById(
@@ -3738,113 +3770,10 @@ function downloadClip(
 
 
 
-<script id="CLIPPARTY_ACCOUNT_CLEAN">
-(function () {
-    function init() {
-        const container = document.getElementById("accountContainer");
-        const menu = document.getElementById("accountMenu");
 
-        if (!container || !menu) {
-            console.log("ClipParty account: elementen niet gevonden");
-            return;
-        }
-
-        // Bepaal loginstatus
-        let session = null;
-
-        try {
-            const raw =
-                localStorage.getItem("clipparty_session") ||
-                localStorage.getItem("clipparty_user");
-
-            if (raw) {
-                session = JSON.parse(raw);
-            }
-        } catch (e) {
-            session = null;
-        }
-
-        if (!session || !session.email) {
-            container.style.display = "none";
-            return;
-        }
-
-        container.style.display = "block";
-
-        const name =
-            session.name ||
-            session.full_name ||
-            session.username ||
-            session.email.split("@")[0] ||
-            "Account";
-
-        const email = session.email;
-
-        const avatar = document.getElementById("navAvatar");
-        const navName = document.getElementById("navName");
-        const menuName = document.getElementById("menuName");
-        const menuEmail = document.getElementById("menuEmail");
-        const menuTokens = document.getElementById("menuTokens");
-
-        if (avatar) avatar.textContent = name.charAt(0).toUpperCase();
-        if (navName) navName.textContent = name;
-        if (menuName) menuName.textContent = name;
-        if (menuEmail) menuEmail.textContent = email;
-
-        if (menuTokens && typeof session.tokens === "number") {
-            menuTokens.textContent = session.tokens;
-        }
-
-        // Schone beginstatus
-        menu.classList.remove("open");
-        menu.style.display = "none";
-
-        // Eén centrale klik-handler.
-        document.addEventListener("click", function (event) {
-            const button = event.target.closest("#accountButton");
-
-            if (button) {
-                event.preventDefault();
-                event.stopImmediatePropagation();
-
-                const open = menu.classList.contains("open");
-
-                if (open) {
-                    menu.classList.remove("open");
-                    menu.style.display = "none";
-                } else {
-                    menu.classList.add("open");
-                    menu.style.display = "block";
-                }
-
-                return;
-            }
-
-            if (event.target.closest("#accountMenu")) {
-                event.stopPropagation();
-                return;
-            }
-
-            if (!event.target.closest("#accountContainer")) {
-                menu.classList.remove("open");
-                menu.style.display = "none";
-            }
-        }, true);
-
-        console.log("ClipParty account dropdown: actief");
-    }
-
-    if (document.readyState === "loading") {
-        document.addEventListener("DOMContentLoaded", init);
-    } else {
-        init();
-    }
-})();
-</script>
 </body>
 
 </html>
-
 
 
 
