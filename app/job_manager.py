@@ -33,9 +33,7 @@ from app.models import (
     ProducedClip,
 )
 
-# FAST ONLINE MODE: parallel analysis + no face scan
-
-from app.pipeline import (
+# FAST ONLINE MODE: parallel analysis + no face scan\n\nfrom app.pipeline import (
     brief_parser,
     video_analysis,
     clip_selector,
