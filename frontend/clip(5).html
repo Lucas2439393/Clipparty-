@@ -1,0 +1,3759 @@
+﻿<!doctype html>
+<html lang="nl">
+
+<head>
+
+<meta charset="utf-8">
+
+<meta
+    name="viewport"
+    content="width=device-width, initial-scale=1"
+>
+
+<title>Clip Studio — ClipParty.nl</title>
+
+
+<style>
+
+/* =========================================================
+   BASIS
+========================================================= */
+
+:root{
+
+    --bg:#f5f8fc;
+    --panel:#ffffff;
+    --panel-2:#f8fafc;
+
+    --line:#dfe7f1;
+
+    --text:#172033;
+    --dim:#64748b;
+
+    --blue:#2563eb;
+    --blue-dark:#1d4ed8;
+    --blue-soft:#eff6ff;
+
+    --green:#16a34a;
+    --warn:#d97706;
+    --danger:#dc2626;
+
+    --mono:
+        'IBM Plex Mono',
+        'SFMono-Regular',
+        Consolas,
+        monospace;
+
+    --sans:
+        Inter,
+        -apple-system,
+        BlinkMacSystemFont,
+        "Segoe UI",
+        Arial,
+        sans-serif;
+}
+
+
+*{
+    box-sizing:border-box;
+}
+
+
+html{
+    scroll-behavior:auto;
+}
+
+
+body{
+
+    margin:0;
+
+    min-height:100vh;
+
+    background:var(--bg);
+
+    color:var(--text);
+
+    font-family:var(--sans);
+}
+
+
+a{
+
+    text-decoration:none;
+
+    color:inherit;
+
+}
+
+
+/* =========================================================
+   HEADER
+========================================================= */
+
+.site-header{
+
+    height:68px;
+
+    width:100%;
+
+    background:#fff;
+
+    border-bottom:1px solid var(--line);
+
+    display:grid;
+
+    grid-template-columns:1fr auto 1fr;
+
+    align-items:center;
+
+    padding:0 5%;
+
+    position:sticky;
+
+    top:0;
+
+    z-index:1000;
+
+}
+
+
+.header-left{
+
+    justify-self:start;
+
+}
+
+
+.home-link{
+
+    color:var(--text);
+
+    font-size:14px;
+
+    font-weight:600;
+
+}
+
+
+.home-link:hover{
+
+    color:var(--blue);
+
+}
+
+
+.site-logo{
+
+    justify-self:center;
+
+    color:#111827;
+
+    font-size:20px;
+
+    font-weight:800;
+
+    letter-spacing:-.4px;
+
+    white-space:nowrap;
+
+}
+
+
+.site-logo span{
+
+    color:var(--blue);
+
+}
+
+
+.header-right{
+
+    justify-self:end;
+
+    display:flex;
+
+    align-items:center;
+
+    gap:20px;
+
+}
+
+
+.clip-link{
+
+    color:var(--text);
+
+    font-size:14px;
+
+    font-weight:600;
+
+}
+
+
+.clip-link:hover{
+
+    color:var(--blue);
+
+}
+
+
+/* =========================================================
+   ACCOUNT
+========================================================= */
+
+.account{
+
+    position:relative;
+
+}
+
+
+.account-button{
+
+    border:0;
+
+    background:transparent;
+
+    cursor:pointer;
+
+    display:flex;
+
+    align-items:center;
+
+    gap:8px;
+
+    font:inherit;
+
+    color:inherit;
+
+    padding:6px 8px;
+
+}
+
+
+.account-avatar{
+
+    width:38px;
+
+    height:38px;
+
+    border-radius:50%;
+
+    display:flex;
+
+    align-items:center;
+
+    justify-content:center;
+
+    background:#f1f6ff;
+
+    border:1px solid #dbe7ff;
+
+    color:#2563eb;
+
+    font-weight:700;
+
+}
+
+
+.chevron{
+
+    font-size:10px;
+
+    margin-left:2px;
+
+}
+
+
+.account-menu{
+
+    position:absolute;
+
+    top:51px;
+
+    right:0;
+
+    width:255px;
+
+    background:#fff;
+
+    border:1px solid #e5e7eb;
+
+    border-radius:14px;
+
+    box-shadow:
+        0 18px 45px
+        rgba(15,23,42,.14);
+
+    padding:8px;
+
+    display:none;
+
+    z-index:9999;
+
+}
+
+
+.account-menu.open{
+
+    display:block !important;
+
+}
+
+
+.menu-user{
+
+    padding:12px;
+
+    border-bottom:1px solid #edf1f5;
+
+    margin-bottom:6px;
+
+}
+
+
+.menu-user strong{
+
+    display:block;
+
+    font-size:13px;
+
+}
+
+
+.menu-user > span{
+
+    display:block;
+
+    margin-top:3px;
+
+    color:#64748b;
+
+    font-size:12px;
+
+    overflow:hidden;
+
+    text-overflow:ellipsis;
+
+    white-space:nowrap;
+
+}
+
+
+.menu-token{
+
+    margin-top:9px;
+
+    padding:8px 10px;
+
+    border-radius:9px;
+
+    background:#eff6ff;
+
+    color:#1d4ed8;
+
+    font-family:monospace;
+
+    font-size:11px;
+
+    font-weight:700;
+
+}
+
+
+.menu-link{
+
+    display:flex;
+
+    align-items:center;
+
+    gap:10px;
+
+    padding:10px 11px;
+
+    border-radius:9px;
+
+    font-size:13px;
+
+    font-weight:600;
+
+    text-decoration:none;
+
+    color:inherit;
+
+}
+
+
+.menu-link:hover{
+
+    background:#f8fafc;
+
+}
+
+
+.menu-icon{
+
+    width:20px;
+
+    text-align:center;
+
+    color:#2563eb;
+
+    font-size:16px;
+
+}
+
+
+.menu-divider{
+
+    height:1px;
+
+    background:#edf1f5;
+
+    margin:6px 0;
+
+}
+
+
+.menu-logout{
+
+    color:#dc2626;
+
+}
+
+
+/* =========================================================
+   MAIN
+========================================================= */
+
+main{
+
+    max-width:1180px;
+
+    margin:0 auto;
+
+    padding:20px 24px 52px;
+
+    display:grid;
+
+    gap:14px;
+
+    grid-template-columns:1fr 1fr;
+
+}
+
+
+.panel{
+
+    background:var(--panel);
+
+    border:1px solid var(--line);
+
+    border-radius:12px;
+
+    padding:16px;
+
+    box-shadow:
+        0 3px 14px
+        rgba(30,64,175,.045);
+
+}
+
+
+.panel.full{
+
+    grid-column:1/-1;
+
+}
+
+
+.panel h2{
+
+    font-family:var(--mono);
+
+    font-size:11px;
+
+    letter-spacing:.1em;
+
+    text-transform:uppercase;
+
+    color:var(--blue);
+
+    margin:0 0 11px;
+
+    display:flex;
+
+    align-items:center;
+
+    gap:7px;
+
+}
+
+
+.panel h2 .n{
+
+    color:var(--dim);
+
+}
+
+
+/* =========================================================
+   DROPZONES
+========================================================= */
+
+.dropzone{
+
+    border:1.5px dashed #c9d6e6;
+
+    border-radius:9px;
+
+    padding:20px 14px;
+
+    text-align:center;
+
+    color:var(--dim);
+
+    font-size:13px;
+
+    cursor:pointer;
+
+    transition:.15s;
+
+}
+
+
+.dropzone:hover,
+.dropzone.drag{
+
+    border-color:var(--blue);
+
+    background:var(--blue-soft);
+
+    color:var(--text);
+
+}
+
+
+.dropzone input{
+
+    display:none;
+
+}
+
+
+.filelist{
+
+    margin-top:9px;
+
+    display:flex;
+
+    flex-direction:column;
+
+    gap:5px;
+
+}
+
+
+.fileitem{
+
+    display:flex;
+
+    justify-content:space-between;
+
+    align-items:center;
+
+    background:var(--panel-2);
+
+    border:1px solid var(--line);
+
+    border-radius:7px;
+
+    padding:7px 10px;
+
+    font-size:12px;
+
+    font-family:var(--mono);
+
+}
+
+
+.fileitem button{
+
+    background:none;
+
+    border:0;
+
+    color:var(--dim);
+
+    cursor:pointer;
+
+    font-size:14px;
+
+}
+
+
+.fileitem button:hover{
+
+    color:var(--danger);
+
+}
+
+
+/* =========================================================
+   YOUTUBE
+========================================================= */
+
+.yt-row{
+
+    display:flex;
+
+    gap:7px;
+
+}
+
+
+input[type=text],
+input[type=url],
+input[type=number],
+select{
+
+    width:100%;
+
+    height:40px;
+
+    border:1px solid #cfd9e6;
+
+    border-radius:8px;
+
+    background:#fff;
+
+    color:var(--text);
+
+    padding:0 10px;
+
+    font:inherit;
+
+    font-size:13px;
+
+}
+
+
+input:focus,
+select:focus{
+
+    outline:2px solid #bfdbfe;
+
+    outline-offset:1px;
+
+    border-color:var(--blue);
+
+}
+
+
+/* =========================================================
+   SETTINGS
+========================================================= */
+
+.settings-grid{
+
+    display:grid;
+
+    grid-template-columns:1fr 1fr;
+
+    gap:11px 14px;
+
+}
+
+
+.field label{
+
+    display:block;
+
+    font-size:10.5px;
+
+    color:var(--dim);
+
+    margin-bottom:5px;
+
+    font-family:var(--mono);
+
+    text-transform:uppercase;
+
+    letter-spacing:.05em;
+
+}
+
+
+.duration-row{
+
+    display:flex;
+
+    gap:8px;
+
+}
+
+
+.duration-row input{
+
+    min-width:0;
+
+}
+
+
+.checks{
+
+    margin-top:17px;
+
+    display:grid;
+
+    grid-template-columns:1fr 1fr;
+
+    gap:9px 18px;
+
+}
+
+
+.check{
+
+    display:flex;
+
+    align-items:center;
+
+    gap:7px;
+
+    font-size:12px;
+
+    cursor:pointer;
+
+}
+
+
+.check input{
+
+    width:15px;
+
+    height:15px;
+
+    accent-color:var(--blue);
+
+}
+
+
+/* =========================================================
+   BUTTON
+========================================================= */
+
+.start-btn{
+
+    width:100%;
+
+    margin-top:18px;
+
+    min-height:46px;
+
+    border:0;
+
+    border-radius:9px;
+
+    background:var(--blue);
+
+    color:#fff;
+
+    font-size:14px;
+
+    font-weight:800;
+
+    cursor:pointer;
+
+    transition:.15s ease;
+
+}
+
+
+.start-btn:hover{
+
+    background:var(--blue-dark);
+
+}
+
+
+.start-btn:disabled{
+
+    opacity:.55;
+
+    cursor:not-allowed;
+
+}
+
+
+/* =========================================================
+   STATUS
+========================================================= */
+
+.status-line{
+
+    margin-top:10px;
+
+    color:var(--dim);
+
+    font-family:var(--mono);
+
+    font-size:11px;
+
+    min-height:16px;
+
+}
+
+
+.progress-wrap{
+
+    margin-top:18px;
+
+}
+
+
+.progress-track{
+
+    width:100%;
+
+    height:9px;
+
+    background:#e9eef5;
+
+    border-radius:999px;
+
+    overflow:hidden;
+
+}
+
+
+.progress-fill{
+
+    width:0%;
+
+    height:100%;
+
+    background:var(--blue);
+
+    border-radius:999px;
+
+    transition:width .25s ease;
+
+}
+
+
+.stage-label{
+
+    display:flex;
+
+    justify-content:space-between;
+
+    margin-top:8px;
+
+    color:var(--dim);
+
+    font-family:var(--mono);
+
+    font-size:11px;
+
+}
+
+
+.stage-label .pct{
+
+    color:var(--text);
+
+}
+
+
+/* =========================================================
+   RESULTS
+========================================================= */
+
+.results-header{
+
+    display:flex;
+
+    align-items:baseline;
+
+    gap:8px;
+
+    margin-bottom:14px;
+
+}
+
+
+.results-header .count{
+
+    font-size:26px;
+
+    font-weight:800;
+
+    color:var(--text);
+
+}
+
+
+.provider-badge{
+
+    margin-left:auto;
+
+    color:var(--dim);
+
+    font-family:var(--mono);
+
+    font-size:11px;
+
+    background:var(--panel-2);
+
+    padding:5px 9px;
+
+    border-radius:6px;
+
+}
+
+
+.clips-grid{
+
+    content-visibility:auto;
+    contain-intrinsic-size:500px;
+
+    display:grid;
+
+    grid-template-columns:
+        repeat(auto-fill,minmax(230px,1fr));
+
+    gap:14px;
+
+}
+
+
+.clip-card{
+
+    overflow:hidden;
+
+    background:#fff;
+
+    border:1px solid var(--line);
+
+    border-radius:10px;
+
+    box-shadow:
+        0 3px 12px
+        rgba(15,23,42,.05);
+
+}
+
+
+.clip-card video{
+
+    width:100%;
+
+    aspect-ratio:9/16;
+
+    object-fit:cover;
+
+    background:#111;
+
+    display:block;
+
+}
+
+
+.clip-body{
+
+    padding:12px;
+
+}
+
+
+.clip-title{
+
+    display:flex;
+
+    justify-content:space-between;
+
+    gap:8px;
+
+    font-size:11px;
+
+    font-family:var(--mono);
+
+}
+
+
+.badge{
+
+    padding:3px 7px;
+
+    border-radius:6px;
+
+    font-size:10px;
+
+}
+
+
+.badge.pass{
+
+    background:#dcfce7;
+
+    color:#166534;
+
+}
+
+
+.badge.fail{
+
+    background:#fee2e2;
+
+    color:#991b1b;
+
+}
+
+
+.clip-topic{
+
+    margin-top:9px;
+
+    font-size:13px;
+
+}
+
+
+.clip-caption{
+
+    margin-top:6px;
+
+    color:var(--dim);
+
+    font-size:12px;
+
+    line-height:1.45;
+
+}
+
+
+.clip-tags{
+
+    display:flex;
+
+    flex-wrap:wrap;
+
+    gap:5px;
+
+    margin-top:8px;
+
+}
+
+
+.tag{
+
+    background:var(--blue-soft);
+
+    color:var(--blue-dark);
+
+    padding:3px 6px;
+
+    border-radius:5px;
+
+    font-size:10px;
+
+}
+
+
+.clip-actions{
+
+    display:flex;
+
+    gap:6px;
+
+    margin-top:10px;
+
+}
+
+
+.clip-actions button{
+
+    flex:1;
+
+    border:1px solid var(--line);
+
+    background:#fff;
+
+    color:var(--text);
+
+    border-radius:7px;
+
+    padding:7px;
+
+    cursor:pointer;
+
+    font-size:11px;
+
+}
+
+
+.clip-actions button:hover{
+
+    background:var(--blue-soft);
+
+    border-color:#bfdbfe;
+
+}
+
+
+/* =========================================================
+   TOAST
+========================================================= */
+
+.toast{
+
+    position:fixed;
+
+    right:20px;
+
+    bottom:20px;
+
+    max-width:380px;
+
+    background:#172033;
+
+    color:#fff;
+
+    padding:12px 15px;
+
+    border-radius:9px;
+
+    font-size:13px;
+
+    display:none;
+
+    z-index:99999;
+
+}
+
+
+/* =========================================================
+   MOBILE
+========================================================= */
+
+@media(max-width:900px){
+
+    main{
+
+        grid-template-columns:1fr;
+
+        padding:16px;
+
+    }
+
+}
+
+
+@media(max-width:650px){
+
+    .site-header{
+
+        padding:0 14px;
+
+    }
+
+    .site-logo{
+
+        font-size:17px;
+
+    }
+
+    .header-right{
+
+        gap:7px;
+
+    }
+
+    .clip-link{
+
+        display:none;
+
+    }
+
+    .account-button{
+
+        padding:4px;
+
+    }
+
+    .account-button #navName{
+
+        display:none;
+
+    }
+
+    .settings-grid{
+
+        grid-template-columns:1fr;
+
+    }
+
+    .checks{
+
+        grid-template-columns:1fr;
+
+    }
+
+}
+
+</style>
+
+<style id="CLIPPARTY_ACCOUNT_FIX_CSS">
+.account {
+    position: relative !important;
+}
+
+.account-menu.open {
+    display: block !important;
+    visibility: visible !important;
+    opacity: 1 !important;
+    pointer-events: auto !important;
+}
+</style>
+<style id="CLIPPARTY-DROPDOWN-FINAL">
+.account {
+    position: relative !important;
+    z-index: 99999 !important;
+}
+
+.account-button {
+    cursor: pointer !important;
+    position: relative !important;
+    z-index: 100000 !important;
+}
+
+.account-menu.open {
+    display: block !important;
+    visibility: visible !important;
+    opacity: 1 !important;
+    pointer-events: auto !important;
+    position: absolute !important;
+    z-index: 999999 !important;
+}
+</style>
+</head>
+
+
+<body>
+
+
+<!-- =======================================================
+     HEADER
+======================================================= -->
+
+<header class="site-header">
+
+
+    <div class="header-left">
+
+        <a
+            href="/ui/"
+            class="home-link"
+        >
+            Home
+        </a>
+
+    </div>
+
+
+    <a
+        href="/ui/"
+        class="site-logo"
+    >
+        Clip<span>Party</span>.nl
+    </a>
+
+
+    <div class="header-right">
+
+
+        <a
+            href="/ui/clip.html"
+            class="clip-link"
+        >
+            Clip maken
+        </a>
+
+
+        <div class="account" id="accountContainer">
+
+
+            <button
+                class="account-button"
+                id="accountButton"
+                type="button"
+            >
+
+                <span
+                    class="account-avatar"
+                    id="navAvatar"
+                >C</span>
+
+                <span id="navName">
+                    Account
+                </span>
+
+                <span class="chevron">
+                    &#9660;
+                </span>
+
+            </button>
+
+
+            <div
+                class="account-menu"
+                id="accountMenu"
+            >
+
+
+                <div class="menu-user">
+
+                    <strong id="menuName">
+                        Account
+                    </strong>
+
+                    <span id="menuEmail"></span>
+
+
+                    <div class="menu-token">
+
+                        &#9673;
+
+                        <span id="menuTokens">
+                            50
+                        </span>
+
+                        tokens beschikbaar
+
+                    </div>
+
+                </div>
+
+
+                <a
+                    class="menu-link"
+                    href="/ui/account.html"
+                >
+
+                    <span class="menu-icon">
+                        &#128100;
+                    </span>
+
+                    <span>
+                        Mijn account
+                    </span>
+
+                </a>
+
+
+                <a
+                    class="menu-link"
+                    href="/ui/clips.html"
+                >
+
+                    <span class="menu-icon">
+                        &#127916;
+                    </span>
+
+                    <span>
+                        Mijn clips
+                    </span>
+
+                </a>
+
+
+                <a
+                    class="menu-link"
+                    href="/ui/account.html#gegevens"
+                >
+
+                    <span class="menu-icon">
+                        &#128203;
+                    </span>
+
+                    <span>
+                        Accountgegevens
+                    </span>
+
+                </a>
+
+
+                <a
+                    class="menu-link"
+                    href="/ui/account.html#instellingen"
+                >
+
+                    <span class="menu-icon">
+                        &#9881;
+                    </span>
+
+                    <span>
+                        Instellingen
+                    </span>
+
+                </a>
+
+
+                <a
+                    class="menu-link"
+                    href="/ui/account.html#tokens"
+                >
+
+                    <span class="menu-icon">
+                        &#128179;
+                    </span>
+
+                    <span>
+                        Abonnement &amp; tokens
+                    </span>
+
+                </a>
+
+
+                <div class="menu-divider"></div>
+
+
+                <a
+                    class="menu-link menu-logout"
+                    href="#"
+                    onclick="logout();return false;"
+                >
+
+                    <span class="menu-icon">
+                        &#128682;
+                    </span>
+
+                    <span>
+                        Uitloggen
+                    </span>
+
+                </a>
+
+
+            </div>
+
+        </div>
+
+
+    </div>
+
+</header>
+
+
+<!-- =======================================================
+     MAIN
+======================================================= -->
+
+<main>
+
+
+    <!-- =====================================================
+         01 BRIEFING
+    ====================================================== -->
+
+    <section class="panel">
+
+
+        <h2>
+
+            <span class="n">
+                01
+            </span>
+
+            Campagnebriefing
+
+        </h2>
+
+
+        <div
+            class="dropzone"
+            id="briefDrop"
+        >
+
+            Sleep hier je briefing
+            (PDF / DOCX / TXT)
+            of klik om te kiezen
+
+
+            <input
+                type="file"
+                id="briefInput"
+                accept=".pdf,.docx,.txt"
+            >
+
+        </div>
+
+
+        <div
+            class="filelist"
+            id="briefList"
+        ></div>
+
+
+    </section>
+
+
+
+    <!-- =====================================================
+         02 VIDEO'S
+    ====================================================== -->
+
+    <section class="panel">
+
+
+        <h2>
+
+            <span class="n">
+                02
+            </span>
+
+            Bronvideo's
+
+        </h2>
+
+
+        <div
+            class="dropzone"
+            id="videoDrop"
+        >
+
+            Sleep hier één of meerdere video's
+            (MP4 / MOV / MKV / WEBM)
+
+            <br>
+
+            <small>
+                Maximaal 5 video's ·
+                Maximale videoduur: 60 minuten.
+            </small>
+
+
+            <input
+                type="file"
+                id="videoInput"
+                accept=".mp4,.mov,.mkv,.webm"
+                multiple
+            >
+
+        </div>
+
+
+        <div
+            class="filelist"
+            id="videoList"
+        ></div>
+
+
+        <h2
+            style="margin-top:18px"
+        >
+
+            <span class="n">
+                03
+            </span>
+
+            YouTube-URL
+
+        </h2>
+
+
+        <div class="yt-row">
+
+
+            <input
+                type="url"
+                id="ytUrl"
+                placeholder="https://www.youtube.com/watch?v=..."
+            >
+
+
+            <button
+                type="button"
+                onclick="addYoutube()"
+                style="
+                    background:#f8fafc;
+                    border:1px solid #dfe7f1;
+                    color:#172033;
+                    border-radius:8px;
+                    padding:0 16px;
+                    cursor:pointer;
+                    font-family:var(--mono);
+                    white-space:nowrap;
+                "
+            >
+                Toevoegen
+            </button>
+
+
+        </div>
+
+
+        <div
+            class="filelist"
+            id="ytList"
+        ></div>
+
+
+    </section>
+
+
+
+    <!-- =====================================================
+         04 INSTELLINGEN
+    ====================================================== -->
+
+    <section class="panel full">
+
+
+        <h2>
+
+            <span class="n">
+                04
+            </span>
+
+            Instellingen
+
+        </h2>
+
+
+        <div class="settings-grid">
+
+
+            <div class="field">
+
+                <label>
+                    Minimaal aantal clips
+                </label>
+
+                <input
+                    type="number"
+                    id="minClips"
+                    value="0"
+                    min="0"
+                    max="50"
+                >
+
+            </div>
+
+
+            <div class="field">
+
+                <label>
+                    Maximaal aantal clips
+                </label>
+
+                <input
+                    type="number"
+                    id="maxClips"
+                    value="50"
+                    min="1"
+                    max="50"
+                >
+
+            </div>
+
+
+            <div class="field">
+
+                <label>
+                    Maximale clipduur
+                </label>
+
+                <input
+                    type="number"
+                    id="maxDuration"
+                    value="60"
+                    min="1"
+                    max="60"
+                >
+
+            </div>
+
+
+            <div class="field">
+
+                <label>
+                    Voorkeursduur
+                </label>
+
+
+                <div class="duration-row">
+
+
+                    <input
+                        type="number"
+                        id="prefMin"
+                        value="15"
+                        min="1"
+                        max="60"
+                        placeholder="Min"
+                    >
+
+
+                    <input
+                        type="number"
+                        id="prefMax"
+                        value="35"
+                        min="1"
+                        max="60"
+                        placeholder="Max"
+                    >
+
+
+                </div>
+
+            </div>
+
+
+            <div class="field">
+
+                <label>
+                    Beeldverhouding
+                </label>
+
+                <select id="aspectRatio">
+
+                    <option value="9:16">
+                        9:16
+                    </option>
+
+                    <option value="1:1">
+                        1:1
+                    </option>
+
+                    <option value="16:9">
+                        16:9
+                    </option>
+
+                </select>
+
+            </div>
+
+
+            <div class="field">
+
+                <label>
+                    Resolutie
+                </label>
+
+                <select id="resolution">
+
+                    <option value="1080x1920">
+                        1080 × 1920
+                    </option>
+
+                    <option value="720x1280">
+                        720 × 1280
+                    </option>
+
+                </select>
+
+            </div>
+
+
+            <div class="field">
+
+                <label>
+                    LLM-provider
+                </label>
+
+                <select id="llmProvider">
+
+                    <option value="groq" selected>
+                        Groq
+                    </option>
+
+                    <option value="anthropic">
+                        Anthropic
+                    </option>
+
+                </select>
+
+            </div>
+
+
+        </div>
+
+
+        <div class="checks">
+
+
+            <label class="check">
+
+                <input
+                    type="checkbox"
+                    id="facePriority"
+                    checked
+                >
+
+                Gezicht prioriteren
+
+            </label>
+
+
+            <label class="check">
+
+                <input
+                    type="checkbox"
+                    id="avoidAudioOnly"
+                    checked
+                >
+
+                Audio-only vermijden
+
+            </label>
+
+
+            <label class="check">
+
+                <input
+                    type="checkbox"
+                    id="subtitles"
+                >
+
+                Ondertiteling
+
+            </label>
+
+
+            <label class="check">
+
+                <input
+                    type="checkbox"
+                    id="hooks"
+                    checked
+                >
+
+                Hook
+
+            </label>
+
+
+            <label class="check">
+
+                <input
+                    type="checkbox"
+                    id="highestQuality"
+                    checked
+                >
+
+                Hoogste kwaliteit
+
+            </label>
+
+
+            <label class="check">
+
+                <input
+                    type="checkbox"
+                    id="applyCampaignRules"
+                    checked
+                >
+
+                Campagneregels toepassen
+
+            </label>
+
+
+            <label class="check">
+
+                <input
+                    type="checkbox"
+                    id="verifyExport"
+                    checked
+                >
+
+                Export controleren
+
+            </label>
+
+
+        </div>
+
+
+        <button
+            class="start-btn"
+            id="startBtn"
+            onclick="startClipping()"
+        >
+            Start Clipping
+        </button>
+
+
+        <div
+            class="status-line"
+            id="apiStatus"
+        >
+            Backend controleren...
+        </div>
+
+
+        <div
+            class="progress-wrap"
+            id="progressWrap"
+            style="display:none"
+        >
+
+
+            <div class="progress-track">
+
+                <div
+                    class="progress-fill"
+                    id="progressFill"
+                ></div>
+
+            </div>
+
+
+            <div class="stage-label">
+
+                <span id="stageLabel">
+                    In wachtrij
+                </span>
+
+                <span
+                    class="pct"
+                    id="stagePct"
+                >
+                    0%
+                </span>
+
+            </div>
+
+
+            <div
+                class="stage-label"
+                id="jobModelLine"
+                style="display:none"
+            ></div>
+
+
+        </div>
+
+
+        <ul
+            id="limitsList"
+            style="display:none"
+        ></ul>
+
+
+    </section>
+
+
+
+    <!-- =====================================================
+         RESULTATEN
+    ====================================================== -->
+
+    <section
+        class="panel full"
+        id="resultsSection"
+        style="display:none"
+    >
+
+
+        <div class="results-header">
+
+
+            <span
+                class="count"
+                id="resultCount"
+            >
+                0
+            </span>
+
+
+            <span
+                style="
+                    color:var(--dim);
+                    font-family:var(--mono);
+                    font-size:13px;
+                "
+            >
+                clips created
+            </span>
+
+
+            <span
+                class="provider-badge"
+                id="providerBadge"
+            ></span>
+
+
+        </div>
+
+
+        <div
+            class="clips-grid"
+            id="clipsGrid"
+        ></div>
+
+
+    </section>
+
+
+</main>
+
+
+<!-- =======================================================
+     FOOTER
+======================================================= -->
+
+<footer
+    style="
+        border-top:1px solid var(--line);
+        background:#fff;
+        color:var(--dim);
+        padding:18px 24px;
+        font-size:12px;
+    "
+>
+
+    <div
+        style="
+            max-width:1180px;
+            margin:auto;
+            display:flex;
+            justify-content:space-between;
+            gap:15px;
+        "
+    >
+
+        <span>
+            <strong>ClipParty</strong>
+            · AI clipping voor creators &amp; clippers
+        </span>
+
+        <span>
+            © 2026 ClipParty
+        </span>
+
+    </div>
+
+</footer>
+
+
+<div
+    class="toast"
+    id="toast"
+></div>
+
+
+
+<script>
+
+
+/* =========================================================
+   CONFIG
+========================================================= */
+
+/*
+   BELANGRIJK:
+   Lege API = dezelfde server waarop ClipParty draait.
+   Hierdoor werkt de site lokaal én op Render.
+*/
+
+const API = "https://clipparty-api-nozs.onrender.com";
+
+
+/* =========================================================
+   STATE
+========================================================= */
+
+let briefPath = null;
+
+let videoPaths = [];
+
+let youtubeUrls = [];
+
+let currentJobId = null;
+
+let pollTimer = null;
+
+
+/* =========================================================
+   HELPERS
+========================================================= */
+
+function escapeHtml(value){
+
+    return String(value ?? "")
+
+        .replace(/&/g,"&amp;")
+
+        .replace(/</g,"&lt;")
+
+        .replace(/>/g,"&gt;")
+
+        .replace(/"/g,"&quot;")
+
+        .replace(/'/g,"&#039;");
+
+}
+
+
+function toast(message){
+
+    const element =
+        document.getElementById("toast");
+
+    element.textContent =
+        message;
+
+    element.style.display =
+        "block";
+
+    clearTimeout(
+        element._timer
+    );
+
+    element._timer =
+        setTimeout(
+            ()=>{
+                element.style.display =
+                    "none";
+            },
+            5000
+        );
+
+}
+
+
+/* =========================================================
+   ACCOUNT DROPDOWN
+========================================================= */
+
+const accountButton =
+    document.getElementById(
+        "accountButton"
+    );
+
+const accountMenu =
+    document.getElementById(
+        "accountMenu"
+    );
+
+
+if(
+    accountButton &&
+    accountMenu
+){
+
+    accountButton.addEventListener(
+        "click",
+        function(event){
+
+            event.stopPropagation();
+
+            accountMenu.classList.toggle(
+                "open"
+            );
+
+        }
+    );
+
+
+    document.addEventListener(
+        "click",
+        function(event){
+
+            if(
+                !event.target.closest(
+                    ".account"
+                )
+            ){
+
+                accountMenu.classList.remove(
+                    "open"
+                );
+
+            }
+
+        }
+    );
+
+}
+
+
+/* =========================================================
+   ACCOUNT INFO
+========================================================= */
+
+async function loadAccountInfo(){
+
+    try{
+
+        const response =
+            await fetch(
+                API + "/api/auth/me",
+                {
+                    credentials:"include"
+                }
+            );
+
+
+        if(!response.ok){
+
+            /*
+               Niet ingelogd:
+               accountmenu blijft wel zichtbaar,
+               maar de knop leidt naar login.
+            */
+
+            accountButton.onclick =
+                function(){
+
+                    window.location.href =
+                        "/ui/login.html";
+
+                };
+
+            return;
+
+        }
+
+
+        const data =
+            await response.json();
+
+
+        const user =
+            data.user || data;
+
+
+        const name =
+            user.name ||
+            user.email ||
+            "Account";
+
+
+        const email =
+            user.email ||
+            "";
+
+
+        const navName =
+            document.getElementById(
+                "navName"
+            );
+
+
+        const navAvatar =
+            document.getElementById(
+                "navAvatar"
+            );
+
+
+        const menuName =
+            document.getElementById(
+                "menuName"
+            );
+
+
+        const menuEmail =
+            document.getElementById(
+                "menuEmail"
+            );
+
+
+        if(navName){
+
+            navName.textContent =
+                name;
+
+        }
+
+
+        if(navAvatar){
+
+            navAvatar.textContent =
+                name
+                    .trim()
+                    .charAt(0)
+                    .toUpperCase();
+
+        }
+
+
+        if(menuName){
+
+            menuName.textContent =
+                name;
+
+        }
+
+
+        if(menuEmail){
+
+            menuEmail.textContent =
+                email;
+
+        }
+
+
+        /*
+           Tokenwaarde indien backend die
+           terugstuurt.
+        */
+
+        const tokenBalance =
+            user.tokens ??
+            user.token_balance;
+
+
+        if(
+            tokenBalance !== undefined
+        ){
+
+            const tokenElement =
+                document.getElementById(
+                    "menuTokens"
+                );
+
+            if(tokenElement){
+
+                tokenElement.textContent =
+                    tokenBalance;
+
+            }
+
+        }
+
+    }
+    catch(error){
+
+        console.error(
+            "Account laden mislukt:",
+            error
+        );
+
+    }
+
+}
+
+
+// Laat de eerste paint volledig vrij. Accountdata wordt pas daarna opgehaald.
+if ("requestIdleCallback" in window) {
+    requestIdleCallback(() => loadAccountInfo(), { timeout: 1500 });
+} else {
+    setTimeout(loadAccountInfo, 400);
+}
+
+
+/* =========================================================
+   LOGOUT
+========================================================= */
+
+async function logout(){
+
+    try{
+
+        await fetch(
+            API + "/api/auth/logout",
+            {
+                method:"POST",
+                credentials:"include"
+            }
+        );
+
+    }
+    catch(error){
+
+        console.error(
+            "Logout mislukt:",
+            error
+        );
+
+    }
+
+
+    window.location.href =
+        "/ui/login.html";
+
+}
+
+
+/* =========================================================
+   HEALTH CHECK
+========================================================= */
+
+async function checkHealth(){
+
+    const element =
+        document.getElementById(
+            "apiStatus"
+        );
+
+
+    try{
+
+        const response =
+            await fetch(
+                API + "/api/health"
+            );
+
+
+        if(!response.ok){
+
+            throw new Error(
+                "HTTP " +
+                response.status
+            );
+
+        }
+
+
+        const data =
+            await response.json();
+
+
+        const modelInfo =
+            data.available
+
+                ? "LLM: " +
+                  data.llm_provider +
+                  " (" +
+                  data.llm_model +
+                  ")"
+
+                : "LLM-configuratie controleren";
+
+
+        if(
+            !data.available
+        ){
+
+            element.textContent =
+                "Backend online — " +
+                modelInfo;
+
+            element.style.color =
+                "var(--warn)";
+
+        }
+        else{
+
+            element.textContent =
+                "Backend online — " +
+                modelInfo;
+
+            element.style.color =
+                "var(--green)";
+
+        }
+
+    }
+    catch(error){
+
+        element.textContent =
+            "Backend niet bereikbaar.";
+
+        element.style.color =
+            "var(--danger)";
+
+    }
+
+}
+
+
+// Health-check blokkeert de interface niet.
+setTimeout(checkHealth, 1200);
+
+
+/* =========================================================
+   FILE UPLOAD
+========================================================= */
+
+async function uploadFile(file){
+
+    const formData =
+        new FormData();
+
+
+    formData.append(
+        "file",
+        file
+    );
+
+
+    const response =
+        await fetch(
+            API + "/api/upload",
+            {
+                method:"POST",
+                body:formData
+            }
+        );
+
+
+    if(!response.ok){
+
+        let detail =
+            "Upload mislukt: " +
+            file.name;
+
+
+        try{
+
+            const data =
+                await response.json();
+
+
+            if(data.detail){
+
+                detail =
+                    typeof data.detail === "string"
+
+                        ? data.detail
+
+                        : JSON.stringify(
+                            data.detail
+                        );
+
+            }
+
+        }
+        catch(error){}
+
+
+        throw new Error(
+            detail
+        );
+
+    }
+
+
+    return await response.json();
+
+}
+
+
+/* =========================================================
+   DROPZONE
+========================================================= */
+
+function setupDropzone(
+    zoneId,
+    inputId,
+    onFiles
+){
+
+    const zone =
+        document.getElementById(
+            zoneId
+        );
+
+
+    const input =
+        document.getElementById(
+            inputId
+        );
+
+
+    zone.addEventListener(
+        "click",
+        ()=>{
+            input.click();
+        }
+    );
+
+
+    input.addEventListener(
+        "change",
+        ()=>{
+
+            onFiles(
+                Array.from(
+                    input.files
+                )
+            );
+
+            input.value =
+                "";
+
+        }
+    );
+
+
+    zone.addEventListener(
+        "dragover",
+        event=>{
+
+            event.preventDefault();
+
+            zone.classList.add(
+                "drag"
+            );
+
+        }
+    );
+
+
+    zone.addEventListener(
+        "dragleave",
+        ()=>{
+
+            zone.classList.remove(
+                "drag"
+            );
+
+        }
+    );
+
+
+    zone.addEventListener(
+        "drop",
+        event=>{
+
+            event.preventDefault();
+
+            zone.classList.remove(
+                "drag"
+            );
+
+
+            onFiles(
+                Array.from(
+                    event.dataTransfer.files
+                )
+            );
+
+        }
+    );
+
+}
+
+
+/* =========================================================
+   BRIEFING
+========================================================= */
+
+setupDropzone(
+    "briefDrop",
+    "briefInput",
+
+    async files=>{
+
+        if(!files.length){
+
+            return;
+
+        }
+
+
+        try{
+
+            const result =
+                await uploadFile(
+                    files[0]
+                );
+
+
+            briefPath =
+                result.path;
+
+
+            document.getElementById(
+                "briefList"
+            ).innerHTML =
+
+                `<div class="fileitem">
+
+                    <span>
+                        ${escapeHtml(
+                            result.filename
+                        )}
+                    </span>
+
+                    <button
+                        onclick="clearBrief()"
+                    >
+                        ✕
+                    </button>
+
+                </div>`;
+
+        }
+        catch(error){
+
+            toast(
+                error.message
+            );
+
+        }
+
+    }
+
+);
+
+
+function clearBrief(){
+
+    briefPath =
+        null;
+
+
+    document.getElementById(
+        "briefList"
+    ).innerHTML =
+        "";
+
+}
+
+
+/* =========================================================
+   VIDEO'S
+========================================================= */
+
+setupDropzone(
+    "videoDrop",
+    "videoInput",
+
+    async files=>{
+
+        const remaining =
+            Math.max(
+                0,
+                5 - videoPaths.length
+            );
+
+
+        for(
+            const file of
+            files.slice(
+                0,
+                remaining
+            )
+        ){
+
+            try{
+
+                const result =
+                    await uploadFile(
+                        file
+                    );
+
+
+                videoPaths.push({
+
+                    label:
+                        result.filename,
+
+                    path:
+                        result.path
+
+                });
+
+            }
+            catch(error){
+
+                toast(
+                    error.message
+                );
+
+            }
+
+        }
+
+
+        renderVideoList();
+
+    }
+
+);
+
+
+function renderVideoList(){
+
+    const element =
+        document.getElementById(
+            "videoList"
+        );
+
+
+    element.innerHTML =
+
+        videoPaths.map(
+            (video,index)=>`
+
+                <div class="fileitem">
+
+                    <span>
+                        ${escapeHtml(
+                            video.label
+                        )}
+                    </span>
+
+                    <button
+                        onclick="removeVideo(${index})"
+                    >
+                        ✕
+                    </button>
+
+                </div>
+
+            `
+        ).join("");
+
+}
+
+
+function removeVideo(index){
+
+    videoPaths.splice(
+        index,
+        1
+    );
+
+
+    renderVideoList();
+
+}
+
+
+/* =========================================================
+   YOUTUBE
+========================================================= */
+
+async function addYoutube(){
+
+    const input =
+        document.getElementById(
+            "ytUrl"
+        );
+
+
+    const url =
+        input.value.trim();
+
+
+    if(!url){
+
+        return;
+
+    }
+
+
+    youtubeUrls.push(
+        url
+    );
+
+
+    input.value =
+        "";
+
+
+    renderYtList();
+
+
+    try{
+
+        const response =
+            await fetch(
+                API + "/api/youtube/resolve",
+                {
+                    method:"POST",
+
+                    headers:{
+                        "Content-Type":
+                            "application/json"
+                    },
+
+                    body:
+                        JSON.stringify({
+                            url:url
+                        })
+
+                }
+            );
+
+
+        if(response.ok){
+
+            const metadata =
+                await response.json();
+
+
+            if(metadata.title){
+
+                renderYtList(
+                    `${url} — "${metadata.title}"`,
+                    url
+                );
+
+            }
+
+        }
+
+    }
+    catch(error){
+
+        /*
+           Resolve is optioneel.
+           De URL kan nog steeds
+           bij het starten worden gebruikt.
+        */
+
+    }
+
+}
+
+
+function renderYtList(
+    overrideLabel,
+    overrideUrl
+){
+
+    const element =
+        document.getElementById(
+            "ytList"
+        );
+
+
+    element.innerHTML =
+
+        youtubeUrls.map(
+            (url,index)=>{
+
+                const label =
+                    (
+                        overrideUrl === url &&
+                        overrideLabel
+                    )
+
+                        ? overrideLabel
+
+                        : url;
+
+
+                return `
+
+                    <div class="fileitem">
+
+                        <span>
+                            ${escapeHtml(
+                                label
+                            )}
+                        </span>
+
+                        <button
+                            onclick="removeYt(${index})"
+                        >
+                            ✕
+                        </button>
+
+                    </div>
+
+                `;
+
+            }
+        ).join("");
+
+}
+
+
+function removeYt(index){
+
+    youtubeUrls.splice(
+        index,
+        1
+    );
+
+
+    renderYtList();
+
+}
+
+
+/* =========================================================
+   SETTINGS
+========================================================= */
+
+function collectSettings(){
+
+    return {
+
+        min_clips:
+            parseInt(
+                document.getElementById(
+                    "minClips"
+                ).value
+            ),
+
+
+        max_clips:
+            parseInt(
+                document.getElementById(
+                    "maxClips"
+                ).value
+            ),
+
+
+        max_duration:
+            parseInt(
+                document.getElementById(
+                    "maxDuration"
+                ).value
+            ),
+
+
+        preferred_min_duration:
+            parseInt(
+                document.getElementById(
+                    "prefMin"
+                ).value
+            ),
+
+
+        preferred_max_duration:
+            parseInt(
+                document.getElementById(
+                    "prefMax"
+                ).value
+            ),
+
+
+        aspect_ratio:
+            document.getElementById(
+                "aspectRatio"
+            ).value,
+
+
+        resolution:
+            document.getElementById(
+                "resolution"
+            ).value,
+
+
+        subtitles:
+            document.getElementById(
+                "subtitles"
+            ).checked,
+
+
+        hooks:
+            document.getElementById(
+                "hooks"
+            ).checked,
+
+
+        face_priority:
+            document.getElementById(
+                "facePriority"
+            ).checked,
+
+
+        quality:
+            document.getElementById(
+                "highestQuality"
+            ).checked
+
+                ? "highest"
+
+                : "standard",
+
+
+        llm_provider:
+            document.getElementById(
+                "llmProvider"
+            ).value
+
+    };
+
+}
+
+
+/* =========================================================
+   START CLIPPING
+========================================================= */
+
+async function startClipping(){
+
+    if(!briefPath){
+
+        toast(
+            "Upload eerst een campagnebriefing."
+        );
+
+        return;
+
+    }
+
+
+    if(
+        !videoPaths.length &&
+        !youtubeUrls.length
+    ){
+
+        toast(
+            "Voeg minstens één bronvideo of YouTube-URL toe."
+        );
+
+        return;
+
+    }
+
+
+    const button =
+        document.getElementById(
+            "startBtn"
+        );
+
+
+    button.disabled =
+        true;
+
+
+    document.getElementById(
+        "progressWrap"
+    ).style.display =
+        "block";
+
+
+    document.getElementById(
+        "resultsSection"
+    ).style.display =
+        "none";
+
+
+    document.getElementById(
+        "jobModelLine"
+    ).style.display =
+        "none";
+
+
+    const videos = [
+
+        ...videoPaths.map(
+            video =>
+                video.path
+        ),
+
+        ...youtubeUrls
+
+    ];
+
+
+    try{
+
+        const response =
+            await fetch(
+                API + "/api/campaign/start",
+                {
+
+                    method:"POST",
+
+                    headers:{
+                        "Content-Type":
+                            "application/json"
+                    },
+
+                    credentials:"include",
+
+                    body:
+                        JSON.stringify({
+
+                            campaign_file:
+                                briefPath,
+
+                            videos:
+                                videos,
+
+                            settings:
+                                collectSettings()
+
+                        })
+
+                }
+            );
+
+
+        if(!response.ok){
+
+            const error =
+                await response.json();
+
+
+            throw new Error(
+
+                typeof error.detail === "string"
+
+                    ? error.detail
+
+                    : JSON.stringify(
+                        error.detail
+                    )
+
+            );
+
+        }
+
+
+        const data =
+            await response.json();
+
+
+        currentJobId =
+            data.job_id;
+
+
+        pollTimer =
+            setInterval(
+                pollJob,
+                1500
+            );
+
+
+        await pollJob();
+
+    }
+    catch(error){
+
+        toast(
+            "Kon job niet starten: " +
+            error.message
+        );
+
+
+        button.disabled =
+            false;
+
+    }
+
+}
+
+
+/* =========================================================
+   JOB POLLEN
+========================================================= */
+
+async function pollJob(){
+
+    if(!currentJobId){
+
+        return;
+
+    }
+
+
+    try{
+
+        const response =
+            await fetch(
+                API +
+                "/api/jobs/" +
+                encodeURIComponent(
+                    currentJobId
+                )
+            );
+
+
+        if(!response.ok){
+
+            return;
+
+        }
+
+
+        const status =
+            await response.json();
+
+
+        const progress =
+            Number(
+                status.progress || 0
+            );
+
+
+        document.getElementById(
+            "progressFill"
+        ).style.width =
+            progress + "%";
+
+
+        document.getElementById(
+            "stageLabel"
+        ).textContent =
+            status.stage_label ||
+            status.stage ||
+            "Bezig...";
+
+
+        document.getElementById(
+            "stagePct"
+        ).textContent =
+            progress + "%";
+
+
+        const modelLine =
+            document.getElementById(
+                "jobModelLine"
+            );
+
+
+        if(
+            status.llm_model_used
+        ){
+
+            modelLine.style.display =
+                "block";
+
+
+            const provider =
+                status.llm_provider_used ===
+                "anthropic"
+
+                    ? "Anthropic"
+
+                    : "Groq";
+
+
+            modelLine.textContent =
+                "LLM: " +
+                provider +
+                " (" +
+                status.llm_model_used +
+                ")";
+
+        }
+
+
+        if(
+            status.status ===
+            "completed"
+        ){
+
+            clearInterval(
+                pollTimer
+            );
+
+
+            document.getElementById(
+                "startBtn"
+            ).disabled =
+                false;
+
+
+            await loadResults();
+
+        }
+
+
+        if(
+            status.status ===
+            "failed"
+        ){
+
+            clearInterval(
+                pollTimer
+            );
+
+
+            document.getElementById(
+                "startBtn"
+            ).disabled =
+                false;
+
+
+            toast(
+                "Job mislukt: " +
+                (
+                    status.error ||
+                    "onbekende fout"
+                )
+            );
+
+        }
+
+    }
+    catch(error){
+
+        console.error(
+            "Job polling error:",
+            error
+        );
+
+    }
+
+}
+
+
+/* =========================================================
+   RESULTATEN
+========================================================= */
+
+async function loadResults(){
+
+    const response =
+        await fetch(
+            API +
+            "/api/jobs/" +
+            encodeURIComponent(
+                currentJobId
+            ) +
+            "/report"
+        );
+
+
+    if(!response.ok){
+
+        return;
+
+    }
+
+
+    const report =
+        await response.json();
+
+
+    document.getElementById(
+        "resultsSection"
+    ).style.display =
+        "block";
+
+
+    document.getElementById(
+        "resultCount"
+    ).textContent =
+        report.aantal_definitief ??
+        (
+            report.clips
+                ? report.clips.length
+                : 0
+        );
+
+
+    const provider =
+        report.llm_provider_used ===
+        "anthropic"
+
+            ? "Anthropic"
+
+            : "Groq";
+
+
+    document.getElementById(
+        "providerBadge"
+    ).textContent =
+
+        "LLM: " +
+        provider +
+
+        (
+            report.llm_model_used
+
+                ? " (" +
+                  report.llm_model_used +
+                  ")"
+
+                : ""
+        );
+
+
+    const clips =
+        report.clips || [];
+
+
+    if(!clips.length){
+
+        document.getElementById(
+            "clipsGrid"
+        ).innerHTML = `
+
+            <div
+                style="
+                    padding:18px;
+                    border:1px solid #dbeafe;
+                    border-radius:10px;
+                    background:#eff6ff;
+                    color:#1e3a8a;
+                    font-size:12px;
+                "
+            >
+                ClipParty kon in deze run geen
+                geldige clip produceren.
+            </div>
+
+        `;
+
+        return;
+
+    }
+
+
+    document.getElementById(
+        "clipsGrid"
+    ).innerHTML =
+
+        clips.map(
+            clip=>{
+
+                const fileId =
+                    clip.file_id;
+
+
+                const fileUrl =
+                    API +
+                    "/api/files/" +
+                    encodeURIComponent(
+                        fileId
+                    );
+
+
+                const duration =
+                    Number(
+                        clip.duration || 0
+                    ).toFixed(1);
+
+
+                const resolution =
+                    clip.resolution ||
+                    "";
+
+
+                const filename =
+                    clip.filename ||
+                    "Clip";
+
+
+                const compliance =
+                    clip.compliance ||
+                    "";
+
+
+                const topic =
+                    clip.onderwerp ||
+                    "";
+
+
+                const caption =
+                    clip.caption ||
+                    "";
+
+
+                const hashtags =
+                    clip.hashtags ||
+                    [];
+
+
+                return `
+
+                    <div class="clip-card">
+
+
+                        <video
+                            controls
+                            preload="metadata"
+                            src="${fileUrl}"
+                        ></video>
+
+
+                        <div class="clip-body">
+
+
+                            <div class="clip-title">
+
+                                <span>
+                                    ${escapeHtml(
+                                        filename
+                                    )}
+                                    ·
+                                    ${duration}s
+                                    ${resolution
+                                        ? " · " +
+                                          escapeHtml(
+                                              resolution
+                                          )
+                                        : ""}
+                                </span>
+
+
+                                <span
+                                    class="
+                                        badge
+                                        ${
+                                            compliance ===
+                                            "PASS"
+
+                                                ? "pass"
+
+                                                : "fail"
+                                        }
+                                    "
+                                >
+                                    ${escapeHtml(
+                                        compliance
+                                    )}
+                                </span>
+
+                            </div>
+
+
+                            ${
+                                topic
+
+                                    ? `
+                                        <div class="clip-topic">
+                                            <b>
+                                                ${escapeHtml(
+                                                    topic
+                                                )}
+                                            </b>
+                                        </div>
+                                      `
+
+                                    : ""
+                            }
+
+
+                            ${
+                                caption
+
+                                    ? `
+                                        <div class="clip-caption">
+                                            ${escapeHtml(
+                                                caption
+                                            )}
+                                        </div>
+                                      `
+
+                                    : ""
+                            }
+
+
+                            <div class="clip-tags">
+
+                                ${
+
+                                    hashtags.map(
+                                        hashtag => `
+
+                                            <span class="tag">
+                                                #
+                                                ${escapeHtml(
+                                                    String(
+                                                        hashtag
+                                                    ).replace(
+                                                        /^#/,
+                                                        ""
+                                                    )
+                                                )}
+                                            </span>
+
+                                        `
+                                    ).join("")
+
+                                }
+
+                            </div>
+
+
+                            <div class="clip-actions">
+
+
+                                <button
+                                    type="button"
+                                    onclick="
+                                        window.open(
+                                            '${fileUrl}',
+                                            '_blank'
+                                        )
+                                    "
+                                >
+                                    Preview
+                                </button>
+
+
+                                <button
+                                    type="button"
+                                    onclick="
+                                        downloadClip(
+                                            '${fileUrl}',
+                                            '${escapeHtml(
+                                                filename
+                                            )}'
+                                        )
+                                    "
+                                >
+                                    Download
+                                </button>
+
+
+                            </div>
+
+
+                        </div>
+
+                    </div>
+
+                `;
+
+            }
+        ).join("");
+
+}
+
+
+/* =========================================================
+   DOWNLOAD
+========================================================= */
+
+function downloadClip(
+    url,
+    filename
+){
+
+    const link =
+        document.createElement(
+            "a"
+        );
+
+
+    link.href =
+        url;
+
+
+    link.download =
+        filename || "clip.mp4";
+
+
+    link.target =
+        "_blank";
+
+
+    document.body.appendChild(
+        link
+    );
+
+
+    link.click();
+
+
+    link.remove();
+
+}
+
+</script>
+
+
+
+
+
+
+
+</body>
+
+</html>
+
+
+
+
+
+
