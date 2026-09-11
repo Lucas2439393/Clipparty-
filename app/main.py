@@ -1,209 +1,429 @@
-from fastapi import FastAPI
-from fastapi.responses import HTMLResponse
+from fastapi import FastAPI, UploadFile, File, HTTPException
+from fastapi.middleware.cors import CORSMiddleware
+from fastapi.responses import FileResponse
+from pydantic import BaseModel
+from pathlib import Path
+import shutil
+import uuid
+import os
 
-app = FastAPI()
+from app import job_manager
 
 
-@app.get("/", response_class=HTMLResponse)
-def home():
-    return """
-    <!DOCTYPE html>
-    <html lang="nl">
-    <head>
-        <meta charset="UTF-8">
-        <meta name="viewport" content="width=device-width, initial-scale=1.0">
-        <title>Clipparty</title>
-        <style>
-            * {
-                box-sizing: border-box;
-                margin: 0;
-                padding: 0;
-            }
+# ============================================================
+# APP
+# ============================================================
 
-            body {
-                font-family: Arial, sans-serif;
-                background: #080808;
-                color: white;
-            }
+app = FastAPI(
+    title="ClipParty API",
+    version="1.0.0",
+)
 
-            nav {
-                padding: 20px 40px;
-                display: flex;
-                justify-content: space-between;
-                align-items: center;
-                border-bottom: 1px solid #222;
-            }
 
-            .logo {
-                font-size: 24px;
-                font-weight: 800;
-            }
+# ============================================================
+# CORS
+# ============================================================
 
-            nav a {
-                color: white;
-                text-decoration: none;
-                margin-left: 25px;
-            }
+app.add_middleware(
+    CORSMiddleware,
+    allow_origins=["*"],
+    allow_credentials=False,
+    allow_methods=["*"],
+    allow_headers=["*"],
+)
 
-            .hero {
-                min-height: calc(100vh - 75px);
-                display: flex;
-                flex-direction: column;
-                justify-content: center;
-                align-items: center;
-                text-align: center;
-                padding: 40px 20px;
-            }
 
-            h1 {
-                font-size: 64px;
-                margin-bottom: 20px;
-            }
+# ============================================================
+# DIRECTORIES
+# ============================================================
 
-            p {
-                font-size: 20px;
-                color: #aaa;
-                margin-bottom: 35px;
-            }
+BASE_DIR = Path(__file__).resolve().parent
+DATA_DIR = BASE_DIR / "data"
+UPLOAD_DIR = DATA_DIR / "uploads"
+OUTPUT_DIR = DATA_DIR / "outputs"
 
-            .button {
-                display: inline-block;
-                padding: 16px 30px;
-                background: #7c00ff;
-                color: white;
-                text-decoration: none;
-                border-radius: 10px;
-                font-weight: bold;
-            }
+UPLOAD_DIR.mkdir(parents=True, exist_ok=True)
+OUTPUT_DIR.mkdir(parents=True, exist_ok=True)
 
-            .button:hover {
-                background: #9200ff;
-            }
 
-            @media (max-width: 600px) {
-                h1 {
-                    font-size: 42px;
+# ============================================================
+# MODELS
+# ============================================================
+
+class CampaignSettings(BaseModel):
+    min_clips: int = 1
+    max_clips: int = 5
+    max_duration: int = 60
+
+    preferred_min_duration: int = 15
+    preferred_max_duration: int = 35
+
+    aspect_ratio: str = "9:16"
+    resolution: str = "1080x1920"
+
+    subtitles: bool = True
+    hooks: bool = True
+    face_priority: bool = True
+    avoid_audio_only: bool = True
+
+    quality: str = "highest"
+
+
+class CampaignRequest(BaseModel):
+    campaign_file: str
+    videos: list[str]
+    settings: CampaignSettings
+
+
+class YouTubeRequest(BaseModel):
+    url: str
+
+
+# ============================================================
+# HEALTH
+# ============================================================
+
+@app.get("/api/health")
+def health():
+    return {
+        "status": "ok",
+        "service": "ClipParty API"
+    }
+
+
+@app.get("/")
+def root():
+    return {
+        "status": "ok",
+        "service": "ClipParty API",
+        "message": "ClipParty backend is running."
+    }
+
+
+# ============================================================
+# UPLOAD
+# ============================================================
+
+@app.post("/api/upload")
+async def upload_file(file: UploadFile = File(...)):
+
+    if not file.filename:
+        raise HTTPException(
+            status_code=400,
+            detail="Geen bestand ontvangen."
+        )
+
+    extension = Path(file.filename).suffix.lower()
+
+    allowed_extensions = {
+        ".pdf",
+        ".doc",
+        ".docx",
+        ".txt",
+        ".mp4",
+        ".mov",
+        ".avi",
+        ".mkv",
+        ".webm",
+        ".m4v",
+    }
+
+    if extension not in allowed_extensions:
+        raise HTTPException(
+            status_code=400,
+            detail=f"Bestandstype {extension} wordt niet ondersteund."
+        )
+
+    file_id = uuid.uuid4().hex
+
+    safe_name = (
+        file_id + extension
+    )
+
+    destination = UPLOAD_DIR / safe_name
+
+    try:
+        with destination.open("wb") as buffer:
+            shutil.copyfileobj(file.file, buffer)
+
+    except Exception as exc:
+        raise HTTPException(
+            status_code=500,
+            detail=f"Upload mislukt: {str(exc)}"
+        )
+
+    return {
+        "id": file_id,
+        "file_id": file_id,
+        "filename": file.filename,
+        "path": str(destination),
+        "size": destination.stat().st_size,
+    }
+
+
+# ============================================================
+# START CAMPAIGN
+# ============================================================
+
+@app.post("/api/campaign/start")
+async def start_campaign(request: CampaignRequest):
+
+    if not request.campaign_file:
+        raise HTTPException(
+            status_code=400,
+            detail="Geen campagnebriefing opgegeven."
+        )
+
+    if not request.videos:
+        raise HTTPException(
+            status_code=400,
+            detail="Geen bronvideo opgegeven."
+        )
+
+    try:
+
+        # job_manager is verantwoordelijk voor
+        # het daadwerkelijk starten van de clipping-job.
+        #
+        # We proberen eerst de bestaande functie te gebruiken.
+
+        if hasattr(job_manager, "create_job"):
+            result = job_manager.create_job(
+                campaign_file=request.campaign_file,
+                videos=request.videos,
+                settings=request.settings.model_dump(),
+            )
+
+        elif hasattr(job_manager, "start_job"):
+            result = job_manager.start_job(
+                campaign_file=request.campaign_file,
+                videos=request.videos,
+                settings=request.settings.model_dump(),
+            )
+
+        elif hasattr(job_manager, "create_campaign_job"):
+            result = job_manager.create_campaign_job(
+                campaign_file=request.campaign_file,
+                videos=request.videos,
+                settings=request.settings.model_dump(),
+            )
+
+        else:
+            raise RuntimeError(
+                "Geen geldige job-start functie gevonden in job_manager.py"
+            )
+
+        # Ondersteun zowel een dict als alleen een job_id.
+        if isinstance(result, dict):
+            if "job_id" in result:
+                return result
+
+            if "id" in result:
+                return {
+                    "job_id": result["id"]
                 }
-            }
-        </style>
-    </head>
 
-    <body>
-
-        <nav>
-            <div class="logo">Clipparty</div>
-
-            <div>
-                <a href="/">Home</a>
-                <a href="/clip">Clip</a>
-            </div>
-        </nav>
-
-        <section class="hero">
-            <h1>Welkom bij Clipparty</h1>
-            <p>Ontdek clips. Maak clips. Verdien met clips.</p>
-            <a class="button" href="/clip">Begin met clippen</a>
-        </section>
-
-    </body>
-    </html>
-    """
-
-
-@app.get("/clip", response_class=HTMLResponse)
-def clip():
-    return """
-    <!DOCTYPE html>
-    <html lang="nl">
-    <head>
-        <meta charset="UTF-8">
-        <meta name="viewport" content="width=device-width, initial-scale=1.0">
-        <title>Clipparty - Clip</title>
-
-        <style>
-            * {
-                box-sizing: border-box;
-                margin: 0;
-                padding: 0;
+        if isinstance(result, str):
+            return {
+                "job_id": result
             }
 
-            body {
-                font-family: Arial, sans-serif;
-                background: #080808;
-                color: white;
+        raise RuntimeError(
+            "De job-manager gaf geen geldige job_id terug."
+        )
+
+    except Exception as exc:
+        raise HTTPException(
+            status_code=500,
+            detail=f"Clipping-job kon niet worden gestart: {str(exc)}"
+        )
+
+
+# ============================================================
+# JOB STATUS
+# ============================================================
+
+@app.get("/api/jobs/{job_id}")
+async def get_job(job_id: str):
+
+    try:
+
+        if hasattr(job_manager, "get_job"):
+            result = job_manager.get_job(job_id)
+
+        elif hasattr(job_manager, "get_job_status"):
+            result = job_manager.get_job_status(job_id)
+
+        else:
+            raise RuntimeError(
+                "Geen get_job functie gevonden in job_manager.py"
+            )
+
+        if result is None:
+            raise HTTPException(
+                status_code=404,
+                detail="Job niet gevonden."
+            )
+
+        return result
+
+    except HTTPException:
+        raise
+
+    except Exception as exc:
+        raise HTTPException(
+            status_code=500,
+            detail=f"Jobstatus kon niet worden opgehaald: {str(exc)}"
+        )
+
+
+# ============================================================
+# JOB CLIPS
+# ============================================================
+
+@app.get("/api/jobs/{job_id}/clips")
+async def get_clips(job_id: str):
+
+    try:
+
+        if hasattr(job_manager, "get_clips"):
+            result = job_manager.get_clips(job_id)
+
+        elif hasattr(job_manager, "get_job_clips"):
+            result = job_manager.get_job_clips(job_id)
+
+        else:
+            raise RuntimeError(
+                "Geen get_clips functie gevonden in job_manager.py"
+            )
+
+        if result is None:
+            return []
+
+        return result
+
+    except Exception as exc:
+        raise HTTPException(
+            status_code=500,
+            detail=f"Clips konden niet worden opgehaald: {str(exc)}"
+        )
+
+
+# ============================================================
+# JOB REPORT
+# ============================================================
+
+@app.get("/api/jobs/{job_id}/report")
+async def get_report(job_id: str):
+
+    try:
+
+        if hasattr(job_manager, "get_report"):
+            result = job_manager.get_report(job_id)
+
+        elif hasattr(job_manager, "get_job_report"):
+            result = job_manager.get_job_report(job_id)
+
+        else:
+            return {
+                "job_id": job_id,
+                "status": "completed"
             }
 
-            nav {
-                padding: 20px 40px;
-                border-bottom: 1px solid #222;
-            }
+        return result
 
-            nav a {
-                color: white;
-                text-decoration: none;
-            }
+    except Exception as exc:
+        raise HTTPException(
+            status_code=500,
+            detail=f"Rapport kon niet worden opgehaald: {str(exc)}"
+        )
 
-            .container {
-                max-width: 900px;
-                margin: 80px auto;
-                padding: 20px;
-                text-align: center;
-            }
 
-            h1 {
-                font-size: 48px;
-                margin-bottom: 20px;
-            }
+# ============================================================
+# FILES
+# ============================================================
 
-            p {
-                color: #aaa;
-                font-size: 18px;
-                margin-bottom: 40px;
-            }
+@app.get("/api/files/{file_id}")
+async def get_file(file_id: str):
 
-            .box {
-                border: 1px solid #333;
-                border-radius: 15px;
-                padding: 60px 30px;
-                background: #101010;
-            }
+    # Zoek eerst in outputs
+    for directory in [OUTPUT_DIR, UPLOAD_DIR]:
 
-            .button {
-                display: inline-block;
-                padding: 15px 30px;
-                background: #7c00ff;
-                color: white;
-                border-radius: 10px;
-                text-decoration: none;
-                font-weight: bold;
-            }
-        </style>
-    </head>
+        for path in directory.glob("*"):
 
-    <body>
+            if path.is_file() and path.name.startswith(file_id):
+                return FileResponse(
+                    path=str(path),
+                    filename=path.name
+                )
 
-        <nav>
-            <a href="/">← Terug naar home</a>
-        </nav>
+    raise HTTPException(
+        status_code=404,
+        detail="Bestand niet gevonden."
+    )
 
-        <div class="container">
-            <h1>Clip</h1>
 
-            <p>
-                Hier komt straks jouw clipomgeving.
-            </p>
+# ============================================================
+# DASHBOARD
+# ============================================================
 
-            <div class="box">
-                <h2>Clipparty Clip Studio</h2>
-                <br>
-                <p>
-                    De clipfunctie komt hier.
-                </p>
+@app.get("/api/dashboard")
+async def dashboard():
 
-                <a class="button" href="/">Terug naar home</a>
-            </div>
-        </div>
+    return {
+        "status": "ok",
+        "service": "ClipParty",
+        "jobs": []
+    }
 
-    </body>
-    </html>
-    """
+
+# ============================================================
+# ACCOUNT
+# ============================================================
+
+@app.post("/api/account/connect")
+async def connect_account(data: dict):
+
+    return {
+        "status": "connected",
+        "data": data
+    }
+
+
+@app.post("/api/account/earnings")
+async def add_account_earning(data: dict):
+
+    return {
+        "status": "ok",
+        "data": data
+    }
+
+
+@app.get("/api/account")
+async def account():
+
+    return {
+        "status": "ok",
+        "earnings": 0
+    }
+
+
+# ============================================================
+# YOUTUBE
+# ============================================================
+
+@app.post("/api/youtube/resolve")
+async def resolve_youtube(request: YouTubeRequest):
+
+    url = request.url.strip()
+
+    if not url:
+        raise HTTPException(
+            status_code=400,
+            detail="Geen YouTube URL opgegeven."
+        )
+
+    return {
+        "url": url,
+        "status": "accepted"
+    }
