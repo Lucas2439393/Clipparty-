@@ -34,6 +34,7 @@ from app.models import (
 )
 
 # FAST ONLINE MODE: parallel analysis + no face scan
+# UPLOAD PATH FIX: local uploads are resolved by basename across runtime dirs.
 
 from app.pipeline import (
     brief_parser,
@@ -154,37 +155,77 @@ def _resolve_local_input(value: str) -> Optional[Path]:
     if value.startswith(("http://", "https://")):
         return None
 
+    # Normaliseer file://-paden die eventueel door de browser/UI worden
+    # doorgestuurd.
+    if value.startswith("file://"):
+        value = value[7:]
+
     path = Path(value)
 
+    # 1. Exact pad.
     if path.exists() and path.is_file():
-        return path
+        return path.resolve()
 
-    if UPLOADS_DIR.exists():
-        basename = path.name
+    basename = path.name
+    if not basename:
+        return None
 
-        if basename:
-            direct = UPLOADS_DIR / basename
+    # 2. Zoek in alle bekende upload/workspace-locaties.
+    # Render gebruikt /opt/render/project/src als projectroot, maar deze
+    # lijst maakt de resolver ook robuust wanneer de working directory of
+    # het runtime-pad verandert.
+    search_dirs = [
+        UPLOADS_DIR,
+        PROJECT_ROOT / "uploads",
+        Path.cwd() / "uploads",
+        PROJECT_ROOT / "app" / "uploads",
+        Path("/tmp") / "uploads",
+    ]
 
-            if direct.exists() and direct.is_file():
-                return direct
+    # Als het aangeleverde pad zelf in een uploads-map zat, neem die map ook
+    # mee. Dit helpt bij afwijkende Render/runtime-paden.
+    try:
+        parent = path.parent
+        if parent.exists() and parent.is_dir():
+            search_dirs.insert(0, parent)
+    except Exception:
+        pass
 
-            # Fallback voor eventueel geneste uploadmappen.
-            try:
-                matches = [
-                    p
-                    for p in UPLOADS_DIR.rglob(basename)
-                    if p.is_file()
-                ]
+    seen = set()
 
-                if matches:
-                    matches.sort(
-                        key=lambda p: p.stat().st_mtime,
-                        reverse=True,
-                    )
-                    return matches[0]
+    for search_dir in search_dirs:
+        try:
+            search_dir = search_dir.resolve()
+        except Exception:
+            continue
 
-            except Exception:
-                pass
+        key = str(search_dir)
+        if key in seen or not search_dir.exists():
+            continue
+        seen.add(key)
+
+        # Eerst direct: snelste route.
+        direct = search_dir / basename
+        if direct.exists() and direct.is_file():
+            return direct.resolve()
+
+        # Daarna recursief zoeken.
+        try:
+            matches = [
+                candidate
+                for candidate in search_dir.rglob(basename)
+                if candidate.is_file()
+            ]
+
+            if matches:
+                matches.sort(
+                    key=lambda candidate: candidate.stat().st_mtime,
+                    reverse=True,
+                )
+                return matches[0].resolve()
+
+        except Exception:
+            continue
 
     return None
 
@@ -880,9 +921,15 @@ def _run_job(job_id: str):
         ]
 
         if not allowed_videos:
+            details = ""
+            if req.videos:
+                details = " Ontvangen videopaden: " + "; ".join(
+                    str(v) for v in req.videos
+                )
+
             raise RuntimeError(
-                "Geen enkele toegestane bronvideo "
-                "is lokaal beschikbaar."
+                "Geen enkele toegestane bronvideo is lokaal beschikbaar."
+                + details
             )
 
         # ================================================================
