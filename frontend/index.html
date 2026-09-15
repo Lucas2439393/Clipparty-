@@ -357,12 +357,6 @@ function removeVideo(i){
   renderVideoList();
 }
 });
-function renderVideoList(){
-  document.getElementById('videoList').innerHTML = videoPaths.map((v,i)=>
-    `<div class="fileitem"><span>${v.label}</span><button onclick="removeVideo(${i})">✕</button></div>`
-  ).join('');
-}
-function removeVideo(i){ videoPaths.splice(i,1); renderVideoList(); }
 
 async function addYoutube(){
   const input = document.getElementById('ytUrl');
