@@ -209,7 +209,7 @@ const cpMenuBtn=document.getElementById('cpMenuBtn'),cpMenu=document.getElementB
 cpMenuBtn?.addEventListener('click',()=>{const o=cpMenu.classList.toggle('open');cpMenuBtn.setAttribute('aria-expanded',o?'true':'false');cpAccountPop?.classList.remove('open')});
 cpAccountBtn?.addEventListener('click',()=>{cpAccountPop.classList.toggle('open');cpMenu.classList.remove('open')});
 document.addEventListener('click',e=>{if(!e.target.closest('.cp-left'))cpMenu.classList.remove('open');if(!e.target.closest('.cp-account'))cpAccountPop.classList.remove('open')});
-const API = "http://127.0.0.1:8756";
+const API = window.location.origin;
 let briefPath = null;
 let videoPaths = [];   // {label, path}
 let youtubeUrls = [];  // raw url strings
