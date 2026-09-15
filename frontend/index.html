@@ -216,6 +216,9 @@ let youtubeUrls = [];  // raw url strings
 let currentJobId = null;
 let pollTimer = null;
 
+let videoUploadPromise = null;
+let videoUploading = false;
+
 function toast(msg){
   const t = document.getElementById('toast');
   t.textContent = msg; t.style.display = 'block';
@@ -281,14 +284,78 @@ setupDropzone('briefDrop','briefInput', async (files)=>{
 function clearBrief(){ briefPath = null; document.getElementById('briefList').innerHTML=''; }
 
 setupDropzone('videoDrop','videoInput', async (files)=>{
-  for (const f of files.slice(0, Math.max(0, 5 - videoPaths.length))){
-    if (videoPaths.length >= 5) break;
-    try{
-      const res = await uploadFile(f);
-      videoPaths.push({label: res.filename, path: res.path});
-    }catch(e){ toast(e.message); }
-  }
+  if (!files.length) return;
+
+  videoUploading = true;
   renderVideoList();
+
+  videoUploadPromise = (async () => {
+    try {
+      const availableSlots = Math.max(0, 5 - videoPaths.length);
+      const filesToUpload = files.slice(0, availableSlots);
+
+      for (const f of filesToUpload) {
+        try {
+          const res = await uploadFile(f);
+
+          if (!res || !res.path) {
+            throw new Error(
+              "Upload gelukt, maar de server gaf geen bestandspad terug."
+            );
+          }
+
+          videoPaths.push({
+            label: res.filename || f.name,
+            path: res.path
+          });
+
+          renderVideoList();
+
+        } catch (e) {
+          toast("Upload mislukt: " + (e.message || f.name));
+        }
+      }
+
+    } finally {
+      videoUploading = false;
+      videoUploadPromise = null;
+      renderVideoList();
+    }
+  })();
+
+  await videoUploadPromise;
+});
+
+function renderVideoList(){
+  const el = document.getElementById('videoList');
+
+  let html = videoPaths.map((v,i)=>
+    `<div class="fileitem">
+      <span>${v.label}</span>
+      <button onclick="removeVideo(${i})">✕</button>
+    </div>`
+  ).join('');
+
+  if (videoUploading) {
+    html += `
+      <div class="fileitem">
+        <span>⏳ Video wordt geüpload...</span>
+      </div>
+    `;
+  }
+
+  el.innerHTML = html;
+}
+
+function removeVideo(i){
+  if (videoUploading) {
+    toast("Wacht tot de video-upload klaar is.");
+    return;
+  }
+
+  videoPaths.splice(i,1);
+  renderVideoList();
+}
 });
 function renderVideoList(){
   document.getElementById('videoList').innerHTML = videoPaths.map((v,i)=>
