@@ -36,21 +36,47 @@ app.add_middleware(
 
 _frontend_dir = Path(__file__).resolve().parent.parent / "frontend"
 
-if _frontend_dir.exists():
-    app.mount(
-        "/ui",
-        StaticFiles(directory=str(_frontend_dir), html=True),
-        name="ui",
+# ClipParty frontend
+# Serve the actual ClipParty page on both / and /ui/.
+def _clip_frontend_file():
+    candidates = [
+        _frontend_dir / "clip(5).html",
+        _frontend_dir / "clip.html",
+        _frontend_dir / "index.html",
+    ]
+
+    for candidate in candidates:
+        if candidate.exists():
+            return candidate
+
+    raise HTTPException(
+        status_code=404,
+        detail="Geen frontend HTML-bestand gevonden in frontend/",
+    )
+
+@app.get("/ui", include_in_schema=False)
+@app.get("/ui/", include_in_schema=False)
+def ui():
+    return FileResponse(
+        _clip_frontend_file(),
+        media_type="text/html",
     )
 
 @app.get("/")
 def root():
-    # The API service itself is also the ClipParty frontend.
-    # This avoids a separate homepage/static-site/API mismatch.
-    clip_file = _frontend_dir / "clip.html"
-    if not clip_file.exists():
-        raise HTTPException(status_code=404, detail="frontend/clip.html niet gevonden")
-    return FileResponse(clip_file, media_type="text/html")
+    return FileResponse(
+        _clip_frontend_file(),
+        media_type="text/html",
+    )
+
+# Keep frontend files available for CSS/JS/assets.
+if _frontend_dir.exists():
+    app.mount(
+        "/frontend",
+        StaticFiles(directory=str(_frontend_dir)),
+        name="frontend",
+    )
+
 
 class RegisterRequest(BaseModel):
     name: str
