@@ -39,21 +39,15 @@ _frontend_dir = Path(__file__).resolve().parent.parent / "frontend"
 # ClipParty frontend
 # Serve the actual ClipParty page on both / and /ui/.
 def _clip_frontend_file():
-    candidates = [
-        _frontend_dir / "clip(5).html",
-        _frontend_dir / "clip.html",
-        _frontend_dir / "index.html",
-    ]
+    frontend_file = _frontend_dir / "clip(5).html"
 
-    for candidate in candidates:
-        if candidate.exists():
-            return candidate
+    if not frontend_file.exists():
+        raise HTTPException(
+            status_code=404,
+            detail="clip(5).html niet gevonden in frontend/",
+        )
 
-    raise HTTPException(
-        status_code=404,
-        detail="Geen frontend HTML-bestand gevonden in frontend/",
-    )
-
+    return frontend_file
 @app.get("/ui", include_in_schema=False)
 @app.get("/ui/", include_in_schema=False)
 def ui():
