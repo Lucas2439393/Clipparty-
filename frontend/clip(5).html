@@ -2471,252 +2471,201 @@ setTimeout(checkHealth, 1200);
    FILE UPLOAD
 ========================================================= */
 
-async function uploadFile(file){
-
-    const formData =
-        new FormData();
-
-
-    formData.append(
-        "file",
-        file
-    );
-
-
-    const response =
-        await fetch(
-            API + "/api/upload",
-            {
-                method:"POST",
-                body:formData
-            }
-        );
-
-
-    if(!response.ok){
-
-        let detail =
-            "Upload mislukt: " +
-            file.name;
-
-
-        try{
-
-            const data =
-                await response.json();
-
-
-            if(data.detail){
-
-                detail =
-                    typeof data.detail === "string"
-
-                        ? data.detail
-
-                        : JSON.stringify(
-                            data.detail
-                        );
-
-            }
-
-        }
-        catch(error){}
-
-
-        throw new Error(
-            detail
-        );
-
+async function uploadFile(file) {
+    if (!file) {
+        throw new Error("Geen bestand geselecteerd.");
     }
 
+    const formData = new FormData();
+    formData.append("file", file, file.name);
 
-    return await response.json();
+    let response;
 
+    try {
+        response = await fetch(API + "/api/upload", {
+            method: "POST",
+            body: formData,
+            credentials: "same-origin"
+        });
+    } catch (error) {
+        throw new Error(
+            "Kan de ClipParty-server niet bereiken."
+        );
+    }
+
+    const raw = await response.text();
+
+    let data = null;
+
+    try {
+        data = raw ? JSON.parse(raw) : null;
+    } catch (_) {}
+
+    if (!response.ok) {
+        const detail =
+            data && data.detail
+                ? (
+                    typeof data.detail === "string"
+                        ? data.detail
+                        : JSON.stringify(data.detail)
+                )
+                : "Upload mislukt: " + file.name;
+
+        throw new Error(detail);
+    }
+
+    if (!data || !data.path) {
+        throw new Error(
+            "Upload gelukt, maar de server gaf geen bestandspad terug."
+        );
+    }
+
+    return data;
 }
 
 
-/* =========================================================
-   DROPZONE
-========================================================= */
+function setupDropzone(zoneId, inputId, onFiles) {
 
-function setupDropzone(
-    zoneId,
-    inputId,
-    onFiles
-){
+    const zone = document.getElementById(zoneId);
+    const input = document.getElementById(inputId);
 
-    const zone =
-        document.getElementById(
-            zoneId
-        );
-
-
-    const input =
-        document.getElementById(
+    if (!zone || !input) {
+        console.error(
+            "Upload-element ontbreekt:",
+            zoneId,
             inputId
         );
+        return;
+    }
 
-
-    zone.addEventListener(
-        "click",
-        ()=>{
+    zone.addEventListener("click", function(event) {
+        if (event.target !== input) {
             input.click();
         }
-    );
+    });
 
+    input.addEventListener("change", function() {
 
-    input.addEventListener(
-        "change",
-        ()=>{
+        const files = Array.from(
+            input.files || []
+        );
 
-            onFiles(
-                Array.from(
-                    input.files
-                )
-            );
-
-            input.value =
-                "";
-
+        if (files.length) {
+            onFiles(files);
         }
-    );
 
+        input.value = "";
+    });
 
-    zone.addEventListener(
-        "dragover",
-        event=>{
+    zone.addEventListener("dragover", function(event) {
+        event.preventDefault();
+        zone.classList.add("drag");
+    });
 
-            event.preventDefault();
+    zone.addEventListener("dragleave", function() {
+        zone.classList.remove("drag");
+    });
 
-            zone.classList.add(
-                "drag"
-            );
+    zone.addEventListener("drop", function(event) {
 
+        event.preventDefault();
+
+        zone.classList.remove("drag");
+
+        const files = Array.from(
+            event.dataTransfer.files || []
+        );
+
+        if (files.length) {
+            onFiles(files);
         }
-    );
-
-
-    zone.addEventListener(
-        "dragleave",
-        ()=>{
-
-            zone.classList.remove(
-                "drag"
-            );
-
-        }
-    );
-
-
-    zone.addEventListener(
-        "drop",
-        event=>{
-
-            event.preventDefault();
-
-            zone.classList.remove(
-                "drag"
-            );
-
-
-            onFiles(
-                Array.from(
-                    event.dataTransfer.files
-                )
-            );
-
-        }
-    );
-
+    });
 }
 
 
-/* =========================================================
-   BRIEFING
-========================================================= */
+/* =========================
+   BRIEFING UPLOAD
+========================= */
 
 setupDropzone(
     "briefDrop",
     "briefInput",
+    async function(files) {
 
-    async files=>{
+        if (!files.length) return;
 
-        if(!files.length){
-
-            return;
-
-        }
-
-
-        try{
+        try {
 
             const result =
-                await uploadFile(
-                    files[0]
-                );
+                await uploadFile(files[0]);
 
+            briefPath = result.path;
 
-            briefPath =
-                result.path;
+            const list =
+                document.getElementById("briefList");
 
+            if (list) {
 
-            document.getElementById(
-                "briefList"
-            ).innerHTML =
+                list.innerHTML = `
+                    <div class="fileitem">
+                        <span>
+                            ${escapeHtml(
+                                result.filename ||
+                                files[0].name
+                            )}
+                        </span>
 
-                `<div class="fileitem">
+                        <button
+                            type="button"
+                            onclick="clearBrief()"
+                        >
+                            ✕
+                        </button>
+                    </div>
+                `;
+            }
 
-                    <span>
-                        ${escapeHtml(
-                            result.filename
-                        )}
-                    </span>
-
-                    <button
-                        onclick="clearBrief()"
-                    >
-                        ✕
-                    </button>
-
-                </div>`;
-
-        }
-        catch(error){
+        } catch (error) {
 
             toast(
+                "Upload mislukt: " +
                 error.message
             );
-
         }
-
     }
-
 );
 
 
-function clearBrief(){
+function clearBrief() {
 
-    briefPath =
-        null;
+    briefPath = null;
 
+    const list =
+        document.getElementById("briefList");
 
-    document.getElementById(
-        "briefList"
-    ).innerHTML =
-        "";
+    if (list) {
+        list.innerHTML = "";
+    }
 
+    const input =
+        document.getElementById("briefInput");
+
+    if (input) {
+        input.value = "";
+    }
 }
 
 
-/* =========================================================
-   VIDEO'S
-========================================================= */
+/* =========================
+   VIDEO UPLOAD
+========================= */
 
 setupDropzone(
     "videoDrop",
     "videoInput",
+    async function(files) {
 
-    async files=>{
+        if (!files.length) return;
 
         const remaining =
             Math.max(
@@ -2724,88 +2673,86 @@ setupDropzone(
                 5 - videoPaths.length
             );
 
+        if (remaining <= 0) {
 
-        for(
-            const file of
-            files.slice(
-                0,
-                remaining
-            )
-        ){
+            toast(
+                "Je kunt maximaal 5 video's toevoegen."
+            );
 
-            try{
+            return;
+        }
+
+        const filesToUpload =
+            files.slice(0, remaining);
+
+        for (const file of filesToUpload) {
+
+            try {
 
                 const result =
-                    await uploadFile(
-                        file
-                    );
-
+                    await uploadFile(file);
 
                 videoPaths.push({
-
                     label:
-                        result.filename,
+                        result.filename ||
+                        file.name,
 
                     path:
                         result.path
-
                 });
 
-            }
-            catch(error){
+            } catch (error) {
 
                 toast(
+                    "Upload mislukt: " +
                     error.message
                 );
-
             }
-
         }
 
-
         renderVideoList();
-
     }
-
 );
 
 
-function renderVideoList(){
+function renderVideoList() {
 
-    const element =
-        document.getElementById(
-            "videoList"
-        );
+    const list =
+        document.getElementById("videoList");
 
+    if (!list) return;
 
-    element.innerHTML =
-
+    list.innerHTML =
         videoPaths.map(
-            (video,index)=>`
+            function(video, index) {
 
-                <div class="fileitem">
+                return `
+                    <div class="fileitem">
 
-                    <span>
-                        ${escapeHtml(
-                            video.label
-                        )}
-                    </span>
+                        <span>
+                            ${escapeHtml(video.label)}
+                        </span>
 
-                    <button
-                        onclick="removeVideo(${index})"
-                    >
-                        ✕
-                    </button>
+                        <button
+                            type="button"
+                            onclick="removeVideo(${index})"
+                        >
+                            ✕
+                        </button>
 
-                </div>
-
-            `
+                    </div>
+                `;
+            }
         ).join("");
-
 }
 
 
-function removeVideo(index){
+function removeVideo(index) {
+
+    videoPaths.splice(index, 1);
+
+    renderVideoList();
+}
 
     videoPaths.splice(
         index,
