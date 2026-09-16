@@ -15,8 +15,6 @@ from app.config import (
     MAX_VIDEO_DURATION_SECONDS,
 )
 from app.models import CampaignStartRequest, JobStatus
-from app import job_manager
-from app.pipeline import youtube, llm_provider
 from app.auth import (
     create_user,
     authenticate,
@@ -118,14 +116,9 @@ def logout(data: LogoutRequest):
 
 @app.get("/api/health")
 def health():
-    groq_info = llm_provider.groq_health()
     return {
         "status": "ok",
         "warnings": check_config(),
-        "llm_provider": groq_info["llm_provider"],
-        "llm_model": groq_info["llm_model"],
-        "available": groq_info["available"],
-        "llm_detail": groq_info["detail"],
         "clip_party_version": "2026-08-28-selection-fix-v1",
         "project_root": str(Path(__file__).resolve().parent.parent),
     }
