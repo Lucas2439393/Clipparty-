@@ -517,23 +517,48 @@ function setProgress(value){
 
 async function readApiError(response){
 
+  const text = await response.text();
+
+  console.error(
+    "API ERROR",
+    response.status,
+    text
+  );
+
+  if(!text){
+    return `Serverfout (${response.status}). Geen response van de backend.`;
+  }
+
   try{
 
-    const data = await response.json();
+    const data = JSON.parse(text);
 
     if(typeof data.detail === "string"){
       return data.detail;
     }
 
     if(data.detail){
-      return JSON.stringify(data.detail,null,2);
+      return JSON.stringify(
+        data.detail,
+        null,
+        2
+      );
     }
 
-    return JSON.stringify(data,null,2);
+    return JSON.stringify(
+      data,
+      null,
+      2
+    );
 
   }catch(e){
 
-    return "Serverfout (" + response.status + ").";
+    return `
+Serverfout (${response.status})
+
+Backend response:
+${text}
+`;
 
   }
 
