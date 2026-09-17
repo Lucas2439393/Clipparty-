@@ -3,57 +3,1443 @@
 <head>
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width,initial-scale=1">
+
 <title>ClipParty — Clips maken</title>
+
 <style>
-*{box-sizing:border-box}body{margin:0;font-family:Arial,sans-serif;background:#f7f7f8;color:#111827}
-header{height:70px;background:#fff;border-bottom:1px solid #e5e7eb;display:flex;align-items:center;justify-content:space-between;padding:0 32px}
-.logo{font-size:24px;font-weight:800;text-decoration:none;color:#111827}nav{display:flex;gap:22px}nav a{color:#374151;text-decoration:none;font-weight:600}
-.wrap{max-width:980px;margin:auto;padding:55px 20px 80px}h1{font-size:42px;margin:0 0 10px}.sub{color:#6b7280;font-size:17px;margin:0 0 32px}
-.card{background:#fff;border:1px solid #e5e7eb;border-radius:18px;padding:25px;margin-bottom:20px}.card h2{margin:0 0 7px}.card p{color:#6b7280}
-.drop{border:2px dashed #d1d5db;border-radius:14px;padding:35px;text-align:center;cursor:pointer;background:#fafafa}.drop:hover,.drop.drag{border-color:#111827;background:#f3f4f6}
-.drop strong{display:block;margin-bottom:7px}.drop span{color:#6b7280;font-size:14px}input[type=file]{display:none}
-.file{display:flex;justify-content:space-between;align-items:center;margin-top:12px;padding:11px 13px;border-radius:10px;background:#f3f4f6;font-size:14px}.remove{border:0;background:transparent;cursor:pointer;font-size:18px}
-.actions{display:flex;gap:12px;align-items:center}button.primary{border:0;border-radius:11px;background:#111827;color:#fff;padding:15px 23px;font-size:16px;font-weight:700;cursor:pointer}button.primary:disabled{opacity:.5}
-.status{color:#6b7280;font-size:14px}.progress{display:none;margin-top:20px;height:10px;background:#e5e7eb;border-radius:99px;overflow:hidden}.bar{height:100%;width:0;background:#111827}
-.results{display:grid;grid-template-columns:repeat(auto-fill,minmax(280px,1fr));gap:18px}.clip{border:1px solid #e5e7eb;border-radius:15px;overflow:hidden;background:#fff}.clip video{display:block;width:100%;aspect-ratio:9/16;background:#111}
-.clipbody{padding:15px}.clipbody strong{display:block;margin-bottom:6px}.clipbody small{display:block;color:#6b7280;margin-bottom:13px}.download{display:inline-block;padding:10px 14px;border-radius:9px;background:#111827;color:#fff;text-decoration:none;font-weight:700;font-size:14px}
-.empty{color:#6b7280;padding:20px 0}#error{color:#b91c1c;margin-top:14px;white-space:pre-wrap}
+*{
+  box-sizing:border-box;
+}
+
+body{
+  margin:0;
+  font-family:Arial,Helvetica,sans-serif;
+  background:#f7f7f8;
+  color:#111827;
+}
+
+header{
+  height:70px;
+  background:#fff;
+  border-bottom:1px solid #e5e7eb;
+  display:flex;
+  align-items:center;
+  justify-content:space-between;
+  padding:0 32px;
+}
+
+.logo{
+  font-size:24px;
+  font-weight:800;
+  text-decoration:none;
+  color:#111827;
+}
+
+nav{
+  display:flex;
+  gap:22px;
+}
+
+nav a{
+  color:#374151;
+  text-decoration:none;
+  font-weight:600;
+}
+
+.wrap{
+  max-width:980px;
+  margin:auto;
+  padding:55px 20px 80px;
+}
+
+h1{
+  font-size:42px;
+  margin:0 0 10px;
+}
+
+.sub{
+  color:#6b7280;
+  font-size:17px;
+  margin:0 0 32px;
+}
+
+.card{
+  background:#fff;
+  border:1px solid #e5e7eb;
+  border-radius:18px;
+  padding:25px;
+  margin-bottom:20px;
+}
+
+.card h2{
+  margin:0 0 7px;
+}
+
+.card p{
+  color:#6b7280;
+}
+
+.drop{
+  border:2px dashed #d1d5db;
+  border-radius:14px;
+  padding:35px;
+  text-align:center;
+  cursor:pointer;
+  background:#fafafa;
+  transition:.15s;
+}
+
+.drop:hover,
+.drop.drag{
+  border-color:#111827;
+  background:#f3f4f6;
+}
+
+.drop strong{
+  display:block;
+  margin-bottom:7px;
+}
+
+.drop span{
+  color:#6b7280;
+  font-size:14px;
+}
+
+input[type=file]{
+  display:none;
+}
+
+.file{
+  display:flex;
+  justify-content:space-between;
+  align-items:center;
+  margin-top:12px;
+  padding:11px 13px;
+  border-radius:10px;
+  background:#f3f4f6;
+  font-size:14px;
+}
+
+.remove{
+  border:0;
+  background:transparent;
+  cursor:pointer;
+  font-size:18px;
+}
+
+.actions{
+  display:flex;
+  gap:12px;
+  align-items:center;
+  flex-wrap:wrap;
+}
+
+button.primary{
+  border:0;
+  border-radius:11px;
+  background:#111827;
+  color:#fff;
+  padding:15px 23px;
+  font-size:16px;
+  font-weight:700;
+  cursor:pointer;
+}
+
+button.primary:disabled{
+  opacity:.5;
+  cursor:not-allowed;
+}
+
+.status{
+  color:#6b7280;
+  font-size:14px;
+}
+
+.progress{
+  display:none;
+  margin-top:20px;
+  height:10px;
+  background:#e5e7eb;
+  border-radius:99px;
+  overflow:hidden;
+}
+
+.bar{
+  height:100%;
+  width:0;
+  background:#111827;
+  transition:width .3s ease;
+}
+
+#error{
+  color:#b91c1c;
+  margin-top:14px;
+  white-space:pre-wrap;
+  line-height:1.5;
+}
+
+.results{
+  display:grid;
+  grid-template-columns:repeat(auto-fill,minmax(280px,1fr));
+  gap:18px;
+}
+
+.clip{
+  border:1px solid #e5e7eb;
+  border-radius:15px;
+  overflow:hidden;
+  background:#fff;
+}
+
+.clip video{
+  display:block;
+  width:100%;
+  aspect-ratio:9/16;
+  background:#111;
+  object-fit:cover;
+}
+
+.clipbody{
+  padding:15px;
+}
+
+.clipbody strong{
+  display:block;
+  margin-bottom:6px;
+}
+
+.clipbody small{
+  display:block;
+  color:#6b7280;
+  margin-bottom:13px;
+}
+
+.download{
+  display:inline-block;
+  padding:10px 14px;
+  border-radius:9px;
+  background:#111827;
+  color:#fff;
+  text-decoration:none;
+  font-weight:700;
+  font-size:14px;
+}
+
+.empty{
+  color:#6b7280;
+  padding:20px 0;
+}
+
+.loading{
+  color:#6b7280;
+  padding:20px 0;
+}
+
+.success{
+  color:#166534;
+  margin-top:14px;
+  font-weight:600;
+}
+
+@media(max-width:750px){
+
+  header{
+    padding:0 20px;
+  }
+
+  .wrap{
+    padding:40px 15px 60px;
+  }
+
+  h1{
+    font-size:34px;
+  }
+
+  .card{
+    padding:20px;
+  }
+
+  .drop{
+    padding:28px 15px;
+  }
+
+}
 </style>
 </head>
+
 <body>
-<header><a class="logo" href="/">ClipParty.nl</a><nav><a href="/">Home</a><a href="/ui/">Clip maken</a></nav></header>
+
+<header>
+
+  <a class="logo" href="/ui/">
+    ClipParty.nl
+  </a>
+
+  <nav>
+    <a href="/ui/">Home</a>
+    <a href="/ui/">Clip maken</a>
+  </nav>
+
+</header>
+
+
 <main class="wrap">
-<h1>Maak automatisch clips.</h1>
-<p class="sub">Upload je video en laat ClipParty korte verticale clips maken.</p>
-<section class="card">
-<h2>1. Briefing</h2><p>Optioneel: upload een briefing met de eisen voor je clips.</p>
-<div class="drop" id="briefDrop"><strong>Klik of sleep je briefing hierheen</strong><span>PDF, DOCX, TXT of ander bestand</span><input id="briefInput" type="file"></div><div id="briefList"></div>
-</section>
-<section class="card">
-<h2>2. Bronvideo</h2><p>Maximaal 5 video's. Iedere video maximaal 60 minuten.</p>
-<div class="drop" id="videoDrop"><strong>Klik of sleep je video hierheen</strong><span>MP4, MOV, MKV, WEBM, M4V of AVI</span><input id="videoInput" type="file" multiple accept="video/*"></div><div id="videoList"></div>
-</section>
-<section class="card">
-<div class="actions"><button class="primary" id="startBtn" disabled>Clips maken →</button><span class="status" id="status">Voeg minimaal één video toe.</span></div>
-<div class="progress" id="progress"><div class="bar" id="bar"></div></div><div id="error"></div>
-</section>
-<section class="card"><h2>3. Je clips</h2><p>Gegenereerde clips verschijnen hier.</p><div id="results" class="results"><div class="empty">Nog geen clips.</div></div></section>
+
+  <h1>Maak automatisch clips.</h1>
+
+  <p class="sub">
+    Upload je briefing en bronvideo's.
+    ClipParty analyseert je materiaal en maakt automatisch verticale clips.
+  </p>
+
+
+  <!-- ========================================================= -->
+  <!-- BRIEFING -->
+  <!-- ========================================================= -->
+
+  <section class="card">
+
+    <h2>1. Briefing</h2>
+
+    <p>
+      Upload de campagnebriefing met de eisen waaraan de clips moeten voldoen.
+    </p>
+
+    <div
+      class="drop"
+      id="briefDrop"
+    >
+
+      <strong>
+        Klik of sleep je briefing hierheen
+      </strong>
+
+      <span>
+        PDF, DOCX of TXT
+      </span>
+
+      <input
+        id="briefInput"
+        type="file"
+        accept=".pdf,.doc,.docx,.txt"
+      >
+
+    </div>
+
+    <div id="briefList"></div>
+
+  </section>
+
+
+  <!-- ========================================================= -->
+  <!-- VIDEO -->
+  <!-- ========================================================= -->
+
+  <section class="card">
+
+    <h2>2. Bronvideo's</h2>
+
+    <p>
+      Voeg maximaal 5 video's toe.
+      Iedere video mag maximaal 60 minuten zijn.
+    </p>
+
+    <div
+      class="drop"
+      id="videoDrop"
+    >
+
+      <strong>
+        Klik of sleep je video hierheen
+      </strong>
+
+      <span>
+        MP4, MOV, MKV, WEBM, M4V of AVI
+      </span>
+
+      <input
+        id="videoInput"
+        type="file"
+        multiple
+        accept="video/*"
+      >
+
+    </div>
+
+    <div id="videoList"></div>
+
+  </section>
+
+
+  <!-- ========================================================= -->
+  <!-- START -->
+  <!-- ========================================================= -->
+
+  <section class="card">
+
+    <div class="actions">
+
+      <button
+        class="primary"
+        id="startBtn"
+        disabled
+      >
+        Clips maken →
+      </button>
+
+      <span
+        class="status"
+        id="status"
+      >
+        Voeg een briefing en minimaal één video toe.
+      </span>
+
+    </div>
+
+    <div
+      class="progress"
+      id="progress"
+    >
+      <div
+        class="bar"
+        id="bar"
+      ></div>
+    </div>
+
+    <div id="error"></div>
+
+    <div
+      class="success"
+      id="success"
+    ></div>
+
+  </section>
+
+
+  <!-- ========================================================= -->
+  <!-- RESULTS -->
+  <!-- ========================================================= -->
+
+  <section class="card">
+
+    <h2>3. Je clips</h2>
+
+    <p>
+      Je gegenereerde clips verschijnen hier zodra de verwerking klaar is.
+    </p>
+
+    <div
+      id="results"
+      class="results"
+    >
+
+      <div class="empty">
+        Nog geen clips.
+      </div>
+
+    </div>
+
+  </section>
+
 </main>
+
+
 <script>
-const API=window.location.origin;let briefPath=null,videos=[],busy=false;
-const $=id=>document.getElementById(id);
-const esc=s=>String(s).replace(/[&<>"']/g,c=>({"&":"&amp;","<":"&lt;",">":"&gt;",'"':"&quot;","'":"&#039;"}[c]));
-function setupDrop(z,i,fn){$(z).addEventListener("click",e=>{if(e.target!==$(i))$(i).click()});$(i).addEventListener("change",()=>fn([...($(i).files||[])]));$(z).addEventListener("dragover",e=>{e.preventDefault();$(z).classList.add("drag")});$(z).addEventListener("dragleave",()=>$(z).classList.remove("drag"));$(z).addEventListener("drop",e=>{e.preventDefault();$(z).classList.remove("drag");fn([...(e.dataTransfer.files||[])])})}
-async function upload(f){const fd=new FormData();fd.append("file",f);const r=await fetch(API+"/api/upload",{method:"POST",body:fd});let d={};try{d=await r.json()}catch(e){}if(!r.ok)throw Error(d.detail||"Upload mislukt: "+f.name);return d}
-function err(s){$("error").textContent=s||""}
-setupDrop("briefDrop","briefInput",async fs=>{if(!fs.length)return;try{let r=await upload(fs[0]);briefPath=r.path;$("briefList").innerHTML=`<div class="file"><span>${esc(r.filename||fs[0].name)}</span><button class="remove" onclick="clearBrief()">✕</button></div>`}catch(e){err(e.message)}});
-function clearBrief(){briefPath=null;$("briefInput").value="";$("briefList").innerHTML=""}
-setupDrop("videoDrop","videoInput",async fs=>{for(const f of fs.slice(0,5-videos.length)){try{let r=await upload(f);videos.push({path:r.path,label:r.filename||f.name});render()}catch(e){err(e.message)}}});
-function render(){$("videoList").innerHTML=videos.map((v,i)=>`<div class="file"><span>${esc(v.label)}</span><button class="remove" onclick="removeVideo(${i})">✕</button></div>`).join("");$("startBtn").disabled=!videos.length||busy;$("status").textContent=videos.length?videos.length+" video"+(videos.length===1?"":"'s")+" toegevoegd.":"Voeg minimaal één video toe."}
-function removeVideo(i){videos.splice(i,1);render()}
-$("startBtn").onclick=async()=>{if(!videos.length||busy)return;busy=true;err("");$("startBtn").disabled=true;$("progress").style.display="block";$("bar").style.width="15%";$("status").textContent="Clips worden gemaakt…";try{let r=await fetch(API+"/api/campaign/start",{method:"POST",headers:{"Content-Type":"application/json"},body:JSON.stringify({brief_path:briefPath,video_paths:videos.map(v=>v.path)})});let d={};try{d=await r.json()}catch(e){}if(!r.ok)throw Error(d.detail||"Campaign starten mislukt.");$("bar").style.width="30%";let id=d.job_id||d.id||d.jobId;if(id)await poll(id);else show(d.clips||d.results||[])}catch(e){err(e.message);$("status").textContent="Er ging iets mis."}finally{busy=false;render()}};
-async function poll(id){for(let i=0;i<180;i++){await new Promise(r=>setTimeout(r,2000));for(const ep of ["/api/campaign/status/","/api/campaign/","/api/jobs/"]){try{let r=await fetch(API+ep+encodeURIComponent(id));if(!r.ok)continue;let d=await r.json(),s=String(d.status||d.state||"").toLowerCase(),c=d.clips||d.results||d.output_clips;if(c?.length){show(c);$("bar").style.width="100%";$("status").textContent="Klaar — je clips staan hieronder.";return}if(["failed","error"].includes(s))throw Error(d.error||d.detail||"Verwerking mislukt.");if(["completed","complete","done","finished"].includes(s)){show(c||[]);$("bar").style.width="100%";return}let p=Number(d.progress||d.percent||0);if(p)$("bar").style.width=Math.min(98,30+p*.68)+"%";break}catch(e){if(e.message==="Verwerking mislukt.")throw e}}}throw Error("De verwerking duurt langer dan verwacht.")}
-function show(cs){if(!Array.isArray(cs)||!cs.length){$("results").innerHTML='<div class="empty">Geen clips teruggekregen van de server.</div>';return}$("results").innerHTML=cs.map((c,i)=>{let u=typeof c==="string"?c:(c.download_url||c.url||c.path||c.file||c.output||"");let t=typeof c==="object"?(c.title||c.name||"Clip "+(i+1)):"Clip "+(i+1);if(!u)return`<div class="clipbody"><strong>${esc(t)}</strong><small>Geen downloadpad ontvangen.</small></div>`;let a=u.startsWith("http")?u:(u.startsWith("/")?API+u:API+"/"+u);return`<article class="clip"><video controls playsinline src="${esc(a)}"></video><div class="clipbody"><strong>${esc(t)}</strong><small>Gegenereerde clip</small><a class="download" href="${esc(a)}" download>Download clip</a></div></article>`}).join("")}
+
+/* ============================================================
+   CLIPPARTY API
+   ============================================================ */
+
+const API = "https://clipparty-api-nozs.onrender.com";
+
+
+/* ============================================================
+   STATE
+   ============================================================ */
+
+let briefPath = null;
+let videos = [];
+let busy = false;
+
+
+/* ============================================================
+   HELPERS
+   ============================================================ */
+
+const $ = id => document.getElementById(id);
+
+
+function esc(value){
+
+  return String(value ?? "").replace(
+    /[&<>"']/g,
+    char => ({
+      "&":"&amp;",
+      "<":"&lt;",
+      ">":"&gt;",
+      '"':"&quot;",
+      "'":"&#039;"
+    }[char])
+  );
+
+}
+
+
+function setError(message){
+
+  $("error").textContent = message || "";
+
+}
+
+
+function setSuccess(message){
+
+  $("success").textContent = message || "";
+
+}
+
+
+function setProgress(value){
+
+  const percentage = Math.max(
+    0,
+    Math.min(100, Number(value) || 0)
+  );
+
+  $("bar").style.width = percentage + "%";
+
+}
+
+
+/* ============================================================
+   API ERROR
+   ============================================================ */
+
+async function readApiError(response){
+
+  try{
+
+    const data = await response.json();
+
+    if(typeof data.detail === "string"){
+      return data.detail;
+    }
+
+    if(data.detail){
+      return JSON.stringify(data.detail,null,2);
+    }
+
+    return JSON.stringify(data,null,2);
+
+  }catch(e){
+
+    return "Serverfout (" + response.status + ").";
+
+  }
+
+}
+
+
+/* ============================================================
+   UPLOAD
+   ============================================================ */
+
+async function uploadFile(file){
+
+  const formData = new FormData();
+
+  formData.append(
+    "file",
+    file
+  );
+
+  const response = await fetch(
+    API + "/api/upload",
+    {
+      method:"POST",
+      body:formData
+    }
+  );
+
+  if(!response.ok){
+
+    throw new Error(
+      await readApiError(response)
+    );
+
+  }
+
+  return await response.json();
+
+}
+
+
+/* ============================================================
+   DROPZONE
+   ============================================================ */
+
+function setupDropzone(
+  zoneId,
+  inputId,
+  callback
+){
+
+  const zone = $(zoneId);
+  const input = $(inputId);
+
+  zone.addEventListener(
+    "click",
+    event => {
+
+      if(event.target !== input){
+        input.click();
+      }
+
+    }
+  );
+
+
+  input.addEventListener(
+    "change",
+    () => {
+
+      const files = Array.from(
+        input.files || []
+      );
+
+      if(files.length){
+        callback(files);
+      }
+
+    }
+  );
+
+
+  zone.addEventListener(
+    "dragover",
+    event => {
+
+      event.preventDefault();
+
+      zone.classList.add("drag");
+
+    }
+  );
+
+
+  zone.addEventListener(
+    "dragleave",
+    () => {
+
+      zone.classList.remove("drag");
+
+    }
+  );
+
+
+  zone.addEventListener(
+    "drop",
+    event => {
+
+      event.preventDefault();
+
+      zone.classList.remove("drag");
+
+      const files = Array.from(
+        event.dataTransfer.files || []
+      );
+
+      if(files.length){
+        callback(files);
+      }
+
+    }
+  );
+
+}
+
+
+/* ============================================================
+   BRIEFING
+   ============================================================ */
+
+setupDropzone(
+  "briefDrop",
+  "briefInput",
+  async files => {
+
+    if(!files.length){
+      return;
+    }
+
+    setError("");
+    setSuccess("");
+
+    try{
+
+      $("status").textContent =
+        "Briefing uploaden…";
+
+      const result =
+        await uploadFile(files[0]);
+
+      briefPath = result.path;
+
+      $("briefList").innerHTML = `
+        <div class="file">
+          <span>
+            ${esc(result.filename || files[0].name)}
+          </span>
+
+          <button
+            class="remove"
+            type="button"
+            onclick="clearBrief()"
+          >
+            ✕
+          </button>
+        </div>
+      `;
+
+      updateStartButton();
+
+    }catch(error){
+
+      setError(
+        "Briefing upload mislukt:\n" +
+        error.message
+      );
+
+      $("status").textContent =
+        "Upload mislukt.";
+
+    }
+
+  }
+);
+
+
+function clearBrief(){
+
+  briefPath = null;
+
+  $("briefInput").value = "";
+
+  $("briefList").innerHTML = "";
+
+  updateStartButton();
+
+}
+
+
+/* ============================================================
+   VIDEO'S
+   ============================================================ */
+
+setupDropzone(
+  "videoDrop",
+  "videoInput",
+  async files => {
+
+    if(!files.length){
+      return;
+    }
+
+    setError("");
+    setSuccess("");
+
+    const available =
+      5 - videos.length;
+
+    if(available <= 0){
+
+      setError(
+        "Je kunt maximaal 5 video's toevoegen."
+      );
+
+      return;
+
+    }
+
+    const filesToUpload =
+      files.slice(0,available);
+
+
+    for(const file of filesToUpload){
+
+      try{
+
+        $("status").textContent =
+          "Video uploaden: " +
+          file.name;
+
+        const result =
+          await uploadFile(file);
+
+        videos.push({
+          path:result.path,
+          file_id:result.file_id || result.id || null,
+          label:result.filename || file.name
+        });
+
+        renderVideos();
+
+      }catch(error){
+
+        setError(
+          "Video upload mislukt:\n" +
+          file.name +
+          "\n\n" +
+          error.message
+        );
+
+      }
+
+    }
+
+    updateStartButton();
+
+  }
+);
+
+
+/* ============================================================
+   VIDEO LIST
+   ============================================================ */
+
+function renderVideos(){
+
+  if(!videos.length){
+
+    $("videoList").innerHTML = "";
+
+  }else{
+
+    $("videoList").innerHTML =
+      videos.map(
+        (video,index) => `
+
+          <div class="file">
+
+            <span>
+              ${esc(video.label)}
+            </span>
+
+            <button
+              class="remove"
+              type="button"
+              onclick="removeVideo(${index})"
+            >
+              ✕
+            </button>
+
+          </div>
+
+        `
+      ).join("");
+
+  }
+
+  updateStartButton();
+
+}
+
+
+function removeVideo(index){
+
+  if(busy){
+    return;
+  }
+
+  videos.splice(
+    index,
+    1
+  );
+
+  renderVideos();
+
+}
+
+
+/* ============================================================
+   START BUTTON
+   ============================================================ */
+
+function updateStartButton(){
+
+  const ready =
+    Boolean(briefPath) &&
+    videos.length > 0 &&
+    !busy;
+
+  $("startBtn").disabled =
+    !ready;
+
+
+  if(busy){
+    return;
+  }
+
+
+  if(!briefPath){
+
+    $("status").textContent =
+      "Upload eerst je briefing.";
+
+    return;
+
+  }
+
+
+  if(!videos.length){
+
+    $("status").textContent =
+      "Voeg minimaal één video toe.";
+
+    return;
+
+  }
+
+
+  $("status").textContent =
+    videos.length +
+    " video" +
+    (videos.length === 1 ? "" : "'s") +
+    " toegevoegd. Klaar om te starten.";
+
+}
+
+
+/* ============================================================
+   CAMPAIGN SETTINGS
+   ============================================================ */
+
+function campaignSettings(){
+
+  return {
+
+    min_clips:1,
+
+    max_clips:5,
+
+    max_duration:60,
+
+    preferred_min_duration:15,
+
+    preferred_max_duration:35,
+
+    aspect_ratio:"9:16",
+
+    resolution:"1080x1920",
+
+    subtitles:true,
+
+    hooks:true,
+
+    face_priority:true,
+
+    avoid_audio_only:true,
+
+    quality:"highest",
+
+    llm_provider:"groq"
+
+  };
+
+}
+
+
+/* ============================================================
+   START CAMPAIGN
+   ============================================================ */
+
+$("startBtn").addEventListener(
+  "click",
+  startCampaign
+);
+
+
+async function startCampaign(){
+
+  if(
+    busy ||
+    !briefPath ||
+    !videos.length
+  ){
+    return;
+  }
+
+
+  busy = true;
+
+  setError("");
+  setSuccess("");
+
+  $("progress").style.display =
+    "block";
+
+  setProgress(5);
+
+  $("startBtn").disabled =
+    true;
+
+  $("status").textContent =
+    "ClipParty wordt gestart…";
+
+
+  try{
+
+    const payload = {
+
+      campaign_file:
+        briefPath,
+
+      videos:
+        videos.map(
+          video => video.path
+        ),
+
+      settings:
+        campaignSettings(),
+
+      campaign_name:
+        null
+
+    };
+
+
+    const response =
+      await fetch(
+        API + "/api/campaign/start",
+        {
+          method:"POST",
+
+          headers:{
+            "Content-Type":
+              "application/json"
+          },
+
+          body:
+            JSON.stringify(payload)
+        }
+      );
+
+
+    if(!response.ok){
+
+      throw new Error(
+        await readApiError(response)
+      );
+
+    }
+
+
+    const data =
+      await response.json();
+
+
+    const jobId =
+      data.job_id ||
+      data.id ||
+      data.jobId;
+
+
+    if(!jobId){
+
+      throw new Error(
+        "De server gaf geen job_id terug."
+      );
+
+    }
+
+
+    setProgress(15);
+
+    $("status").textContent =
+      "Clipping gestart…";
+
+
+    await pollJob(
+      jobId
+    );
+
+
+  }catch(error){
+
+    setError(
+      error.message ||
+      "Er ging iets mis."
+    );
+
+    $("status").textContent =
+      "Er ging iets mis.";
+
+  }finally{
+
+    busy = false;
+
+    updateStartButton();
+
+  }
+
+}
+
+
+/* ============================================================
+   JOB POLLING
+   ============================================================ */
+
+async function pollJob(jobId){
+
+  const maxAttempts =
+    180;
+
+
+  for(
+    let attempt = 0;
+    attempt < maxAttempts;
+    attempt++
+  ){
+
+    await sleep(2000);
+
+
+    let statusResponse;
+
+
+    try{
+
+      statusResponse =
+        await fetch(
+          API +
+          "/api/jobs/" +
+          encodeURIComponent(jobId)
+        );
+
+    }catch(error){
+
+      throw new Error(
+        "Kan de jobstatus niet bereiken:\n" +
+        error.message
+      );
+
+    }
+
+
+    if(!statusResponse.ok){
+
+      throw new Error(
+        await readApiError(
+          statusResponse
+        )
+      );
+
+    }
+
+
+    const status =
+      await statusResponse.json();
+
+
+    const progress =
+      Number(status.progress || 0);
+
+
+    if(progress > 0){
+
+      setProgress(
+        Math.max(
+          15,
+          progress
+        )
+      );
+
+    }
+
+
+    if(status.stage_label){
+
+      $("status").textContent =
+        status.stage_label +
+        "…";
+
+    }
+
+
+    const state =
+      String(
+        status.status || ""
+      ).toLowerCase();
+
+
+    if(
+      state === "failed" ||
+      state === "error"
+    ){
+
+      throw new Error(
+        status.error ||
+        "De clipping-job is mislukt."
+      );
+
+    }
+
+
+    if(
+      state === "completed" ||
+      state === "complete" ||
+      state === "done" ||
+      state === "finished"
+    ){
+
+      setProgress(100);
+
+      $("status").textContent =
+        "Klaar — clips worden geladen…";
+
+      await loadClips(
+        jobId
+      );
+
+      return;
+
+    }
+
+  }
+
+
+  throw new Error(
+    "De verwerking duurt langer dan verwacht."
+  );
+
+}
+
+
+/* ============================================================
+   LOAD CLIPS
+   ============================================================ */
+
+async function loadClips(jobId){
+
+  const response =
+    await fetch(
+      API +
+      "/api/jobs/" +
+      encodeURIComponent(jobId) +
+      "/clips"
+    );
+
+
+  if(!response.ok){
+
+    throw new Error(
+      await readApiError(
+        response
+      )
+    );
+
+  }
+
+
+  const data =
+    await response.json();
+
+
+  let clips =
+    Array.isArray(data)
+      ? data
+      : data.clips || [];
+
+
+  renderClips(
+    clips
+  );
+
+
+  if(clips.length){
+
+    $("status").textContent =
+      "Klaar — je clips staan hieronder.";
+
+    setSuccess(
+      clips.length +
+      " clip" +
+      (clips.length === 1 ? "" : "s") +
+      " succesvol geproduceerd."
+    );
+
+  }else{
+
+    $("status").textContent =
+      "Verwerking klaar.";
+
+    setError(
+      "De verwerking is klaar, maar de server heeft geen clips teruggegeven."
+    );
+
+  }
+
+}
+
+
+/* ============================================================
+   RENDER CLIPS
+   ============================================================ */
+
+function renderClips(clips){
+
+  if(
+    !Array.isArray(clips) ||
+    !clips.length
+  ){
+
+    $("results").innerHTML = `
+      <div class="empty">
+        Geen clips ontvangen.
+      </div>
+    `;
+
+    return;
+
+  }
+
+
+  $("results").innerHTML =
+    clips.map(
+      (clip,index) => {
+
+        const title =
+          clip.title ||
+          clip.name ||
+          clip.filename ||
+          ("Clip " + (index + 1));
+
+
+        /*
+         * De backend registreert gegenereerde
+         * bestanden met een file_id.
+         *
+         * Daarom gebruiken we /api/files/{file_id}
+         * in plaats van het interne serverpad.
+         */
+
+        let url = "";
+
+
+        if(clip.file_id){
+
+          url =
+            API +
+            "/api/files/" +
+            encodeURIComponent(
+              clip.file_id
+            );
+
+        }else if(
+          clip.download_url
+        ){
+
+          url =
+            clip.download_url;
+
+        }else if(
+          clip.url
+        ){
+
+          url =
+            clip.url;
+
+        }
+
+
+        if(!url){
+
+          return `
+            <article class="clip">
+
+              <div class="clipbody">
+
+                <strong>
+                  ${esc(title)}
+                </strong>
+
+                <small>
+                  Clip geproduceerd, maar er is geen downloadbestand ontvangen.
+                </small>
+
+              </div>
+
+            </article>
+          `;
+
+        }
+
+
+        return `
+          <article class="clip">
+
+            <video
+              controls
+              playsinline
+              preload="metadata"
+              src="${esc(url)}"
+            ></video>
+
+            <div class="clipbody">
+
+              <strong>
+                ${esc(title)}
+              </strong>
+
+              <small>
+                Gegenereerde verticale clip
+              </small>
+
+              <a
+                class="download"
+                href="${esc(url)}"
+                download
+              >
+                Download clip
+              </a>
+
+            </div>
+
+          </article>
+        `;
+
+      }
+    ).join("");
+
+}
+
+
+/* ============================================================
+   SLEEP
+   ============================================================ */
+
+function sleep(ms){
+
+  return new Promise(
+    resolve =>
+      setTimeout(
+        resolve,
+        ms
+      )
+  );
+
+}
+
+
+/* ============================================================
+   INITIAL STATE
+   ============================================================ */
+
+renderVideos();
+
+updateStartButton();
+
 </script>
+
 </body>
 </html>
