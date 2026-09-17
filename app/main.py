@@ -23,6 +23,10 @@ from app.auth import (
     delete_session,
 )
 
+# Project modules
+from app import job_manager
+from app.pipeline import youtube
+
 app = FastAPI(title="Clip Studio", version="1.0.0")
 
 app.add_middleware(
