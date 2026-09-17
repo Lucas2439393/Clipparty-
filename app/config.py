@@ -31,9 +31,11 @@ GROQ_WHISPER_MODEL = os.getenv("GROQ_WHISPER_MODEL", "whisper-large-v3-turbo")
 # gebruiker in .env expliciet een model wil forceren.
 GROQ_LLM_MODEL = os.getenv("GROQ_LLM_MODEL", "").strip()
 
+DATA_DIR = Path(os.getenv("CLIPPER_DATA_DIR", str(Path.home() / "ClipperOutput")))
+
 DEFAULT_OUTPUT_DIR = os.getenv(
     "CLIPPER_OUTPUT_DIR",
-    str(Path.home() / "ClipperOutput"),
+    str(DATA_DIR),
 )
 
 API_PORT = int(os.getenv("API_PORT", "8756"))
@@ -47,14 +49,14 @@ CLIP_RENDER_WORKERS = max(1, int(os.getenv("CLIP_RENDER_WORKERS", "4")))
 
 
 # Werkmap voor tussenbestanden (transcripties, frames, subs) per job.
-WORK_DIR = Path(os.getenv("CLIPPER_WORK_DIR", str(Path.home() / "ClipperOutput" / "_work")))
+WORK_DIR = Path(os.getenv("CLIPPER_WORK_DIR", str(DATA_DIR / "_work")))
 
 # Waar gedownloade YouTube-bronnen origineel bewaard blijven (workspace per campagne).
-DOWNLOADS_DIR = Path(os.getenv("CLIPPER_DOWNLOADS_DIR", str(Path.home() / "ClipperOutput" / "_downloads")))
+DOWNLOADS_DIR = Path(os.getenv("CLIPPER_DOWNLOADS_DIR", str(DATA_DIR / "_downloads")))
 
 # Job-state persistentie (zodat een herstart van de app lopende jobs niet kwijtraakt)
-JOBS_DB_PATH = Path(os.getenv("CLIPPER_JOBS_DB", str(Path.home() / "ClipperOutput" / "_jobs.json")))
-ACCOUNT_DB_PATH = Path(os.getenv("CLIPPER_ACCOUNT_DB", str(Path.home() / "ClipperOutput" / "_account.json")))
+JOBS_DB_PATH = Path(os.getenv("CLIPPER_JOBS_DB", str(DATA_DIR / "_jobs.json")))
+ACCOUNT_DB_PATH = Path(os.getenv("CLIPPER_ACCOUNT_DB", str(DATA_DIR / "_account.json")))
 
 # Instellingen-defaults, kunnen per campagne worden overschreven via settings in de request
 DEFAULT_SETTINGS = {
