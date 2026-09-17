@@ -33,7 +33,6 @@ from app.models import (
     ProducedClip,
 )
 
-# FAST ONLINE MODE: parallel analysis + no face scan
 from app.pipeline import (
     brief_parser,
     video_analysis,
@@ -228,7 +227,7 @@ def _prepare_local_input(
 # GLOBAL STATE
 # ---------------------------------------------------------------------------
 
-_lock = threading.Lock()
+_lock = threading.RLock()
 
 _jobs: Dict[str, dict] = {}
 
@@ -894,72 +893,42 @@ def _run_job(job_id: str):
             "analyzing",
         )
 
-        # SNELLE ANALYSE:
-        # Analyseer meerdere bronvideo's tegelijk. Dit voorkomt dat
-        # video 2 pas start nadat video 1 volledig klaar is.
         analyses = []
 
         face_samples_by_video = {}
 
         transcript_by_video = {}
 
-        def _analyze_one(video_path: str):
-            return video_path, video_analysis.analyze_video(
-                video_path,
-                job_work_dir / "analysis",
-            )[0]
+        for i, v in enumerate(
+            allowed_videos
+        ):
 
-        analysis_workers = min(
-            4,
-            max(1, len(allowed_videos)),
-        )
-
-        with ThreadPoolExecutor(
-            max_workers=analysis_workers
-        ) as pool:
-
-            futures = [
-                pool.submit(_analyze_one, v)
-                for v in allowed_videos
-            ]
-
-            for i, future in enumerate(
-                as_completed(futures),
-                start=1,
-            ):
-                video_path, analysis = future.result()
-
-                analyses.append(analysis)
-
-                # GEEN face-scan tijdens de job.
-                # Dit scheelt veel tijd en is niet nodig om een clip
-                # te kunnen produceren.
-                face_samples_by_video[video_path] = []
-
-                transcript_by_video[video_path] = analysis.transcript
-
-                _set_stage(
-                    job_id,
-                    "analyzing",
-                    extra_progress=int(
-                        20
-                        * i
-                        / max(1, len(allowed_videos))
-                    ),
+            analysis, _ = (
+                video_analysis.analyze_video(
+                    v,
+                    job_work_dir / "analysis",
                 )
-
-        # Houd de originele bronvolgorde aan voor consistente LLM-input.
-        order = {
-            str(v): i
-            for i, v in enumerate(allowed_videos)
-        }
-
-        analyses.sort(
-            key=lambda a: order.get(
-                str(a.source_path),
-                999999,
             )
-        )
+
+            analyses.append(analysis)
+
+            # Face analysis wordt pas uitgevoerd
+            # voor clips die daadwerkelijk geselecteerd zijn.
+            face_samples_by_video[v] = []
+
+            transcript_by_video[v] = (
+                analysis.transcript
+            )
+
+            _set_stage(
+                job_id,
+                "analyzing",
+                extra_progress=int(
+                    20
+                    * (i + 1)
+                    / len(allowed_videos)
+                ),
+            )
 
         # ================================================================
         # 4. CLIP SELECTIE
@@ -1097,11 +1066,50 @@ def _run_job(job_id: str):
                     )
 
         # ================================================================
-        # FACE ANALYSIS UITGESCHAKELD VOOR SNELHEID
+        # FACE ANALYSIS
         # ================================================================
-        # De producer krijgt lege face-samples. De clips worden hierdoor
-        # nog steeds normaal geproduceerd, maar zonder extra frame-scan.
-        # Dit is bewust onderdeel van de snelle online versie.
+
+        from app.pipeline.frame_analysis import (
+            sample_face_positions,
+            median_center_x_ratio,
+        )
+
+        for c in selected:
+
+            samples = sample_face_positions(
+                c.source_video,
+                interval_sec=2.0,
+                start_sec=c.start,
+                end_sec=c.end,
+            )
+
+            face_samples_by_video.setdefault(
+                c.source_video,
+                [],
+            )
+
+            face_samples_by_video[
+                c.source_video
+            ].extend(samples)
+
+            relevant = [
+                s
+                for s in samples
+                if c.start
+                <= s["time"]
+                <= c.end
+            ]
+
+            if relevant:
+
+                c.face_visible_estimate = (
+                    sum(
+                        1
+                        for s in relevant
+                        if s["face_found"]
+                    )
+                    / len(relevant)
+                )
 
         # ================================================================
         # 5. PRODUCTIE
@@ -1135,7 +1143,7 @@ def _run_job(job_id: str):
         ] = [None] * len(selected)
 
         render_workers = min(
-            max(2, CLIP_RENDER_WORKERS),
+            CLIP_RENDER_WORKERS,
             max(
                 1,
                 len(selected),
